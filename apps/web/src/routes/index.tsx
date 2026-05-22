@@ -11,12 +11,14 @@ function App() {
     <main className="min-h-svh bg-[#f7f9fd] p-6 sm:p-10">
       <div className="mx-auto max-w-7xl rounded-3xl border border-[#dfe7f5] bg-white p-8 shadow-[0_20px_65px_-45px_rgba(13,37,84,0.55)]">
         <div className="flex flex-wrap justify-end gap-3">
-          <Link
-            className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
-            to="/dashboard"
-          >
-            Ir a dashboard
-          </Link>
+          {currentUserRole === "organizador" ? (
+            <Link
+              className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
+              to="/dashboard"
+            >
+              Ir a dashboard
+            </Link>
+          ) : null}
 
           <button
             className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
