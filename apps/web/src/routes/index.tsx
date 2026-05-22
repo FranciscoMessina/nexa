@@ -48,13 +48,6 @@ function App() {
 
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
-            className="rounded-xl bg-linear-to-r from-[#f8ba1f] to-[#ff6b3d] px-5 py-2.5 font-semibold text-white"
-            to="/login"
-          >
-            Ir a login
-          </Link>
-
-          <Link
             className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
             to="/dashboard"
           >
