@@ -10,6 +10,24 @@ function App() {
   return (
     <main className="min-h-svh bg-[#f7f9fd] p-6 sm:p-10">
       <div className="mx-auto max-w-7xl rounded-3xl border border-[#dfe7f5] bg-white p-8 shadow-[0_20px_65px_-45px_rgba(13,37,84,0.55)]">
+        <div className="flex flex-wrap justify-end gap-3">
+          <Link
+            className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
+            to="/dashboard"
+          >
+            Ir a dashboard
+          </Link>
+
+          <button
+            className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
+            data-testid="home-logout-button"
+            onClick={logout}
+            type="button"
+          >
+            Cerrar sesion
+          </button>
+        </div>
+
         <h1 className="text-3xl font-bold text-[#0f2c5a]">Nexa App</h1>
 
         <p className="mt-2 text-[#607496]">
@@ -45,24 +63,6 @@ function App() {
             <EventCard key={event.id} event={event} />
           ))}
         </section>
-
-        <div className="mt-7 flex flex-wrap gap-3">
-          <Link
-            className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
-            to="/dashboard"
-          >
-            Ir a dashboard
-          </Link>
-
-          <button
-            className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
-            data-testid="home-logout-button"
-            onClick={logout}
-            type="button"
-          >
-            Cerrar sesion
-          </button>
-        </div>
       </div>
     </main>
   )
