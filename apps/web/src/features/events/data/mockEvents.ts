@@ -17,7 +17,7 @@ export const featuredEvent: EventCardData = {
     alt: "Personas compartiendo una velada en un bar con luces cálidas y botellas al fondo",
   },
   ctaText: "Ver más detalle",
-  ctaHref: "/dashboard",
+  ctaHref: "/",
 }
 
 export const mockEvents: Array<EventCardData> = [
@@ -39,7 +39,7 @@ export const mockEvents: Array<EventCardData> = [
       alt: "DJ tocando en un espacio nocturno con luces cálidas y público alrededor",
     },
     ctaText: "Ver más detalle",
-    ctaHref: "/dashboard",
+    ctaHref: "/",
   },
   {
     id: "c2d1a8f4-6b31-4d5d-8b0d-6a3b5a0f2d44",
@@ -58,7 +58,7 @@ export const mockEvents: Array<EventCardData> = [
       alt: "Vasos de cerveza artesanales servidos sobre una mesa de madera",
     },
     ctaText: "Ver más detalle",
-    ctaHref: "/dashboard",
+    ctaHref: "/",
   },
   {
     id: "8b9a0d2c-3f4e-4d1b-9f0a-1c2d3e4f5a6b",
@@ -77,7 +77,7 @@ export const mockEvents: Array<EventCardData> = [
       alt: "Banda de jazz tocando en un bar con iluminación tenue",
     },
     ctaText: "Ver más detalle",
-    ctaHref: "/dashboard",
+    ctaHref: "/",
   },
   {
     id: "f0a1b2c3-d4e5-4f67-8a9b-0c1d2e3f4a5b",
@@ -96,7 +96,7 @@ export const mockEvents: Array<EventCardData> = [
       alt: "Grupo de personas leyendo y conversando en una cafetería",
     },
     ctaText: "Ver más detalle",
-    ctaHref: "/dashboard",
+    ctaHref: "/",
   },
   {
     id: "6d7e8f90-1a2b-4c3d-9e0f-123456789abc",
@@ -115,6 +115,6 @@ export const mockEvents: Array<EventCardData> = [
       alt: "Mesa de trabajo con pinceles, papeles y acuarelas",
     },
     ctaText: "Ver más detalle",
-    ctaHref: "/dashboard",
+    ctaHref: "/",
   },
 ]
