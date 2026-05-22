@@ -20,14 +20,25 @@ function App() {
             </Link>
           ) : null}
 
-          <button
-            className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
-            data-testid="home-logout-button"
-            onClick={logout}
-            type="button"
-          >
-            Cerrar sesion
-          </button>
+          {isHydrated && !isAuthenticated ? (
+            <Link
+              className="rounded-xl bg-linear-to-r from-[#f8ba1f] to-[#ff6b3d] px-5 py-2.5 font-semibold text-white"
+              to="/login"
+            >
+              Ir a login
+            </Link>
+          ) : null}
+
+          {isHydrated && isAuthenticated ? (
+            <button
+              className="rounded-xl border border-[#cfd9ea] px-5 py-2.5 font-semibold text-[#1a3768] hover:bg-[#eef3fb]"
+              data-testid="home-logout-button"
+              onClick={logout}
+              type="button"
+            >
+              Cerrar sesion
+            </button>
+          ) : null}
         </div>
 
         <h1 className="text-3xl font-bold text-[#0f2c5a]">Nexa App</h1>
@@ -36,16 +47,8 @@ function App() {
           Estado global de sesion mock para emprendedor, organizador y asistente.
         </p>
 
-        <div className="mt-6 rounded-2xl bg-[#f3f7ff] p-5" data-testid="session-state-card">
-          {!isHydrated ? (
-            <p className="text-[#1a3768]">Cargando sesion...</p>
-          ) : null}
-
-          {isHydrated && !isAuthenticated ? (
-            <p className="text-[#1a3768]">No hay usuario autenticado.</p>
-          ) : null}
-
-          {isHydrated && isAuthenticated ? (
+        {isHydrated && isAuthenticated ? (
+          <div className="mt-6 rounded-2xl bg-[#f3f7ff] p-5" data-testid="session-state-card">
             <div className="space-y-1">
               <p className="text-[#1a3768]">
                 Usuario: <strong>{user?.displayName}</strong>
@@ -57,8 +60,8 @@ function App() {
                 Rol actual: <strong>{currentUserRole}</strong>
               </p>
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
 
         <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {mockEvents.map((event) => (
