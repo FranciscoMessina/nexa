@@ -11,7 +11,7 @@ export const featuredEvent: EventCardData = {
   date: new Date("2025-06-20T20:00:00"),
   category: "Gastronomía y Bebidas",
   image: {
-    src: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
+    src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80",
     alt: "Personas compartiendo una velada en un bar con luces cálidas y botellas al fondo",
   },
   ctaText: "Ver más detalle",
@@ -48,7 +48,7 @@ export const mockEvents: Array<EventCardData> = [
     date: new Date("2025-06-22T19:30:00"),
     category: "Gastronomía y Bebidas",
     image: {
-      src: "https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=1200&q=80",
+      src: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
       alt: "Vasos de cerveza artesanales servidos sobre una mesa de madera",
     },
     ctaText: "Ver más detalle",
@@ -65,7 +65,7 @@ export const mockEvents: Array<EventCardData> = [
     date: new Date("2025-06-27T21:00:00"),
     category: "Música",
     image: {
-      src: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=80",
+      src: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
       alt: "Banda de jazz tocando en un bar con iluminación tenue",
     },
     ctaText: "Ver más detalle",
@@ -82,7 +82,7 @@ export const mockEvents: Array<EventCardData> = [
     date: new Date("2025-06-28T16:00:00"),
     category: "Cultura y Educación",
     image: {
-      src: "https://images.unsplash.com/photo-1455885666463-7eb0c9838a91?auto=format&fit=crop&w=1200&q=80",
+      src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
       alt: "Grupo de personas leyendo y conversando en una cafetería",
     },
     ctaText: "Ver más detalle",
