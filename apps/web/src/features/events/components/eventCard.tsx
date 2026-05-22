@@ -1,4 +1,5 @@
 import { IconArrowRight, IconCalendarEvent, IconMapPin, IconTag } from "@tabler/icons-react"
+import { Link } from "@tanstack/react-router"
 import { EventLabel } from "./eventLabel"
 import type { EventCardData } from "../types"
 
@@ -83,13 +84,13 @@ export function EventCard({ event }: EventCardProps) {
         </div>
 
         <div className="mt-auto">
-          <a
+          <Link
             className="inline-flex items-center gap-3 rounded-2xl border border-[#d8c8ff] px-5 py-3 font-semibold text-[#7446d0] transition hover:border-[#bda4ff] hover:bg-[#faf7ff]"
-            href={event.ctaHref ?? "#"}
+            to={event.ctaHref ?? "/"}
           >
             <span>{event.ctaText}</span>
             <IconArrowRight size={18} stroke={2} />
-          </a>
+          </Link>
         </div>
       </div>
     </article>
