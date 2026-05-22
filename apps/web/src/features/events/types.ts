@@ -9,6 +9,7 @@ export type EventImage = {
 }
 
 export type EventCardData = {
+  id: string
   label: EventLabelData
   title: string
   location: string

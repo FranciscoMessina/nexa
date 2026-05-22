@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router"
+import { EventCard, mockEvents } from "@/features/events"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 export const Route = createFileRoute("/")({ component: App })
@@ -8,7 +9,7 @@ function App() {
 
   return (
     <main className="min-h-svh bg-[#f7f9fd] p-6 sm:p-10">
-      <div className="mx-auto max-w-4xl rounded-3xl border border-[#dfe7f5] bg-white p-8 shadow-[0_20px_65px_-45px_rgba(13,37,84,0.55)]">
+      <div className="mx-auto max-w-7xl rounded-3xl border border-[#dfe7f5] bg-white p-8 shadow-[0_20px_65px_-45px_rgba(13,37,84,0.55)]">
         <h1 className="text-3xl font-bold text-[#0f2c5a]">Nexa App</h1>
 
         <p className="mt-2 text-[#607496]">
@@ -38,6 +39,12 @@ function App() {
             </div>
           ) : null}
         </div>
+
+        <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {mockEvents.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </section>
 
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
