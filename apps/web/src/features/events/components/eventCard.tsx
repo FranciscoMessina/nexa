@@ -26,8 +26,8 @@ function formatEventDate(date: Date | string): string {
 
 export function EventCard({ event }: EventCardProps) {
   return (
-    <article className="overflow-hidden rounded-[1.75rem] border border-[#efe6ff] bg-white shadow-[0_22px_70px_-45px_rgba(34,24,71,0.48)]">
-      <div className="relative aspect-[16/10] overflow-hidden bg-[#111018] sm:aspect-[16/9]">
+    <article className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#efe6ff] bg-white shadow-[0_22px_70px_-45px_rgba(34,24,71,0.48)]">
+      <div className="relative aspect-16/10 overflow-hidden bg-[#111018] sm:aspect-video">
         <img
           alt={event.image.alt}
           className="h-full w-full object-cover transition duration-500 ease-out hover:scale-[1.03]"
@@ -41,13 +41,27 @@ export function EventCard({ event }: EventCardProps) {
         </div>
       </div>
 
-      <div className="space-y-5 px-5 py-5 sm:px-6 sm:py-6">
+      <div className="flex flex-1 flex-col space-y-5 px-5 py-5 sm:px-6 sm:py-6">
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight text-[#1c2341] sm:text-[1.7rem]">
+          <h2
+            className="overflow-hidden text-2xl font-bold tracking-tight text-[#1c2341] sm:text-[1.7rem]"
+            style={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 2,
+            }}
+          >
             {event.title}
           </h2>
-          <p className="max-w-2xl text-sm leading-6 text-[#66738f] sm:text-[0.98rem]">
-            Un encuentro pensado para compartir, descubrir nuevas etiquetas y conectar con la comunidad.
+          <p
+            className="max-w-2xl overflow-hidden text-sm leading-6 text-[#66738f] sm:text-[0.98rem]"
+            style={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 3,
+            }}
+          >
+            {event.summary}
           </p>
         </div>
 
@@ -68,7 +82,7 @@ export function EventCard({ event }: EventCardProps) {
           </div>
         </div>
 
-        <div>
+        <div className="mt-auto">
           <a
             className="inline-flex items-center gap-3 rounded-2xl border border-[#d8c8ff] px-5 py-3 font-semibold text-[#7446d0] transition hover:border-[#bda4ff] hover:bg-[#faf7ff]"
             href={event.ctaHref ?? "#"}

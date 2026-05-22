@@ -7,6 +7,8 @@ export const featuredEvent: EventCardData = {
     text: "Evento verificado",
   },
   title: "Noche de Vinos en Brutal",
+  summary:
+    "Un encuentro pensado para compartir, descubrir nuevas etiquetas y conectar con la comunidad en un ambiente relajado.",
   location: "Brutal, Honduras 5862, Palermo",
   date: new Date("2025-06-20T20:00:00"),
   category: "Gastronomía y Bebidas",
@@ -27,6 +29,8 @@ export const mockEvents: Array<EventCardData> = [
       text: "Evento comunitario",
     },
     title: "DJ Set en Café Tabac",
+    summary:
+      "Una noche con sets en vivo, pista abierta y propuesta gastronómica para cerrar la semana con música y amigos.",
     location: "Café Tabac, Guatemala 5860, Palermo",
     date: new Date("2025-06-21T18:00:00"),
     category: "Música",
@@ -44,6 +48,8 @@ export const mockEvents: Array<EventCardData> = [
       text: "Evento verificado",
     },
     title: "Cata de Cervezas en Antares",
+    summary:
+      "Degustación guiada con variedad de estilos, maridajes sugeridos y espacio para conocer procesos de elaboración.",
     location: "Antares Bar, Costa Rica 6028, Palermo",
     date: new Date("2025-06-22T19:30:00"),
     category: "Gastronomía y Bebidas",
@@ -61,6 +67,8 @@ export const mockEvents: Array<EventCardData> = [
       text: "Evento comunitario",
     },
     title: "Jazz en Vivo en 878 Bar",
+    summary:
+      "Una sesión íntima con músicos locales, ambientación cálida y una carta pensada para acompañar la velada.",
     location: "878 Bar, Thames 878, Palermo",
     date: new Date("2025-06-27T21:00:00"),
     category: "Música",
@@ -78,6 +86,8 @@ export const mockEvents: Array<EventCardData> = [
       text: "Evento comunitario",
     },
     title: "Club de Lectura en Café Rita",
+    summary:
+      "Encuentro para comentar una lectura compartida, intercambiar ideas y descubrir nuevas recomendaciones.",
     location: "Café Rita, Armenia 1543, Palermo",
     date: new Date("2025-06-28T16:00:00"),
     category: "Cultura y Educación",
@@ -95,6 +105,8 @@ export const mockEvents: Array<EventCardData> = [
       text: "Evento comunitario",
     },
     title: "Tarde de Acuarela en La Bicicletaría",
+    summary:
+      "Actividad guiada para explorar técnicas básicas de acuarela, practicar trazos y salir con una pieza propia.",
     location: "La Bicicletaría, Niceto Vega 5186, Palermo",
     date: new Date("2025-06-29T15:00:00"),
     category: "Arte y Cultura",

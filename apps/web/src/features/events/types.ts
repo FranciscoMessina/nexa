@@ -12,6 +12,7 @@ export type EventCardData = {
   id: string
   label: EventLabelData
   title: string
+  summary: string
   location: string
   date: Date | string
   category: string
