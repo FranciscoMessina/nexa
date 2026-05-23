@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { IconEye, IconEyeClosed, IconLock, IconMail } from "@tabler/icons-react"
-import { useNavigate } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import type { BaseSyntheticEvent } from "react"
 import {
   AuthError,
@@ -135,9 +135,9 @@ export function LoginPage() {
                 />
                 <span className="select-none">Recordarme</span>
               </label>
-              <a className="font-semibold text-[#ff6f3d]" href="#" onClick={(event) => event.preventDefault()}>
+              <Link className="font-semibold text-[#ff6f3d]" to="/login">
                 Olvidaste tu contrasena?
-              </a>
+              </Link>
             </div>
 
             {errorMessage ? (

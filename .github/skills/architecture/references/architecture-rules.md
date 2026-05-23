@@ -572,3 +572,50 @@ counter++
 // TanStack Query re-fetches en background, el staleTime evita requests innecesarios
 staleTime: 5 * 60 * 1000
 ```
+
+---
+
+## Navegación
+
+**Nunca usar el tag `<a>` ni `window.location` para navegación interna. Siempre usar el componente `<Link>` de TanStack Router.**
+
+El tag `<a>` hace un full page reload y rompe el modelo de SPA. `<Link>` maneja la navegación del lado del cliente, preserva el estado de TanStack Query, y soporta prefetching automático.
+
+```tsx
+// ✅ correcto — Link de TanStack Router
+import { Link } from '@tanstack/react-router'
+
+<Link to="/plans/$planId" params={{ planId: plan.id }}>
+  Ver plan
+</Link>
+
+<Link to="/plans" search={{ status: 'active' }}>
+  Planes activos
+</Link>
+
+// ✅ correcto — navegación programática
+import { useNavigate } from '@tanstack/react-router'
+
+export function usePlanNavigation() {
+  const navigate = useNavigate()
+  return {
+    goToPlan: (planId: string) => navigate({ to: '/plans/$planId', params: { planId } })
+  }
+}
+
+// ❌ prohibido — tag <a> para rutas internas
+<a href="/plans/123">Ver plan</a>
+
+// ❌ prohibido — navegación imperativa
+window.location.href = '/plans/123'
+location.assign('/plans/123')
+```
+
+**Cuándo sí usar `<a>`:** solo para URLs externas o recursos fuera de la app. En ese caso, siempre con `target="_blank"` y `rel="noopener noreferrer"`.
+
+```tsx
+// ✅ único caso válido para <a>
+<a href="https://externo.com" target="_blank" rel="noopener noreferrer">
+  Documentación externa
+</a>
+```
