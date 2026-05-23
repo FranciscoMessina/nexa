@@ -16,7 +16,7 @@ const mockUsersByEmail: Readonly<Record<string, AuthUser | undefined>> = {
   "asistente@nexa.mock": {
     email: "asistente@nexa.mock",
     role: "asistente",
-    displayName: "Asistente",
+    displayName: "María López",
   },
 }
 

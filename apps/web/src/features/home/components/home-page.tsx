@@ -1,0 +1,37 @@
+import { useRequireAuthentication } from "@/features/auth"
+import { EventFilters, EventGrid } from "@/features/events"
+import { AppShell } from "@/features/home/components/app-shell"
+
+export function HomePage() {
+  const { isChecking, isAllowed } = useRequireAuthentication({
+    allowedRoles: ["emprendedor", "asistente"],
+  })
+
+  if (isChecking) {
+    return (
+      <main className="grid min-h-svh place-items-center bg-[#f4f6fa] p-6">
+        <p className="text-[#1a3462]">Cargando sesión...</p>
+      </main>
+    )
+  }
+
+  if (!isAllowed) {
+    return null
+  }
+
+  return (
+    <AppShell>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Muro de eventos</h1>
+          <p className="mt-2 text-base text-[#6b7d9c]">
+            Descubrí eventos verificados y comunitarios cerca de vos.
+          </p>
+        </div>
+
+        <EventFilters />
+        <EventGrid />
+      </div>
+    </AppShell>
+  )
+}

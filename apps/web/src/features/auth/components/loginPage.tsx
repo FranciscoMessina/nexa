@@ -8,6 +8,7 @@ import {
   getPostLoginPathForRole,
 } from "@/features/auth/api/auth.api"
 import { useRedirectAuthenticatedUser } from "@/features/auth/hooks/useAuthRedirect"
+import { NexaLogo } from "@/shared/components/nexa-logo"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 export function LoginPage() {
@@ -49,33 +50,14 @@ export function LoginPage() {
           <div className="absolute -left-20 -top-20 size-56 rounded-full bg-linear-to-br from-[#ffd2b9] to-[#ffdfcb]" />
           <div className="absolute -bottom-28 -left-14 h-64 w-80 rounded-[50%] bg-linear-to-r from-[#ffc06f] to-[#ff9f5d] opacity-70" />
 
-          <div className="relative z-10 space-y-6">
-            <div className="inline-flex items-center gap-2 text-5xl font-black leading-none tracking-tight text-[#092859]">
-              <span className="bg-linear-to-r from-[#ffb31a] to-[#ff6b3d] bg-clip-text text-transparent">
-                ne
-              </span>
-              <span>xa</span>
-            </div>
-
-            <p className="max-w-sm text-xl font-semibold uppercase tracking-[0.28em] text-[#102e60]">
-              Nuevos <span className="text-[#f4a318]">planes</span>.
-              <br />
-              Nuevas <span className="text-[#ff6f3d]">conexiones</span>.
-            </p>
-
-            <div className="mt-8 grid max-w-md grid-cols-3 gap-3">
-              <div className="h-28 rounded-3xl bg-linear-to-b from-[#ffc42b] to-[#ffa743]" />
-              <div className="h-36 rounded-[2rem] bg-linear-to-b from-[#ff8c3b] to-[#ff6b3d]" />
-              <div className="h-24 rounded-3xl bg-linear-to-b from-[#ffd04f] to-[#ffb321]" />
-            </div>
+          <div className="relative z-10 flex flex-col items-start justify-center">
+            <NexaLogo className="max-w-56" variant="full" />
           </div>
         </section>
 
         <section className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-[0_18px_70px_-45px_rgba(14,33,76,0.5)] backdrop-blur sm:p-8 lg:p-10">
           <div className="mb-8 flex flex-col gap-2 text-center lg:text-left">
-            <p className="text-5xl font-black leading-none tracking-tight text-[#092859] lg:hidden">
-              nexa
-            </p>
+            <NexaLogo className="mx-auto max-w-44 lg:hidden" variant="full" />
             <h1 className="text-4xl font-bold tracking-tight text-[#0e2a59]">Iniciar sesion</h1>
             <p className="text-base text-[#66789c]">
               Ingresa tu correo y contrasena para acceder a tu cuenta.
