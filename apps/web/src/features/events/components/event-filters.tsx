@@ -5,10 +5,10 @@ import {
   IconTag,
   IconUsers,
 } from "@tabler/icons-react"
-import { useEventFilters } from "@/features/events/hooks/use-event-filters"
 import type { EventFilterOption } from "@/features/events/types/event.types"
+import { useEventFilters } from "@/features/events/hooks/use-event-filters"
 
-const neighborhoodOptions: EventFilterOption[] = [
+const neighborhoodOptions: Array<EventFilterOption> = [
   { value: "all", label: "Todos" },
   { value: "Palermo", label: "Palermo" },
   { value: "Colegiales", label: "Colegiales" },
@@ -16,7 +16,7 @@ const neighborhoodOptions: EventFilterOption[] = [
   { value: "Chacarita", label: "Chacarita" },
 ]
 
-const categoryOptions: EventFilterOption[] = [
+const categoryOptions: Array<EventFilterOption> = [
   { value: "all", label: "Todas" },
   { value: "Gastronomía y Bebidas", label: "Gastronomía y Bebidas" },
   { value: "Música", label: "Música" },
@@ -24,13 +24,13 @@ const categoryOptions: EventFilterOption[] = [
   { value: "Arte y Cultura", label: "Arte y Cultura" },
 ]
 
-const dateOptions: EventFilterOption[] = [
+const dateOptions: Array<EventFilterOption> = [
   { value: "all", label: "Todas" },
   { value: "jun-2025", label: "Junio 2025" },
   { value: "jul-2025", label: "Julio 2025" },
 ]
 
-const eventTypeOptions: EventFilterOption[] = [
+const eventTypeOptions: Array<EventFilterOption> = [
   { value: "all", label: "Todos" },
   { value: "verified", label: "Verificados" },
   { value: "community", label: "Comunitarios" },
@@ -40,7 +40,7 @@ type FilterSelectProps = {
   label: string
   icon: typeof IconMapPin
   value: string
-  options: EventFilterOption[]
+  options: Array<EventFilterOption>
   testId: string
   onChange: (value: string) => void
 }

@@ -4,9 +4,10 @@ import {
   IconMapPin,
   IconTag,
 } from "@tabler/icons-react"
+import { Link } from "@tanstack/react-router"
+import type { EventItem } from "@/features/events/types/event.types"
 import { EventBadge } from "@/features/events/components/event-badge"
 import { EventCardImage } from "@/features/events/components/event-card-image"
-import type { EventItem } from "@/features/events/types/event.types"
 
 type EventCardProps = {
   event: EventItem
@@ -45,14 +46,15 @@ export function EventCard({ event }: EventCardProps) {
           </li>
         </ul>
 
-        <button
+        <Link
           className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#7c6fd4] px-4 py-2.5 text-sm font-semibold text-[#5b4bb7] transition hover:bg-[#f5f3ff]"
           data-testid={`event-detail-button-${event.id}`}
-          type="button"
+          params={{ eventId: event.id }}
+          to="/events/$eventId"
         >
           Ver más detalle
           <IconArrowRight size={16} stroke={2} />
-        </button>
+        </Link>
       </div>
     </article>
   )
