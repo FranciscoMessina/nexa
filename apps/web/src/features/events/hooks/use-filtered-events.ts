@@ -1,7 +1,7 @@
 import { useMemo } from "react"
-import { mockEvents } from "@/features/events/data/mock-events"
-import { useEventFilters } from "@/features/events/hooks/use-event-filters"
 import type { EventItem } from "@/features/events/types/event.types"
+import { useEventFilters } from "@/features/events/hooks/use-event-filters"
+import { mockEvents, toEventItem } from "@/features/events/data/mock-events"
 
 function matchesDateFilter(dateLabel: string, dateFilter: string): boolean {
   if (dateFilter === "all") {
@@ -19,11 +19,11 @@ function matchesDateFilter(dateLabel: string, dateFilter: string): boolean {
   return true
 }
 
-export function useFilteredEvents(): EventItem[] {
+export function useFilteredEvents(): Array<EventItem> {
   const { neighborhood, category, date, eventType } = useEventFilters()
 
   return useMemo(() => {
-    return mockEvents.filter((event) => {
+    return mockEvents.map(toEventItem).filter((event) => {
       if (neighborhood !== "all" && event.neighborhood !== neighborhood) {
         return false
       }

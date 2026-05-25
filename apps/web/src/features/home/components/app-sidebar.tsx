@@ -25,7 +25,7 @@ type NavItem =
       disabled: true
     }
 
-const navItems: NavItem[] = [
+const navItems: Array<NavItem> = [
   { label: "Inicio", to: "/", icon: IconHome, testId: "nav-home" },
   { label: "Mapa", icon: IconMapPin, testId: "nav-map", disabled: true },
   { label: "Mis eventos", icon: IconCalendarEvent, testId: "nav-my-events", disabled: true },
