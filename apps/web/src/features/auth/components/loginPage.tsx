@@ -39,7 +39,7 @@ export function LoginPage() {
         return
       }
 
-      setErrorMessage("No se pudo iniciar sesion. Intenta nuevamente.")
+      setErrorMessage("No se pudo iniciar sesión. Intenta nuevamente.")
     }
   }
 
@@ -58,9 +58,9 @@ export function LoginPage() {
         <section className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-[0_18px_70px_-45px_rgba(14,33,76,0.5)] backdrop-blur sm:p-8 lg:p-10">
           <div className="mb-8 flex flex-col gap-2 text-center lg:text-left">
             <NexaLogo className="mx-auto max-w-44 lg:hidden" variant="full" />
-            <h1 className="text-4xl font-bold tracking-tight text-[#0e2a59]">Iniciar sesion</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-[#0e2a59]">Iniciar Sesión</h1>
             <p className="text-base text-[#66789c]">
-              Ingresa tu correo y contrasena para acceder a tu cuenta.
+              Ingresa tu correo electrónico y contraseña para acceder a tu cuenta.
             </p>
           </div>
 
@@ -73,7 +73,7 @@ export function LoginPage() {
           >
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#1f3660]" htmlFor="email">
-                Correo electronico
+                Correo electrónico
               </label>
               <div className="flex items-center gap-3 rounded-xl border border-[#d9dfeb] bg-white px-4 py-3 focus-within:border-[#f4a318] focus-within:ring-2 focus-within:ring-[#ffd18a]">
                 <IconMail className="text-[#8ea0bf]" size={20} stroke={1.8} />
@@ -94,7 +94,7 @@ export function LoginPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#1f3660]" htmlFor="password">
-                Contrasena
+                Contraseña
               </label>
               <div className="flex items-center gap-3 rounded-xl border border-[#d9dfeb] bg-white px-4 py-3 focus-within:border-[#f4a318] focus-within:ring-2 focus-within:ring-[#ffd18a]">
                 <IconLock className="text-[#8ea0bf]" size={20} stroke={1.8} />
@@ -107,12 +107,12 @@ export function LoginPage() {
                   onChange={(event) => {
                     setPassword(event.target.value)
                   }}
-                  placeholder="Ingresa tu contrasena"
+                  placeholder="Ingresa tu contraseña"
                   type={showPassword ? "text" : "password"}
                   value={password}
                 />
                 <button
-                  aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   className="text-[#8194b3] transition-colors hover:text-[#4f6488]"
                   onClick={() => {
                     setShowPassword((previousState) => !previousState)
@@ -136,7 +136,7 @@ export function LoginPage() {
                 <span className="select-none">Recordarme</span>
               </label>
               <Link className="font-semibold text-[#ff6f3d]" to="/login">
-                Olvidaste tu contrasena?
+                ¿Olvidaste tu contraseña?
               </Link>
             </div>
 
@@ -155,7 +155,7 @@ export function LoginPage() {
               disabled={!canSubmit || isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Ingresando..." : "Iniciar sesion"}
+              {isSubmitting ? "Ingresando..." : "Iniciar Sesión"}
             </button>
           </form>
 
