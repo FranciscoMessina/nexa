@@ -24,6 +24,8 @@ import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
 import { getMockEventById } from "@/features/events/data/mock-events"
 import { AppShell } from "@/features/home/components/app-shell"
+import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
+import { getMockProfileById, getMockProfilesByIds } from "@/features/profiles/data/mock-profiles"
 
 type EventDetailPageProps = {
   eventId: string
@@ -182,6 +184,10 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const registrationLabel = event.registrationUrl ? "Ir al evento" : "Inscribirse al evento"
   const descriptionParagraphs = splitParagraphs(event.description)
   const requirementItems = splitRequirements(event.requirements)
+  const organizerProfile = getMockProfileById(event.organizer.profileId)
+  const participatingProfiles = getMockProfilesByIds(
+    event.participatingVentures?.map((venture) => venture.profileId) ?? []
+  )
   const priceLabel = event.price.amount === 0 ? "Gratis" : formatCurrency(event.price.amount, event.price.currency)
 
   const goToImage = (nextIndex: number) => {
@@ -381,45 +387,51 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
               <div>
                 <h2 className="text-xl font-bold text-[#1e1b4b]">Organizador</h2>
 
-                <div className="mt-4 rounded-[1.75rem] border border-[#e8edf5] bg-[#fbfcff] p-4 sm:p-5">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-4">
-                      <img
-                        alt={event.organizer.name}
-                        className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
-                        src={event.organizer.avatarUrl}
-                      />
-
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
+                <div className="mt-4">
+                  {organizerProfile ? (
+                    <EventProfileCard
+                      profile={organizerProfile}
+                      subtitle={event.organizer.contactEmail}
+                      testId="event-organizer-profile-card"
+                    />
+                  ) : (
+                    <div className="rounded-[1.75rem] border border-[#e8edf5] bg-[#fbfcff] p-4 sm:p-5">
+                      <div className="flex items-center gap-4">
+                        <img
+                          alt={event.organizer.name}
+                          className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
+                          src={event.organizer.avatarUrl}
+                        />
+                        <div>
                           <h3 className="text-base font-bold text-[#1e1b4b]">{event.organizer.name}</h3>
-                          {event.organizer.verified ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                              <IconShieldCheck size={13} stroke={2} />
-                              Organizador verificado
-                            </span>
-                          ) : null}
+                          <a
+                            className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-[#5b4bb7]"
+                            href={`mailto:${event.organizer.contactEmail}`}
+                          >
+                            <IconLink size={15} stroke={1.9} />
+                            {event.organizer.contactEmail}
+                          </a>
                         </div>
-
-                        <a
-                          className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-[#5b4bb7] transition hover:text-[#3f3485]"
-                          href={`mailto:${event.organizer.contactEmail}`}
-                        >
-                          <IconLink size={15} stroke={1.9} />
-                          {event.organizer.contactEmail}
-                        </a>
                       </div>
                     </div>
-
-                    <button
-                      className="inline-flex items-center justify-center rounded-xl border border-[#d6def0] px-4 py-2.5 text-sm font-semibold text-[#1e1b4b] transition hover:border-[#c4cee4] hover:bg-white"
-                      type="button"
-                    >
-                      Ver perfil
-                    </button>
-                  </div>
+                  )}
                 </div>
               </div>
+
+              {participatingProfiles.length > 0 ? (
+                <div>
+                  <h2 className="text-xl font-bold text-[#1e1b4b]">Emprendimientos participantes</h2>
+                  <div className="mt-4 space-y-3">
+                    {participatingProfiles.map((ventureProfile) => (
+                      <EventProfileCard
+                        key={ventureProfile.id}
+                        profile={ventureProfile}
+                        testId={`event-venture-profile-${ventureProfile.id}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </section>
           </div>
 

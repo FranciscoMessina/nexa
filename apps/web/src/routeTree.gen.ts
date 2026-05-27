@@ -10,13 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PerfilIndexRouteImport } from './routes/perfil/index'
+import { Route as MisEventosIndexRouteImport } from './routes/mis-eventos/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as PerfilesProfileIdRouteImport } from './routes/perfiles/$profileId'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilIndexRoute = PerfilIndexRouteImport.update({
+  id: '/perfil/',
+  path: '/perfil/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MisEventosIndexRoute = MisEventosIndexRouteImport.update({
+  id: '/mis-eventos/',
+  path: '/mis-eventos/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
@@ -29,6 +42,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PerfilesProfileIdRoute = PerfilesProfileIdRouteImport.update({
+  id: '/perfiles/$profileId',
+  path: '/perfiles/$profileId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsEventIdRoute = EventsEventIdRouteImport.update({
   id: '/events/$eventId',
   path: '/events/$eventId',
@@ -38,35 +56,69 @@ const EventsEventIdRoute = EventsEventIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/perfiles/$profileId': typeof PerfilesProfileIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/mis-eventos/': typeof MisEventosIndexRoute
+  '/perfil/': typeof PerfilIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/perfiles/$profileId': typeof PerfilesProfileIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/login': typeof LoginIndexRoute
+  '/mis-eventos': typeof MisEventosIndexRoute
+  '/perfil': typeof PerfilIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/perfiles/$profileId': typeof PerfilesProfileIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/mis-eventos/': typeof MisEventosIndexRoute
+  '/perfil/': typeof PerfilIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/events/$eventId' | '/dashboard/' | '/login/'
+  fullPaths:
+    | '/'
+    | '/events/$eventId'
+    | '/perfiles/$profileId'
+    | '/dashboard/'
+    | '/login/'
+    | '/mis-eventos/'
+    | '/perfil/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/events/$eventId' | '/dashboard' | '/login'
-  id: '__root__' | '/' | '/events/$eventId' | '/dashboard/' | '/login/'
+  to:
+    | '/'
+    | '/events/$eventId'
+    | '/perfiles/$profileId'
+    | '/dashboard'
+    | '/login'
+    | '/mis-eventos'
+    | '/perfil'
+  id:
+    | '__root__'
+    | '/'
+    | '/events/$eventId'
+    | '/perfiles/$profileId'
+    | '/dashboard/'
+    | '/login/'
+    | '/mis-eventos/'
+    | '/perfil/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
+  PerfilesProfileIdRoute: typeof PerfilesProfileIdRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
+  MisEventosIndexRoute: typeof MisEventosIndexRoute
+  PerfilIndexRoute: typeof PerfilIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -76,6 +128,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil/': {
+      id: '/perfil/'
+      path: '/perfil'
+      fullPath: '/perfil/'
+      preLoaderRoute: typeof PerfilIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mis-eventos/': {
+      id: '/mis-eventos/'
+      path: '/mis-eventos'
+      fullPath: '/mis-eventos/'
+      preLoaderRoute: typeof MisEventosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login/': {
@@ -92,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/perfiles/$profileId': {
+      id: '/perfiles/$profileId'
+      path: '/perfiles/$profileId'
+      fullPath: '/perfiles/$profileId'
+      preLoaderRoute: typeof PerfilesProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/$eventId': {
       id: '/events/$eventId'
       path: '/events/$eventId'
@@ -105,8 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EventsEventIdRoute: EventsEventIdRoute,
+  PerfilesProfileIdRoute: PerfilesProfileIdRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
+  MisEventosIndexRoute: MisEventosIndexRoute,
+  PerfilIndexRoute: PerfilIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

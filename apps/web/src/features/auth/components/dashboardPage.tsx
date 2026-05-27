@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { useRequireAuthentication } from "@/features/auth/hooks/useAuthRedirect"
+import { AppShell } from "@/features/home/components/app-shell"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 export function DashboardPage() {
@@ -21,8 +22,8 @@ export function DashboardPage() {
   }
 
   return (
-    <main className="min-h-svh bg-[radial-gradient(circle_at_top_left,#efe7ff_0%,#f7f8fc_34%,#f6f7fb_100%)] px-4 py-6 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <AppShell>
+      <div className="space-y-6">
         <div className="rounded-[2rem] border border-white/70 bg-white/90 px-6 py-5 shadow-[0_18px_70px_-48px_rgba(20,31,64,0.48)] backdrop-blur sm:px-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -48,10 +49,13 @@ export function DashboardPage() {
           </p>
         </div>
 
-        <Link className="inline-flex font-semibold text-[#ff6f3d] hover:text-[#e2582d]" to="/">
-          Ir al inicio
+        <Link
+          className="inline-flex font-semibold text-[#5b4bb7] hover:text-[#3f3485]"
+          to="/perfil"
+        >
+          Ir a mi perfil
         </Link>
       </div>
-    </main>
+    </AppShell>
   )
 }

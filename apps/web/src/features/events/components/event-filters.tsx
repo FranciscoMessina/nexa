@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import {
   IconCalendar,
   IconMapPin,
@@ -5,8 +6,10 @@ import {
   IconTag,
   IconUsers,
 } from "@tabler/icons-react"
+import { cn } from "@workspace/ui/lib/utils"
 import type { EventFilterOption } from "@/features/events/types/event.types"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
+import { mockEvents } from "@/features/events/data/mock-events"
 
 const neighborhoodOptions: Array<EventFilterOption> = [
   { value: "all", label: "Todos" },
@@ -14,20 +17,21 @@ const neighborhoodOptions: Array<EventFilterOption> = [
   { value: "Colegiales", label: "Colegiales" },
   { value: "Villa Crespo", label: "Villa Crespo" },
   { value: "Chacarita", label: "Chacarita" },
+  { value: "Recoleta", label: "Recoleta" },
+  { value: "San Telmo", label: "San Telmo" },
+  { value: "Puerto Madero", label: "Puerto Madero" },
+  { value: "Microcentro", label: "Microcentro" },
 ]
 
 const categoryOptions: Array<EventFilterOption> = [
   { value: "all", label: "Todas" },
-  { value: "Gastronomía y Bebidas", label: "Gastronomía y Bebidas" },
   { value: "Música", label: "Música" },
-  { value: "Cultura y Educación", label: "Cultura y Educación" },
+  { value: "Gastronomía", label: "Gastronomía" },
   { value: "Arte y Cultura", label: "Arte y Cultura" },
-]
-
-const dateOptions: Array<EventFilterOption> = [
-  { value: "all", label: "Todas" },
-  { value: "jun-2025", label: "Junio 2025" },
-  { value: "jul-2025", label: "Julio 2025" },
+  { value: "Deportes", label: "Deportes" },
+  { value: "Ferias de Emprendedores", label: "Ferias de Emprendedores" },
+  { value: "Talleres y Cursos", label: "Talleres y Cursos" },
+  { value: "Cine y Entretenimiento", label: "Cine y Entretenimiento" },
 ]
 
 const eventTypeOptions: Array<EventFilterOption> = [
@@ -35,6 +39,23 @@ const eventTypeOptions: Array<EventFilterOption> = [
   { value: "verified", label: "Verificados" },
   { value: "community", label: "Comunitarios" },
 ]
+
+function toDateKey(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
+
+function getEventDateBounds(): { min: string; max: string } {
+  const dateKeys = mockEvents.map((event) => toDateKey(event.date)).sort()
+
+  return {
+    min: dateKeys[0] ?? "",
+    max: dateKeys.at(-1) ?? "",
+  }
+}
 
 type FilterSelectProps = {
   label: string
@@ -77,6 +98,52 @@ function FilterSelect({
   )
 }
 
+type DateFilterProps = {
+  label: string
+  value: string
+  min: string
+  max: string
+  testId: string
+  onChange: (value: string) => void
+}
+
+function DateFilter({ label, value, min, max, testId, onChange }: DateFilterProps) {
+  const hasDate = value !== "all"
+
+  return (
+    <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+      <span className="text-xs font-semibold text-[#6b7d9c]">{label}</span>
+      <div className="relative flex items-center gap-2 rounded-xl border border-[#dfe6f3] bg-white px-3 py-2">
+        <IconCalendar className="shrink-0 text-[#8a9bb8]" size={18} stroke={1.8} />
+        <input
+          className={cn(
+            "relative z-10 w-full min-w-0 cursor-pointer border-none bg-transparent text-sm font-medium text-[#1a3462] outline-none",
+            "[&::-webkit-calendar-picker-indicator]:cursor-pointer",
+            !hasDate && "text-transparent"
+          )}
+          data-testid={testId}
+          lang="es-AR"
+          max={max}
+          min={min}
+          onChange={(event) => {
+            onChange(event.target.value || "all")
+          }}
+          type="date"
+          value={hasDate ? value : ""}
+        />
+        {!hasDate ? (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute left-10 z-0 text-sm text-[#9aa8c0]"
+          >
+            dd/mm/aaaa
+          </span>
+        ) : null}
+      </div>
+    </label>
+  )
+}
+
 export function EventFilters() {
   const {
     neighborhood,
@@ -89,6 +156,8 @@ export function EventFilters() {
     setEventType,
     reset,
   } = useEventFilters()
+
+  const { min, max } = useMemo(() => getEventDateBounds(), [])
 
   return (
     <div
@@ -111,11 +180,11 @@ export function EventFilters() {
         testId="filter-category"
         value={category}
       />
-      <FilterSelect
-        icon={IconCalendar}
+      <DateFilter
         label="Fecha"
+        max={max}
+        min={min}
         onChange={setDate}
-        options={dateOptions}
         testId="filter-date"
         value={date}
       />

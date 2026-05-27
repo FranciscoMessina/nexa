@@ -6,10 +6,15 @@ export type EventLabel = {
 }
 
 export type EventOrganizer = {
+  profileId: string
   name: string
   avatarUrl: string
   verified: boolean
   contactEmail: string
+}
+
+export type EventParticipatingVenture = {
+  profileId: string
 }
 
 export type EventPrice = {
@@ -43,6 +48,8 @@ export type EventDetailData = {
   savedCount: number
   registrationUrl?: string
   organizer: EventOrganizer
+  participatingVentures?: Array<EventParticipatingVenture>
+  attendeeProfileIds?: Array<string>
   requirements: string
   coordinates: EventCoordinates
 }
@@ -55,6 +62,7 @@ export type EventItem = {
   venue: string
   address: string
   neighborhood: string
+  startsAt: Date
   dateLabel: string
   category: string
   kind: EventKind

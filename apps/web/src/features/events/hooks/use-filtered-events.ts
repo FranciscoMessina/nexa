@@ -3,20 +3,20 @@ import type { EventItem } from "@/features/events/types/event.types"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
 import { mockEvents, toEventItem } from "@/features/events/data/mock-events"
 
-function matchesDateFilter(dateLabel: string, dateFilter: string): boolean {
+function toDateKey(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
+
+function matchesDateFilter(startsAt: Date, dateFilter: string): boolean {
   if (dateFilter === "all") {
     return true
   }
 
-  if (dateFilter === "jun-2025") {
-    return dateLabel.includes("Jun 2025")
-  }
-
-  if (dateFilter === "jul-2025") {
-    return dateLabel.includes("Jul 2025")
-  }
-
-  return true
+  return toDateKey(startsAt) === dateFilter
 }
 
 export function useFilteredEvents(): Array<EventItem> {
@@ -32,7 +32,7 @@ export function useFilteredEvents(): Array<EventItem> {
         return false
       }
 
-      if (!matchesDateFilter(event.dateLabel, date)) {
+      if (!matchesDateFilter(event.startsAt, date)) {
         return false
       }
 

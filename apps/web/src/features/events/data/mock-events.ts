@@ -6,12 +6,12 @@ export const featuredEvent: EventCardData = {
     type: "verified",
     text: "Evento verificado",
   },
-  title: "Noche de Vinos en Brutal",
+  title: "Promo de vinos en Brutal",
   summary:
-    "Un encuentro pensado para compartir, descubrir nuevas etiquetas y conectar con la comunidad en un ambiente relajado.",
-  location: "Brutal, Honduras 5862, Palermo",
+    "Promoción de etiquetas seleccionadas con tabla de quesos y fiambres del bar, y jazz en vivo a cargo de una banda local.",
+  location: "Brutal, Callao 1863, Recoleta",
   date: new Date("2025-06-20T20:00:00"),
-  category: "Gastronomía y Bebidas",
+  category: "Gastronomía",
   image: {
     src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80",
     alt: "Personas compartiendo una velada en un bar con luces cálidas y botellas al fondo",
@@ -20,7 +20,7 @@ export const featuredEvent: EventCardData = {
   ctaHref: "/",
 
   description:
-    "Una velada especial en Brutal donde sommeliers y entusiastas del vino se reúnen para explorar nuevas etiquetas nacionales e importadas. Cada asistente tendrá la oportunidad de catar al menos cuatro variedades distintas acompañadas de una tabla de quesos y fiambres. El evento incluye una charla introductoria sobre maridajes y una sección de preguntas con el enólogo invitado.",
+    "Brutal presenta una promo de vinos con degustación de cuatro etiquetas y una tabla de quesos y fiambres preparada por el local. La velada incluye una charla breve de maridaje y música en vivo de Loza Jazz, en un formato íntimo para pocas mesas.",
   price: {
     amount: 8500,
     currency: "ARS",
@@ -35,17 +35,19 @@ export const featuredEvent: EventCardData = {
   savedCount: 47,
   registrationUrl: "https://passline.com/eventos/noche-de-vinos-en-brutal",
   organizer: {
+    profileId: "profile-brutal-bar",
     name: "Brutal Bar",
     avatarUrl:
       "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=100&q=80",
     verified: true,
     contactEmail: "eventos@brutal.bar",
   },
+  participatingVentures: [{ profileId: "profile-loza-jazz" }],
   requirements:
-    "Mayores de 18 años. Se recomienda no consumir alimentos muy condimentados antes del evento.",
+    "Mayores de 18 años. La promo incluye vinos y tabla de quesos del bar. Música en vivo por emprendimiento invitado.",
   coordinates: {
-    lat: -34.5862,
-    lng: -58.4326,
+    lat: -34.5874,
+    lng: -58.3928,
   },
 }
 
@@ -57,45 +59,47 @@ export const mockEvents: Array<EventCardData> = [
       type: "community",
       text: "Evento comunitario",
     },
-    title: "DJ Set en Café Tabac",
+    title: "DJ Set en Antares",
     summary:
-      "Una noche con sets en vivo, pista abierta y propuesta gastronómica para cerrar la semana con música y amigos.",
-    location: "Café Tabac, Guatemala 5860, Palermo",
-    date: new Date("2025-06-21T18:00:00"),
+      "Noche íntima en el bar cervecero con set del DJ invitado, cervezas de la casa y picada para cerrar la semana.",
+    location: "Antares Bar, Av. Federico Lacroze 3455, Colegiales",
+    date: new Date("2025-06-21T22:00:00"),
     category: "Música",
     image: {
-      src: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
-      alt: "DJ tocando en un espacio nocturno con luces cálidas y público alrededor",
+      src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
+      alt: "DJ en un bar con luces cálidas y público reducido",
     },
     ctaText: "Ver más detalle",
     ctaHref: "/",
 
     description:
-      "Café Tabac abre su pista para una noche de música electrónica con sets en vivo de DJs locales emergentes. La propuesta combina música house y techno con una carta de cócteles de autor y opciones de picada para acompañar. Entrada libre hasta las 21 hs, después por orden de llegada según capacidad.",
+      "Antares Bar abre a la noche con un DJ set en formato reducido: música electrónica suave, cervezas artesanales y picada para compartir en mesas. El emprendimiento invitado pone la música; el bar organiza el espacio y la barra. Cupo limitado, sin pista masiva.",
     price: {
       amount: 0,
       currency: "ARS",
       label: "Entrada libre",
     },
     gallery: [
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
     ],
     savedCount: 83,
     registrationUrl: undefined,
     organizer: {
-      name: "Café Tabac",
+      profileId: "profile-antares-bar",
+      name: "Antares Bar",
       avatarUrl:
-        "https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=100&q=80",
-      verified: false,
-      contactEmail: "info@cafetabac.com.ar",
+        "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=100&q=80",
+      verified: true,
+      contactEmail: "eventos@antaresbar.com.ar",
     },
-    requirements: "Mayores de 18 años. Entrada libre hasta las 21 hs.",
+    participatingVentures: [{ profileId: "profile-dj-mauri-vega" }],
+    requirements: "Mayores de 18 años. Cupo limitado. Reserva recomendada.",
     coordinates: {
-      lat: -34.586,
-      lng: -58.4298,
+      lat: -34.5742,
+      lng: -58.4478,
     },
   },
   {
@@ -107,9 +111,9 @@ export const mockEvents: Array<EventCardData> = [
     title: "Cata de Cervezas en Antares",
     summary:
       "Degustación guiada con variedad de estilos, maridajes sugeridos y espacio para conocer procesos de elaboración.",
-    location: "Antares Bar, Costa Rica 6028, Palermo",
+    location: "Antares Bar, Av. Federico Lacroze 3455, Colegiales",
     date: new Date("2025-06-22T19:30:00"),
-    category: "Gastronomía y Bebidas",
+    category: "Gastronomía",
     image: {
       src: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
       alt: "Vasos de cerveza artesanales servidos sobre una mesa de madera",
@@ -133,6 +137,7 @@ export const mockEvents: Array<EventCardData> = [
     savedCount: 31,
     registrationUrl: "https://passline.com/eventos/cata-cervezas-antares",
     organizer: {
+      profileId: "profile-antares-bar",
       name: "Antares Bar",
       avatarUrl:
         "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=100&q=80",
@@ -142,8 +147,8 @@ export const mockEvents: Array<EventCardData> = [
     requirements:
       "Mayores de 18 años. Se incluyen 6 cervezas de 150 ml cada una y tabla de maridaje.",
     coordinates: {
-      lat: -34.587,
-      lng: -58.431,
+      lat: -34.5742,
+      lng: -58.4478,
     },
   },
   {
@@ -155,7 +160,7 @@ export const mockEvents: Array<EventCardData> = [
     title: "Jazz en Vivo en 878 Bar",
     summary:
       "Una sesión íntima con músicos locales, ambientación cálida y una carta pensada para acompañar la velada.",
-    location: "878 Bar, Thames 878, Palermo",
+    location: "878 Bar, Dique 3, Puerto Madero",
     date: new Date("2025-06-27T21:00:00"),
     category: "Música",
     image: {
@@ -166,7 +171,7 @@ export const mockEvents: Array<EventCardData> = [
     ctaHref: "/",
 
     description:
-      "El mítico 878 Bar abre sus puertas para una sesión de jazz en vivo con el cuarteto de Martín Sued. El repertorio recorre estándares clásicos y composiciones originales en un ambiente íntimo de no más de 50 personas. La carta de la noche incluye cócteles clásicos y una selección de vinos para acompañar.",
+      "878 Bar recibe a Loza Jazz para una sesión íntima de jazz en vivo. El bar organiza la velada y la banda presenta estándares y temas propios para un público reducido, con barra del local y reserva de mesas.",
     price: {
       amount: 5000,
       currency: "ARS",
@@ -181,17 +186,20 @@ export const mockEvents: Array<EventCardData> = [
     savedCount: 62,
     registrationUrl: "https://passline.com/eventos/jazz-878-bar",
     organizer: {
+      profileId: "profile-878-bar",
       name: "878 Bar",
       avatarUrl:
         "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=100&q=80",
       verified: false,
       contactEmail: "reservas@878bar.com.ar",
     },
+    participatingVentures: [{ profileId: "profile-loza-jazz" }],
+    attendeeProfileIds: ["profile-maria-lopez"],
     requirements:
       "Se recomienda reservar lugar con anticipación. El precio incluye una consumición de bienvenida.",
     coordinates: {
-      lat: -34.5823,
-      lng: -58.4341,
+      lat: -34.6098,
+      lng: -58.3615,
     },
   },
   {
@@ -200,12 +208,12 @@ export const mockEvents: Array<EventCardData> = [
       type: "community",
       text: "Evento comunitario",
     },
-    title: "Club de Lectura en Café Rita",
+    title: "Club de lectura en Café Rita",
     summary:
-      "Encuentro para comentar una lectura compartida, intercambiar ideas y descubrir nuevas recomendaciones.",
-    location: "Café Rita, Armenia 1543, Palermo",
+      "Encuentro comunitario para comentar una lectura compartida. Lo organiza una persona del barrio; el café solo presta el espacio.",
+    location: "Café Rita, Federico Lacroze 2380, Chacarita",
     date: new Date("2025-06-28T16:00:00"),
-    category: "Cultura y Educación",
+    category: "Arte y Cultura",
     image: {
       src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
       alt: "Grupo de personas leyendo y conversando en una cafetería",
@@ -214,7 +222,7 @@ export const mockEvents: Array<EventCardData> = [
     ctaHref: "/",
 
     description:
-      "El Club de Lectura de Café Rita se reúne el último sábado de cada mes para comentar un libro previamente anunciado. Este mes el turno es de 'Las correcciones' de Jonathan Franzen. La dinámica es libre: cada participante puede traer sus anotaciones, preguntas o simplemente escuchar. Se sirve café y medialunas incluidos en la inscripción.",
+      "María López convoca a vecinos y lectores para comentar 'Las correcciones' de Jonathan Franzen en Café Rita. Es un evento comunitario: quien organiza es una usuaria de Nexa que asiste a otros eventos del barrio; el café facilita mesas, café y medialunas con un arancel simbólico.",
     price: {
       amount: 2500,
       currency: "ARS",
@@ -229,17 +237,18 @@ export const mockEvents: Array<EventCardData> = [
     savedCount: 19,
     registrationUrl: undefined,
     organizer: {
-      name: "Café Rita",
+      profileId: "profile-maria-lopez",
+      name: "María López",
       avatarUrl:
-        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=100&q=80",
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
       verified: false,
-      contactEmail: "hola@caferita.com.ar",
+      contactEmail: "maria.lopez@gmail.com",
     },
     requirements:
-      "Se recomienda haber leído al menos la mitad del libro. No es excluyente.",
+      "Se recomienda haber leído al menos la mitad del libro. Evento comunitario, no oficial del café.",
     coordinates: {
-      lat: -34.5891,
-      lng: -58.4357,
+      lat: -34.5886,
+      lng: -58.4542,
     },
   },
   {
@@ -248,12 +257,12 @@ export const mockEvents: Array<EventCardData> = [
       type: "community",
       text: "Evento comunitario",
     },
-    title: "Tarde de Acuarela en La Bicicletaría",
+    title: "Taller de acuarela en Café Walden",
     summary:
-      "Actividad guiada para explorar técnicas básicas de acuarela, practicar trazos y salir con una pieza propia.",
-    location: "La Bicicletaría, Niceto Vega 5186, Palermo",
+      "Taller comunitario de acuarela dictado por un emprendimiento creativo en un café de Villa Crespo.",
+    location: "Café Walden, Niceto Vega 5186, Villa Crespo",
     date: new Date("2025-06-29T15:00:00"),
-    category: "Arte y Cultura",
+    category: "Talleres y Cursos",
     image: {
       src: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1200&q=80",
       alt: "Mesa de trabajo con pinceles, papeles y acuarelas",
@@ -262,7 +271,7 @@ export const mockEvents: Array<EventCardData> = [
     ctaHref: "/",
 
     description:
-      "Una tarde de taller de acuarela guiado por la artista Lara Vidal, pensado para personas sin experiencia previa o con conocimientos básicos. Se trabaja sobre papel de acuarela de gramaje profesional y los materiales están incluidos. Al final de la sesión cada participante se lleva su obra terminada. El espacio es luminoso, con música ambiente y mesas compartidas que invitan al intercambio.",
+      "Estudio Pulso, emprendimiento de arte y talleres, organiza una tarde de acuarela en Café Walden. Incluye materiales, demostración de técnicas básicas y espacio para terminar una pieza propia. El café presta el salón; el formato es comunitario y con cupo acotado.",
     price: {
       amount: 9000,
       currency: "ARS",
@@ -275,19 +284,159 @@ export const mockEvents: Array<EventCardData> = [
       "https://images.unsplash.com/photo-1596464716127-f2a82984de30?auto=format&fit=crop&w=1200&q=80",
     ],
     savedCount: 38,
-    registrationUrl: "https://passline.com/eventos/acuarela-bicicletaria",
+    registrationUrl: "https://passline.com/eventos/acuarela-cafe-walden",
     organizer: {
-      name: "La Bicicletaría",
+      profileId: "profile-estudio-pulso",
+      name: "Estudio Pulso",
       avatarUrl:
-        "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=100&q=80",
+        "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=100&q=80",
       verified: false,
-      contactEmail: "talleres@labicicletaria.com.ar",
+      contactEmail: "hola@estudiopulso.mock",
     },
     requirements:
-      "No se requiere experiencia previa. Traer ropa cómoda que pueda mancharse. Materiales provistos por el espacio.",
+      "No se requiere experiencia previa. Materiales incluidos. Traer ropa que pueda mancharse.",
     coordinates: {
-      lat: -34.5844,
-      lng: -58.4389,
+      lat: -34.5968,
+      lng: -58.4382,
+    },
+  },
+  {
+    id: "b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e",
+    label: {
+      type: "community",
+      text: "Evento comunitario",
+    },
+    title: "Yoga al Aire Libre en Parque Centenario",
+    summary:
+      "Clase abierta de yoga para todos los niveles, en un entorno verde al aire libre en Colegiales.",
+    location: "Parque Centenario, Av. Patricias Argentinas, Colegiales",
+    date: new Date("2025-06-18T10:00:00"),
+    category: "Deportes",
+    image: {
+      src: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
+      alt: "Grupo de personas practicando yoga al aire libre en una plaza",
+    },
+    ctaText: "Ver más detalle",
+    ctaHref: "/",
+    description:
+      "María López organiza una clase abierta de yoga en Parque Centenario para vecinos del barrio. Es un evento comunitario, no oficial del espacio público: cupo limitado, traé tu mat o alquilá una en el lugar.",
+    price: {
+      amount: 0,
+      currency: "ARS",
+      label: "Entrada libre",
+    },
+    gallery: [
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1506126613645-ec7dba78f13a?auto=format&fit=crop&w=1200&q=80",
+    ],
+    savedCount: 54,
+    organizer: {
+      profileId: "profile-maria-lopez",
+      name: "María López",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
+      verified: false,
+      contactEmail: "maria.lopez@gmail.com",
+    },
+    requirements: "Traer mat o toalla. Ropa cómoda recomendada.",
+    coordinates: {
+      lat: -34.5756,
+      lng: -58.4491,
+    },
+  },
+  {
+    id: "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b",
+    label: {
+      type: "verified",
+      text: "Evento verificado",
+    },
+    title: "Rock nacional en vivo en Bar Basílico",
+    summary:
+      "Show de la banda Roots & Calle en un bar clásico de Corrientes. El bar organiza la noche; la banda es el emprendimiento invitado.",
+    location: "Bar Basílico, Av. Corrientes 1662, Microcentro",
+    date: new Date("2025-06-21T21:00:00"),
+    category: "Música",
+    image: {
+      src: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
+      alt: "Banda tocando en un bar con iluminación cálida y público sentado",
+    },
+    ctaText: "Ver más detalle",
+    ctaHref: "/",
+    description:
+      "Bar Basílico presenta a Roots & Calle en un show de rock nacional para un público reducido. El bar cura la velada y la banda, como emprendimiento musical, lleva el repertorio en vivo. Entrada con consumición mínima y mesas numeradas.",
+    price: {
+      amount: 6000,
+      currency: "ARS",
+      label: "$6.000 (incluye una consumición)",
+    },
+    gallery: [
+      "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=1200&q=80",
+    ],
+    savedCount: 91,
+    organizer: {
+      profileId: "profile-bar-basilico",
+      name: "Bar Basílico",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=100&q=80",
+      verified: true,
+      contactEmail: "reservas@barbasilico.mock",
+    },
+    participatingVentures: [{ profileId: "profile-roots-calle" }],
+    attendeeProfileIds: ["profile-maria-lopez"],
+    requirements: "Mayores de 18 años. Se recomienda llegar antes de las 21 hs.",
+    coordinates: {
+      lat: -34.6042,
+      lng: -58.3856,
+    },
+  },
+  {
+    id: "a4b5c6d7-e8f9-4a0b-1c2d-3e4f5a6b7c8d",
+    label: {
+      type: "community",
+      text: "Evento comunitario",
+    },
+    title: "Pop-up de marcas de ropa en Bar Tabac",
+    summary:
+      "Feria barrial de indumentaria en el patio del bar: tres marcas de ropa locales y venta directa en stands.",
+    location: "Bar Tabac, Guatemala 5860, Palermo",
+    date: new Date("2025-06-25T20:00:00"),
+    category: "Ferias de Emprendedores",
+    image: {
+      src: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+      alt: "Ropa exhibida en un pop-up de marcas locales dentro de un patio",
+    },
+    ctaText: "Ver más detalle",
+    ctaHref: "/",
+    description:
+      "Bar Tabac convoca a marcas de ropa del barrio para un pop-up de indumentaria en el patio. Participan Crudo, Indigo Wear y Urbe Street con piezas limitadas y probadores, mientras el bar ofrece tragos y picadas. Entrada libre, formato comunitario.",
+    price: {
+      amount: 0,
+      currency: "ARS",
+      label: "Entrada libre",
+    },
+    gallery: [
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1469334031218-f5d0b85e357f?auto=format&fit=crop&w=1200&q=80",
+    ],
+    savedCount: 41,
+    organizer: {
+      profileId: "profile-cafe-tabac",
+      name: "Bar Tabac",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=100&q=80",
+      verified: false,
+      contactEmail: "info@cafetabac.com.ar",
+    },
+    participatingVentures: [
+      { profileId: "profile-crudo" },
+      { profileId: "profile-indigo-wear" },
+      { profileId: "profile-urbe-street" },
+    ],
+    requirements: "Entrada libre. Venta directa en stands de las marcas participantes.",
+    coordinates: {
+      lat: -34.586,
+      lng: -58.4298,
     },
   },
 ]
@@ -330,6 +479,7 @@ export function toEventItem(event: EventCardData): EventItem {
     venue,
     address,
     neighborhood,
+    startsAt: event.date,
     dateLabel: formatCardDate(event.date),
     category: event.category,
     kind: event.label.type,

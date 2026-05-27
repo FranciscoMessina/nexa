@@ -13,7 +13,7 @@ import { useAuth } from "@/shared/hooks/useAuth"
 type NavItem =
   | {
       label: string
-      to: "/"
+      to: "/" | "/perfil" | "/mis-eventos"
       icon: typeof IconHome
       testId: string
       disabled?: false
@@ -28,8 +28,8 @@ type NavItem =
 const navItems: Array<NavItem> = [
   { label: "Inicio", to: "/", icon: IconHome, testId: "nav-home" },
   { label: "Mapa", icon: IconMapPin, testId: "nav-map", disabled: true },
-  { label: "Mis eventos", icon: IconCalendarEvent, testId: "nav-my-events", disabled: true },
-  { label: "Mi perfil", icon: IconUser, testId: "nav-profile", disabled: true },
+  { label: "Mis eventos", to: "/mis-eventos", icon: IconCalendarEvent, testId: "nav-my-events" },
+  { label: "Mi perfil", to: "/perfil", icon: IconUser, testId: "nav-profile" },
 ]
 
 export function AppSidebar() {
