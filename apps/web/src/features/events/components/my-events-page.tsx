@@ -4,6 +4,7 @@ import type { FormEvent } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventCard } from "@/features/events/components/event-card"
 import { EventDatePicker } from "@/features/events/components/event-date-picker"
+import { eventCategoryOptions } from "@/features/events/data/event-categories"
 import { createMockEvent } from "@/features/events/data/mock-events"
 import { getMyEventsCopy, getMyEventsForUser } from "@/features/events/data/my-events"
 import { AppShell } from "@/features/home/components/app-shell"
@@ -177,14 +178,21 @@ function EventPublishModal({
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462]">
               Categoría
-              <input
+              <select
                 className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
                 onChange={(event) => {
                   onDraftChange("category", event.target.value)
                 }}
                 required
                 value={draft.category}
-              />
+              >
+                <option value="">Seleccioná una categoría</option>
+                {eventCategoryOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">

@@ -7,6 +7,7 @@ import {
 } from "@tabler/icons-react"
 import type { EventFilterOption } from "@/features/events/types/event.types"
 import { EventDatePicker } from "@/features/events/components/event-date-picker"
+import { eventFilterCategoryOptions } from "@/features/events/data/event-categories"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
 import { mockEvents } from "@/features/events/data/mock-events"
 
@@ -20,17 +21,6 @@ const neighborhoodOptions: Array<EventFilterOption> = [
   { value: "San Telmo", label: "San Telmo" },
   { value: "Puerto Madero", label: "Puerto Madero" },
   { value: "Microcentro", label: "Microcentro" },
-]
-
-const categoryOptions: Array<EventFilterOption> = [
-  { value: "all", label: "Todas" },
-  { value: "Música", label: "Música" },
-  { value: "Gastronomía", label: "Gastronomía" },
-  { value: "Arte y Cultura", label: "Arte y Cultura" },
-  { value: "Deportes", label: "Deportes" },
-  { value: "Ferias de Emprendedores", label: "Ferias de Emprendedores" },
-  { value: "Talleres y Cursos", label: "Talleres y Cursos" },
-  { value: "Cine y Entretenimiento", label: "Cine y Entretenimiento" },
 ]
 
 const eventTypeOptions: Array<EventFilterOption> = [
@@ -129,7 +119,7 @@ export function EventFilters() {
         icon={IconTag}
         label="Categoría"
         onChange={setCategory}
-        options={categoryOptions}
+        options={eventFilterCategoryOptions}
         testId="filter-category"
         value={category}
       />
