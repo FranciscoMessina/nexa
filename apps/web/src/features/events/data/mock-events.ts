@@ -1,5 +1,32 @@
 import type { EventCardData, EventItem } from "../types/event.types"
 
+type CreateMockEventInput = {
+  organizer: EventCardData["organizer"]
+  label: EventCardData["label"]
+  title: string
+  summary: string
+  location: string
+  date: Date
+  category: string
+  image: {
+    src: string
+  }
+  ctaText?: string
+  ctaHref?: string
+  description: string
+  price: EventCardData["price"]
+  gallery: Array<string>
+  registrationUrl?: string
+  participatingVentures?: EventCardData["participatingVentures"]
+  attendeeProfileIds?: Array<string>
+  requirements: string
+}
+
+const mockEventCoordinates: EventCardData["coordinates"] = {
+  lat: -34.6037,
+  lng: -58.3816,
+}
+
 export const featuredEvent: EventCardData = {
   id: "3f1f7b2d-7f1e-4d1c-a6e7-3b2a8b1b7d1a",
   label: {
@@ -384,7 +411,8 @@ export const mockEvents: Array<EventCardData> = [
     },
     participatingVentures: [{ profileId: "profile-roots-calle" }],
     attendeeProfileIds: ["profile-maria-lopez"],
-    requirements: "Mayores de 18 años. Se recomienda llegar antes de las 21 hs.",
+    requirements:
+      "Mayores de 18 años. Se recomienda llegar antes de las 21 hs.",
     coordinates: {
       lat: -34.6042,
       lng: -58.3856,
@@ -433,13 +461,66 @@ export const mockEvents: Array<EventCardData> = [
       { profileId: "profile-indigo-wear" },
       { profileId: "profile-urbe-street" },
     ],
-    requirements: "Entrada libre. Venta directa en stands de las marcas participantes.",
+    requirements:
+      "Entrada libre. Venta directa en stands de las marcas participantes.",
     coordinates: {
       lat: -34.586,
       lng: -58.4298,
     },
   },
 ]
+
+function buildMockEventId(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID()
+  }
+
+  return `mock-event-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+export function createMockEvent(input: CreateMockEventInput): EventCardData {
+  const title = input.title.trim()
+  const location = input.location.trim()
+
+  const event: EventCardData = {
+    id: buildMockEventId(),
+    label: input.label,
+    title,
+    summary: input.summary.trim(),
+    location,
+    date: input.date,
+    category: input.category.trim(),
+    image: {
+      src: input.image.src.trim(),
+      alt: `${title} - ${location}`,
+    },
+    ctaText: input.ctaText?.trim() || "Ver más detalle",
+    ctaHref: input.ctaHref,
+    description: input.description.trim(),
+    price: {
+      amount: input.price.amount,
+      currency: input.price.currency.trim(),
+      label: input.price.label.trim(),
+    },
+    gallery: input.gallery.map((image) => image.trim()).filter(Boolean),
+    savedCount: 0,
+    registrationUrl: input.registrationUrl?.trim() || undefined,
+    organizer: input.organizer,
+    participatingVentures: input.participatingVentures,
+    attendeeProfileIds: input.attendeeProfileIds,
+    requirements: input.requirements.trim(),
+    coordinates: mockEventCoordinates,
+  }
+
+  event.ctaHref = `/events/${event.id}`
+
+  mockEvents.unshift(event)
+
+  return event
+}
 
 function formatCardDate(date: Date): string {
   const day = date.getDate().toString().padStart(2, "0")

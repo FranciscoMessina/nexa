@@ -26,6 +26,7 @@ import { getMockEventById } from "@/features/events/data/mock-events"
 import { AppShell } from "@/features/home/components/app-shell"
 import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
 import { getMockProfileById, getMockProfilesByIds } from "@/features/profiles/data/mock-profiles"
+import { useAuth } from "@/shared/hooks/useAuth"
 
 type EventDetailPageProps = {
   eventId: string
@@ -132,8 +133,9 @@ function EventToneBadge({ tone }: { tone: EventBadgeTone }) {
 }
 
 export function EventDetailPage({ eventId }: EventDetailPageProps) {
+  const { currentUserRole } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
-    allowedRoles: ["emprendedor", "asistente"],
+    allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [isSaved, setIsSaved] = useState(false)
@@ -159,10 +161,10 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
         <div className="mx-auto flex max-w-5xl flex-col gap-6">
           <Link
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7] transition hover:text-[#3f3485]"
-            to="/"
+            to={currentUserRole === "organizador" ? "/mis-eventos" : "/"}
           >
             <IconArrowLeft size={16} stroke={2} />
-            Volver al muro de eventos
+            {currentUserRole === "organizador" ? "Volver a mis eventos" : "Volver al muro de eventos"}
           </Link>
 
           <div className="rounded-[2rem] border border-[#e8edf5] bg-white p-8 shadow-[0_16px_50px_-42px_rgba(12,35,75,0.35)]">
@@ -188,7 +190,8 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const participatingProfiles = getMockProfilesByIds(
     event.participatingVentures?.map((venture) => venture.profileId) ?? []
   )
-  const priceLabel = event.price.amount === 0 ? "Gratis" : formatCurrency(event.price.amount, event.price.currency)
+  const hasCustomPriceLabel = Boolean(event.price.label && event.price.label.trim().length > 0)
+  const formattedPrice = event.price.amount === 0 ? "Gratis" : formatCurrency(event.price.amount, event.price.currency)
 
   const goToImage = (nextIndex: number) => {
     if (galleryImages.length === 0) {
@@ -224,10 +227,10 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
       <div className="mx-auto max-w-7xl space-y-6">
         <Link
           className="inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7] transition hover:text-[#3f3485]"
-          to="/"
+          to={currentUserRole === "organizador" ? "/mis-eventos" : "/"}
         >
           <IconArrowLeft size={16} stroke={2} />
-          Volver al muro de eventos
+          {currentUserRole === "organizador" ? "Volver a mis eventos" : "Volver al muro de eventos"}
         </Link>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -304,7 +307,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       }}
                       type="button"
                     >
-                      <div className="aspect-[4/3] bg-[#eef3fb]">
+                      <div className="aspect-4/3 bg-[#eef3fb]">
                         <img
                           alt={`${event.title} - imagen ${index + 1}`}
                           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
@@ -446,8 +449,8 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                     </span>
                   ) : (
                     <div className="mt-2">
-                      <p className="text-3xl font-bold tracking-tight text-[#1e1b4b]">{priceLabel}</p>
-                      <p className="mt-1 text-sm text-[#6b7d9c]">por persona</p>
+                      <p className="text-3xl font-bold tracking-tight text-[#1e1b4b]">{formattedPrice}</p>
+                      <p className="mt-1 text-sm text-[#6b7d9c]">{hasCustomPriceLabel ? event.price.label.trim() : "por persona"}</p>
                     </div>
                   )}
                 </div>
