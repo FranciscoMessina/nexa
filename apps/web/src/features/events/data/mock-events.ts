@@ -1,4 +1,5 @@
 import type { EventCardData, EventItem } from "../types/event.types"
+import { withResolvedEventLabel } from "../utils/event-label.utils"
 
 type CreateMockEventInput = {
   organizer: EventCardData["organizer"]
@@ -14,7 +15,7 @@ type CreateMockEventInput = {
   ctaText?: string
   ctaHref?: string
   description: string
-  price: EventCardData["price"]
+  price?: EventCardData["price"]
   gallery: Array<string>
   registrationUrl?: string
   participatingVentures?: EventCardData["participatingVentures"]
@@ -22,9 +23,21 @@ type CreateMockEventInput = {
   requirements: string
 }
 
+const emptyEventPrice: EventCardData["price"] = {
+  amount: 0,
+  currency: "ARS",
+  label: "",
+}
+
 const mockEventCoordinates: EventCardData["coordinates"] = {
   lat: -34.6037,
   lng: -58.3816,
+}
+
+/** 3 eventos en mayo (ya pasaron) y el resto en junio, respecto a «hoy» en el año actual. */
+function demoDate(month: number, day: number, hour = 20, minute = 0): Date {
+  const year = new Date().getFullYear()
+  return new Date(year, month - 1, day, hour, minute, 0, 0)
 }
 
 export const featuredEvent: EventCardData = {
@@ -37,7 +50,7 @@ export const featuredEvent: EventCardData = {
   summary:
     "Promoción de etiquetas seleccionadas con tabla de quesos y fiambres del bar, y jazz en vivo a cargo de una banda local.",
   location: "Brutal, Callao 1863, Recoleta",
-  date: new Date("2025-06-20T20:00:00"),
+  date: demoDate(6, 6, 20),
   category: "Gastronomía",
   image: {
     src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80",
@@ -48,11 +61,7 @@ export const featuredEvent: EventCardData = {
 
   description:
     "Brutal presenta una promo de vinos con degustación de cuatro etiquetas y una tabla de quesos y fiambres preparada por el local. La velada incluye una charla breve de maridaje y música en vivo de Loza Jazz, en un formato íntimo para pocas mesas.",
-  price: {
-    amount: 8500,
-    currency: "ARS",
-    label: "$8.500 por persona",
-  },
+  price: emptyEventPrice,
   gallery: [
     "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80",
     "https://images.unsplash.com/photo-1474722883778-792e7990302f?auto=format&fit=crop&w=1200&q=80",
@@ -83,14 +92,14 @@ export const mockEvents: Array<EventCardData> = [
   {
     id: "a7d4e6d1-2b8f-4d5f-9b73-0d6b0e6d9a11",
     label: {
-      type: "community",
-      text: "Evento comunitario",
+      type: "verified",
+      text: "Evento verificado",
     },
     title: "DJ Set en Antares",
     summary:
       "Noche íntima en el bar cervecero con set del DJ invitado, cervezas de la casa y picada para cerrar la semana.",
     location: "Antares Bar, Av. Federico Lacroze 3455, Colegiales",
-    date: new Date("2025-06-21T22:00:00"),
+    date: demoDate(6, 12, 22),
     category: "Música",
     image: {
       src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
@@ -100,12 +109,8 @@ export const mockEvents: Array<EventCardData> = [
     ctaHref: "/",
 
     description:
-      "Antares Bar abre a la noche con un DJ set en formato reducido: música electrónica suave, cervezas artesanales y picada para compartir en mesas. El emprendimiento invitado pone la música; el bar organiza el espacio y la barra. Cupo limitado, sin pista masiva.",
-    price: {
-      amount: 0,
-      currency: "ARS",
-      label: "Entrada libre",
-    },
+      "Antares Bar abre a la noche con un DJ set en formato reducido: música electrónica suave, cervezas artesanales y picada para compartir en mesas. El emprendimiento invitado pone la música; el bar organiza el espacio y la barra, sin pista masiva.",
+    price: emptyEventPrice,
     gallery: [
       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
@@ -123,7 +128,7 @@ export const mockEvents: Array<EventCardData> = [
       contactEmail: "eventos@antaresbar.com.ar",
     },
     participatingVentures: [{ profileId: "profile-dj-mauri-vega" }],
-    requirements: "Mayores de 18 años. Cupo limitado. Reserva recomendada.",
+    requirements: "Mayores de 18 años.",
     coordinates: {
       lat: -34.5742,
       lng: -58.4478,
@@ -139,7 +144,7 @@ export const mockEvents: Array<EventCardData> = [
     summary:
       "Degustación guiada con variedad de estilos, maridajes sugeridos y espacio para conocer procesos de elaboración.",
     location: "Antares Bar, Av. Federico Lacroze 3455, Colegiales",
-    date: new Date("2025-06-22T19:30:00"),
+    date: demoDate(5, 20, 19, 30),
     category: "Gastronomía",
     image: {
       src: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
@@ -150,11 +155,7 @@ export const mockEvents: Array<EventCardData> = [
 
     description:
       "Una degustación guiada por el maestro cervecero de Antares donde se recorren seis estilos diferentes: desde una Kolsch refrescante hasta una Imperial Stout de guarda. Cada cerveza viene acompañada de un maridaje sugerido y una breve explicación del proceso de elaboración. Ideal para quienes quieren profundizar su conocimiento cervecero en un ambiente distendido.",
-    price: {
-      amount: 12000,
-      currency: "ARS",
-      label: "$12.000 por persona",
-    },
+    price: emptyEventPrice,
     gallery: [
       "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80",
@@ -181,14 +182,14 @@ export const mockEvents: Array<EventCardData> = [
   {
     id: "8b9a0d2c-3f4e-4d1b-9f0a-1c2d3e4f5a6b",
     label: {
-      type: "community",
-      text: "Evento comunitario",
+      type: "verified",
+      text: "Evento verificado",
     },
     title: "Jazz en Vivo en 878 Bar",
     summary:
       "Una sesión íntima con músicos locales, ambientación cálida y una carta pensada para acompañar la velada.",
     location: "878 Bar, Dique 3, Puerto Madero",
-    date: new Date("2025-06-27T21:00:00"),
+    date: demoDate(6, 15, 21),
     category: "Música",
     image: {
       src: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
@@ -198,12 +199,8 @@ export const mockEvents: Array<EventCardData> = [
     ctaHref: "/",
 
     description:
-      "878 Bar recibe a Loza Jazz para una sesión íntima de jazz en vivo. El bar organiza la velada y la banda presenta estándares y temas propios para un público reducido, con barra del local y reserva de mesas.",
-    price: {
-      amount: 5000,
-      currency: "ARS",
-      label: "$5.000 por persona (consumición incluida)",
-    },
+      "878 Bar recibe a Loza Jazz para una sesión íntima de jazz en vivo. El bar organiza la velada y la banda presenta estándares y temas propios para un público reducido, con barra del local.",
+    price: emptyEventPrice,
     gallery: [
       "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=1200&q=80",
@@ -217,13 +214,13 @@ export const mockEvents: Array<EventCardData> = [
       name: "878 Bar",
       avatarUrl:
         "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=100&q=80",
-      verified: false,
+      verified: true,
       contactEmail: "reservas@878bar.com.ar",
     },
     participatingVentures: [{ profileId: "profile-loza-jazz" }],
     attendeeProfileIds: ["profile-maria-lopez"],
     requirements:
-      "Se recomienda reservar lugar con anticipación. El precio incluye una consumición de bienvenida.",
+      "Incluye una consumición de bienvenida.",
     coordinates: {
       lat: -34.6098,
       lng: -58.3615,
@@ -239,7 +236,7 @@ export const mockEvents: Array<EventCardData> = [
     summary:
       "Encuentro comunitario para comentar una lectura compartida. Lo organiza una persona del barrio; el café solo presta el espacio.",
     location: "Café Rita, Federico Lacroze 2380, Chacarita",
-    date: new Date("2025-06-28T16:00:00"),
+    date: demoDate(5, 15, 16),
     category: "Arte y Cultura",
     image: {
       src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
@@ -250,11 +247,7 @@ export const mockEvents: Array<EventCardData> = [
 
     description:
       "María López convoca a vecinos y lectores para comentar 'Las correcciones' de Jonathan Franzen en Café Rita. Es un evento comunitario: quien organiza es una usuaria de Nexa que asiste a otros eventos del barrio; el café facilita mesas, café y medialunas con un arancel simbólico.",
-    price: {
-      amount: 2500,
-      currency: "ARS",
-      label: "$2.500 (café y medialunas incluidos)",
-    },
+    price: emptyEventPrice,
     gallery: [
       "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1200&q=80",
@@ -288,7 +281,7 @@ export const mockEvents: Array<EventCardData> = [
     summary:
       "Taller comunitario de acuarela dictado por un emprendimiento creativo en un café de Villa Crespo.",
     location: "Café Walden, Niceto Vega 5186, Villa Crespo",
-    date: new Date("2025-06-29T15:00:00"),
+    date: demoDate(6, 24, 15),
     category: "Talleres y Cursos",
     image: {
       src: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1200&q=80",
@@ -298,16 +291,12 @@ export const mockEvents: Array<EventCardData> = [
     ctaHref: "/",
 
     description:
-      "Estudio Pulso, emprendimiento de arte y talleres, organiza una tarde de acuarela en Café Walden. Incluye materiales, demostración de técnicas básicas y espacio para terminar una pieza propia. El café presta el salón; el formato es comunitario y con cupo acotado.",
-    price: {
-      amount: 9000,
-      currency: "ARS",
-      label: "$9.000 (materiales incluidos)",
-    },
+      "Estudio Pulso, emprendimiento de arte y talleres, organiza una tarde de acuarela en Café Walden. Incluye materiales, demostración de técnicas básicas y espacio para terminar una pieza propia. El café presta el salón en formato comunitario.",
+    price: emptyEventPrice,
     gallery: [
       "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1587037542529-12a14464ebbb?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1596464716127-f2a82984de30?auto=format&fit=crop&w=1200&q=80",
     ],
     savedCount: 38,
@@ -337,7 +326,7 @@ export const mockEvents: Array<EventCardData> = [
     summary:
       "Clase abierta de yoga para todos los niveles, en un entorno verde al aire libre en Colegiales.",
     location: "Parque Centenario, Av. Patricias Argentinas, Colegiales",
-    date: new Date("2025-06-18T10:00:00"),
+    date: demoDate(5, 10, 10),
     category: "Deportes",
     image: {
       src: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
@@ -346,15 +335,11 @@ export const mockEvents: Array<EventCardData> = [
     ctaText: "Ver más detalle",
     ctaHref: "/",
     description:
-      "María López organiza una clase abierta de yoga en Parque Centenario para vecinos del barrio. Es un evento comunitario, no oficial del espacio público: cupo limitado, traé tu mat o alquilá una en el lugar.",
-    price: {
-      amount: 0,
-      currency: "ARS",
-      label: "Entrada libre",
-    },
+      "María López organiza una clase abierta de yoga en Parque Centenario para vecinos del barrio. Es un evento comunitario, no oficial del espacio público: traé tu mat o alquilá una en el lugar.",
+    price: emptyEventPrice,
     gallery: [
       "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1506126613645-ec7dba78f13a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1200&q=80",
     ],
     savedCount: 54,
     organizer: {
@@ -377,28 +362,25 @@ export const mockEvents: Array<EventCardData> = [
       type: "verified",
       text: "Evento verificado",
     },
-    title: "Rock nacional en vivo en Bar Basílico",
+    title: "Banda de Rock en vivo en Bar Basílico",
     summary:
-      "Show de la banda Roots & Calle en un bar clásico de Corrientes. El bar organiza la noche; la banda es el emprendimiento invitado.",
+      "Noche de rock nacional en Corrientes con Roots & Calle, banda de rock nacional invitada. El bar organiza la velada; la banda presenta su repertorio en vivo.",
     location: "Bar Basílico, Av. Corrientes 1662, Microcentro",
-    date: new Date("2025-06-21T21:00:00"),
+    date: demoDate(6, 21, 21),
     category: "Música",
     image: {
-      src: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
-      alt: "Banda tocando en un bar con iluminación cálida y público sentado",
+      src: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
+      alt: "Banda de rock en vivo en un bar con luces de escenario",
     },
     ctaText: "Ver más detalle",
     ctaHref: "/",
     description:
-      "Bar Basílico presenta a Roots & Calle en un show de rock nacional para un público reducido. El bar cura la velada y la banda, como emprendimiento musical, lleva el repertorio en vivo. Entrada con consumición mínima y mesas numeradas.",
-    price: {
-      amount: 6000,
-      currency: "ARS",
-      label: "$6.000 (incluye una consumición)",
-    },
+      "Bar Basílico presenta a Roots & Calle, banda de rock nacional, en un show íntimo para público reducido. El dúo porteño recorre clásicos y temas propios del rock nacional argentino. El bar cura la noche; la banda, como emprendimiento musical, lleva el show en vivo. Entrada con consumición mínima y mesas numeradas.",
+    price: emptyEventPrice,
     gallery: [
-      "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
     ],
     savedCount: 91,
     organizer: {
@@ -421,14 +403,14 @@ export const mockEvents: Array<EventCardData> = [
   {
     id: "a4b5c6d7-e8f9-4a0b-1c2d-3e4f5a6b7c8d",
     label: {
-      type: "community",
-      text: "Evento comunitario",
+      type: "verified",
+      text: "Evento verificado",
     },
     title: "Pop-up de marcas de ropa en Bar Tabac",
     summary:
       "Feria barrial de indumentaria en el patio del bar: tres marcas de ropa locales y venta directa en stands.",
     location: "Bar Tabac, Guatemala 5860, Palermo",
-    date: new Date("2025-06-25T20:00:00"),
+    date: demoDate(6, 28, 20),
     category: "Ferias de Emprendedores",
     image: {
       src: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
@@ -438,14 +420,10 @@ export const mockEvents: Array<EventCardData> = [
     ctaHref: "/",
     description:
       "Bar Tabac convoca a marcas de ropa del barrio para un pop-up de indumentaria en el patio. Participan Crudo, Indigo Wear y Urbe Street con piezas limitadas y probadores, mientras el bar ofrece tragos y picadas. Entrada libre, formato comunitario.",
-    price: {
-      amount: 0,
-      currency: "ARS",
-      label: "Entrada libre",
-    },
+    price: emptyEventPrice,
     gallery: [
       "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1469334031218-f5d0b85e357f?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80",
     ],
     savedCount: 41,
     organizer: {
@@ -453,7 +431,7 @@ export const mockEvents: Array<EventCardData> = [
       name: "Bar Tabac",
       avatarUrl:
         "https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=100&q=80",
-      verified: false,
+      verified: true,
       contactEmail: "info@cafetabac.com.ar",
     },
     participatingVentures: [
@@ -487,7 +465,6 @@ export function createMockEvent(input: CreateMockEventInput): EventCardData {
 
   const event: EventCardData = {
     id: buildMockEventId(),
-    label: input.label,
     title,
     summary: input.summary.trim(),
     location,
@@ -500,11 +477,7 @@ export function createMockEvent(input: CreateMockEventInput): EventCardData {
     ctaText: input.ctaText?.trim() || "Ver más detalle",
     ctaHref: input.ctaHref,
     description: input.description.trim(),
-    price: {
-      amount: input.price.amount,
-      currency: input.price.currency.trim(),
-      label: input.price.label.trim(),
-    },
+    price: input.price ?? emptyEventPrice,
     gallery: input.gallery.map((image) => image.trim()).filter(Boolean),
     savedCount: 0,
     registrationUrl: input.registrationUrl?.trim() || undefined,
@@ -517,9 +490,10 @@ export function createMockEvent(input: CreateMockEventInput): EventCardData {
 
   event.ctaHref = `/events/${event.id}`
 
-  mockEvents.unshift(event)
+  const resolved = withResolvedEventLabel(event)
+  mockEvents.unshift(resolved)
 
-  return event
+  return resolved
 }
 
 function formatCardDate(date: Date): string {
@@ -569,5 +543,7 @@ export function toEventItem(event: EventCardData): EventItem {
 }
 
 export function getMockEventById(eventId: string): EventCardData | undefined {
-  return mockEvents.find((event) => event.id === eventId)
+  const event = mockEvents.find((item) => item.id === eventId)
+
+  return event ? withResolvedEventLabel(event) : undefined
 }

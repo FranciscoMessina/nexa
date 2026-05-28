@@ -1,6 +1,5 @@
 import {
   IconArrowLeft,
-  IconArrowRight,
   IconBrandWhatsapp,
   IconBrandX,
   IconCalendar,
@@ -8,24 +7,30 @@ import {
   IconChevronRight,
   IconCopy,
   IconExternalLink,
-  IconHeart,
-  IconHeartFilled,
   IconLink,
   IconMapPin,
   IconPhoto,
   IconShare,
   IconShieldCheck,
   IconTag,
+  IconUserCheck,
+  IconUserMinus,
   IconUsers,
 } from "@tabler/icons-react"
 import { Link } from "@tanstack/react-router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
 import { getMockEventById } from "@/features/events/data/mock-events"
+import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
+import { useEventAttendanceStore } from "@/features/events/stores/event-attendance.store"
 import { AppShell } from "@/features/home/components/app-shell"
 import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
-import { getMockProfileById, getMockProfilesByIds } from "@/features/profiles/data/mock-profiles"
+import {
+  getMockProfileById,
+  getMockProfileForEmail,
+  getMockProfilesByIds,
+} from "@/features/profiles/data/mock-profiles"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type EventDetailPageProps = {
@@ -43,14 +48,6 @@ function formatDetailDate(date: Date): string {
     minute: "2-digit",
     hour12: false,
   }).format(date)
-}
-
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount)
 }
 
 function splitParagraphs(text: string): Array<string> {
@@ -133,17 +130,29 @@ function EventToneBadge({ tone }: { tone: EventBadgeTone }) {
 }
 
 export function EventDetailPage({ eventId }: EventDetailPageProps) {
-  const { currentUserRole } = useAuth()
+  const { user, currentUserRole } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
+  const hydrate = useEventAttendanceStore((state) => state.hydrate)
+  const isHydrated = useEventAttendanceStore((state) => state.isHydrated)
+  const setAttending = useEventAttendanceStore((state) => state.setAttending)
+  const isAttending = useEventAttendanceStore((state) => state.isAttending)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const [isSaved, setIsSaved] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+
+  const seedAttendeeIds = getMockEventById(eventId)?.attendeeProfileIds ?? []
+  const attendanceCount = useEventAttendanceStore((state) =>
+    state.getAttendanceCount(eventId, seedAttendeeIds)
+  )
+
+  useEffect(() => {
+    hydrate()
+  }, [hydrate])
 
   if (isChecking) {
     return (
-      <main className="grid min-h-svh place-items-center bg-[#f4f6fa] p-6">
+      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando sesión...</p>
       </main>
     )
@@ -178,21 +187,25 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
     )
   }
 
+  const eventLabel = resolveEventLabel(event)
   const galleryImages = event.gallery.slice(0, 5)
   const activeImage = galleryImages[activeImageIndex] ?? event.image.src
   const shareUrl = getShareUrl()
   const mapUrl = getMapUrl(event.coordinates.lat, event.coordinates.lng)
-  const registrationUrl = event.registrationUrl ?? `mailto:${event.organizer.contactEmail}?subject=${encodeURIComponent(`Inscripción al evento: ${event.title}`)}`
-  const registrationLabel = event.registrationUrl ? "Ir al evento" : "Inscribirse al evento"
+  const viewerProfile = user ? getMockProfileForEmail(user.email) : undefined
+  const isOwnEvent = viewerProfile?.id === event.organizer.profileId
+  const attending =
+    isHydrated && viewerProfile ? isAttending(viewerProfile.id, event.id) : false
+  const attendanceLabel =
+    attendanceCount === 1
+      ? "1 persona confirmó que va a asistir"
+      : `${attendanceCount} personas confirmaron que van a asistir`
   const descriptionParagraphs = splitParagraphs(event.description)
   const requirementItems = splitRequirements(event.requirements)
   const organizerProfile = getMockProfileById(event.organizer.profileId)
   const participatingProfiles = getMockProfilesByIds(
     event.participatingVentures?.map((venture) => venture.profileId) ?? []
   )
-  const hasCustomPriceLabel = Boolean(event.price.label && event.price.label.trim().length > 0)
-  const formattedPrice = event.price.amount === 0 ? "Gratis" : formatCurrency(event.price.amount, event.price.currency)
-
   const goToImage = (nextIndex: number) => {
     if (galleryImages.length === 0) {
       return
@@ -321,7 +334,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
             </section>
 
             <section className="space-y-6 rounded-[2rem] border border-[#e8edf5] bg-white p-6 shadow-[0_18px_60px_-44px_rgba(16,43,88,0.24)] sm:p-8">
-              <EventToneBadge tone={event.label.type} />
+              <EventToneBadge tone={eventLabel.type} />
 
               <div className="space-y-4">
                 <div>
@@ -441,57 +454,53 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
           <aside className="xl:sticky xl:top-6 xl:self-start">
             <div className="rounded-[2rem] border border-[#e8edf5] bg-white p-5 shadow-[0_18px_60px_-44px_rgba(16,43,88,0.3)]">
               <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a9bb8]">Precio</p>
-                  {event.price.amount === 0 ? (
-                    <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
-                      Gratis
-                    </span>
-                  ) : (
-                    <div className="mt-2">
-                      <p className="text-3xl font-bold tracking-tight text-[#1e1b4b]">{formattedPrice}</p>
-                      <p className="mt-1 text-sm text-[#6b7d9c]">{hasCustomPriceLabel ? event.price.label.trim() : "por persona"}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="rounded-2xl bg-[#f9fbff] p-4 text-sm text-[#51617d]">
+                <div
+                  className="rounded-2xl bg-[#f9fbff] p-4 text-sm text-[#51617d]"
+                  data-testid="event-attendance-count"
+                >
                   <div className="flex items-center gap-2 font-semibold text-[#1e1b4b]">
-                    <IconHeart size={18} stroke={1.9} />
-                    {event.savedCount} personas guardaron este evento
+                    <IconUsers size={18} stroke={1.9} />
+                    {attendanceLabel}
                   </div>
                 </div>
 
-                <a
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-18px_rgba(249,115,22,0.75)] transition hover:-translate-y-0.5 hover:bg-[#ea680f] hover:shadow-[0_22px_46px_-18px_rgba(249,115,22,0.8)]"
-                  href={registrationUrl}
-                  rel={event.registrationUrl ? "noreferrer" : undefined}
-                  target={event.registrationUrl ? "_blank" : undefined}
-                >
-                  {registrationLabel}
-                  {event.registrationUrl ? (
-                    <IconExternalLink size={16} stroke={2} />
+                {!isOwnEvent && viewerProfile ? (
+                  attending ? (
+                    <button
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-white px-5 py-3.5 text-sm font-semibold text-[#1a3462] transition hover:-translate-y-0.5 hover:bg-[#f4f7fb]"
+                      data-testid="event-decline-attendance-button"
+                      onClick={() => {
+                        setAttending(viewerProfile.id, event.id, false)
+                      }}
+                      type="button"
+                    >
+                      <IconUserMinus size={16} stroke={2} />
+                      No asistir al evento
+                    </button>
                   ) : (
-                    <IconArrowRight size={16} stroke={2} />
-                  )}
-                </a>
+                    <button
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-18px_rgba(249,115,22,0.75)] transition hover:-translate-y-0.5 hover:bg-[#ea680f]"
+                      data-testid="event-attend-button"
+                      onClick={() => {
+                        setAttending(viewerProfile.id, event.id, true)
+                      }}
+                      type="button"
+                    >
+                      <IconUserCheck size={16} stroke={2} />
+                      Asistir al evento
+                    </button>
+                  )
+                ) : null}
 
-                <button
-                  className={cn(
-                    "inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-5 py-3.5 text-sm font-semibold transition hover:-translate-y-0.5",
-                    isSaved
-                      ? "border-[#f97316] bg-[#fff3ed] text-[#e85a2f]"
-                      : "border-[#f97316] bg-white text-[#f97316] hover:bg-[#fff3ed]"
-                  )}
-                  data-testid="event-save-button"
-                  onClick={() => {
-                    setIsSaved((current) => !current)
-                  }}
-                  type="button"
-                >
-                  {isSaved ? <IconHeartFilled size={16} stroke={1.9} /> : <IconHeart size={16} stroke={1.9} />}
-                  {isSaved ? "Evento guardado" : "Guardar evento"}
-                </button>
+                {attending ? (
+                  <p className="text-center text-xs text-[#6b7d9c]">
+                    Este evento aparece en{" "}
+                    <Link className="font-semibold text-[#5b4bb7] hover:text-[#3f3485]" to="/mis-eventos">
+                      Mis eventos
+                    </Link>
+                    .
+                  </p>
+                ) : null}
 
                 <div className="pt-2">
                   <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#1e1b4b]">

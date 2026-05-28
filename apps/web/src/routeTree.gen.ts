@@ -14,6 +14,7 @@ import { Route as PerfilIndexRouteImport } from './routes/perfil/index'
 import { Route as MisEventosIndexRouteImport } from './routes/mis-eventos/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as CrearEventoIndexRouteImport } from './routes/crear-evento/index'
 import { Route as PerfilesProfileIdRouteImport } from './routes/perfiles/$profileId'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 
@@ -42,6 +43,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrearEventoIndexRoute = CrearEventoIndexRouteImport.update({
+  id: '/crear-evento/',
+  path: '/crear-evento/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilesProfileIdRoute = PerfilesProfileIdRouteImport.update({
   id: '/perfiles/$profileId',
   path: '/perfiles/$profileId',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/perfiles/$profileId': typeof PerfilesProfileIdRoute
+  '/crear-evento/': typeof CrearEventoIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
   '/mis-eventos/': typeof MisEventosIndexRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/perfiles/$profileId': typeof PerfilesProfileIdRoute
+  '/crear-evento': typeof CrearEventoIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/login': typeof LoginIndexRoute
   '/mis-eventos': typeof MisEventosIndexRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/perfiles/$profileId': typeof PerfilesProfileIdRoute
+  '/crear-evento/': typeof CrearEventoIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
   '/mis-eventos/': typeof MisEventosIndexRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/events/$eventId'
     | '/perfiles/$profileId'
+    | '/crear-evento/'
     | '/dashboard/'
     | '/login/'
     | '/mis-eventos/'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/events/$eventId'
     | '/perfiles/$profileId'
+    | '/crear-evento'
     | '/dashboard'
     | '/login'
     | '/mis-eventos'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/events/$eventId'
     | '/perfiles/$profileId'
+    | '/crear-evento/'
     | '/dashboard/'
     | '/login/'
     | '/mis-eventos/'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   PerfilesProfileIdRoute: typeof PerfilesProfileIdRoute
+  CrearEventoIndexRoute: typeof CrearEventoIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
   MisEventosIndexRoute: typeof MisEventosIndexRoute
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crear-evento/': {
+      id: '/crear-evento/'
+      path: '/crear-evento'
+      fullPath: '/crear-evento/'
+      preLoaderRoute: typeof CrearEventoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/perfiles/$profileId': {
       id: '/perfiles/$profileId'
       path: '/perfiles/$profileId'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   PerfilesProfileIdRoute: PerfilesProfileIdRoute,
+  CrearEventoIndexRoute: CrearEventoIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
   MisEventosIndexRoute: MisEventosIndexRoute,
