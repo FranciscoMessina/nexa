@@ -1,7 +1,9 @@
-import { useState, type FormEvent } from "react"
 import { Link } from "@tanstack/react-router"
+import { useState } from "react"
+import type { FormEvent } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventCard } from "@/features/events/components/event-card"
+import { EventDatePicker } from "@/features/events/components/event-date-picker"
 import { createMockEvent } from "@/features/events/data/mock-events"
 import { getMyEventsCopy, getMyEventsForUser } from "@/features/events/data/my-events"
 import { AppShell } from "@/features/home/components/app-shell"
@@ -55,6 +57,30 @@ function splitGallery(value: string): Array<string> {
     .filter(Boolean)
 }
 
+function parseDateInput(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim())
+
+  if (!match) {
+    return null
+  }
+
+  const year = Number(match[1])
+  const month = Number(match[2]) - 1
+  const day = Number(match[3])
+  const date = new Date(year, month, day, 12, 0, 0, 0)
+
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day
+  ) {
+    return null
+  }
+
+  return date
+}
+
 export function MyEventsPage() {
   const { user, currentUserRole } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
@@ -69,7 +95,10 @@ export function MyEventsPage() {
 
   const copy = currentUserRole ? getMyEventsCopy(currentUserRole) : getMyEventsCopy("asistente")
 
-  const handleDraftChange = <K extends keyof EventDraftState>(key: K, value: EventDraftState[K]) => {
+  const handleDraftChange = <TKey extends keyof EventDraftState>(
+    key: TKey,
+    value: EventDraftState[TKey]
+  ) => {
     setDraft((currentDraft) => ({
       ...currentDraft,
       [key]: value,
@@ -93,6 +122,7 @@ export function MyEventsPage() {
     const coordinatesLat = Number(draft.coordinatesLat)
     const coordinatesLng = Number(draft.coordinatesLng)
     const gallery = splitGallery(draft.gallery)
+    const parsedDate = parseDateInput(draft.date)
 
     if (
       !draft.title.trim() ||
@@ -107,6 +137,7 @@ export function MyEventsPage() {
       Number.isNaN(priceAmount) ||
       Number.isNaN(coordinatesLat) ||
       Number.isNaN(coordinatesLng) ||
+      !parsedDate ||
       gallery.length === 0
     ) {
       return
@@ -127,7 +158,7 @@ export function MyEventsPage() {
       title: draft.title,
       summary: draft.summary,
       location: draft.location,
-      date: new Date(draft.date),
+      date: parsedDate,
       category: draft.category,
       image: {
         src: draft.imageSrc,
@@ -232,18 +263,18 @@ export function MyEventsPage() {
                 />
               </label>
 
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Fecha y hora
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("date", event.target.value)
+              <div className="space-y-2 text-sm font-medium text-[#1a3462]">
+                <EventDatePicker
+                  emptyValue=""
+                  label="Fecha"
+                  onChange={(value) => {
+                    handleDraftChange("date", value)
                   }}
-                  required
-                  type="datetime-local"
+                  placeholder="dd/mm/aaaa"
+                  testId="event-date-input"
                   value={draft.date}
                 />
-              </label>
+              </div>
 
               <label className="space-y-2 text-sm font-medium text-[#1a3462]">
                 Tipo de evento
