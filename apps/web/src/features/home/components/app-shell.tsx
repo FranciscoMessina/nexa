@@ -7,7 +7,7 @@ type AppShellProps = {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div className="flex min-h-svh bg-[#f4f6fa]" data-testid="app-shell">
+    <div className="flex min-h-svh bg-[#faf7f2]" data-testid="app-shell">
       <AppSidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">

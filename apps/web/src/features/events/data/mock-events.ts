@@ -430,7 +430,7 @@ export const mockEvents: Array<EventCardData> = [
       profileId: "profile-cafe-tabac",
       name: "Bar Tabac",
       avatarUrl:
-        "https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=100&q=80",
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=100&q=80",
       verified: true,
       contactEmail: "info@cafetabac.com.ar",
     },

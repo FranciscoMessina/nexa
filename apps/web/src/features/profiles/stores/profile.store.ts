@@ -88,8 +88,26 @@ export const useProfileStore = create<ProfileStoreState>()((set, get) => ({
     const baseProfiles = buildInitialProfiles()
     const storedProfiles = readStoredProfiles()
 
+    const profiles = Object.fromEntries(
+      Object.entries(baseProfiles).map(([profileId, baseProfile]) => {
+        const storedProfile = storedProfiles[profileId]
+        if (!storedProfile) {
+          return [profileId, baseProfile]
+        }
+
+        return [
+          profileId,
+          {
+            ...storedProfile,
+            avatarUrl: baseProfile.avatarUrl,
+            representativeImageUrl: baseProfile.representativeImageUrl,
+          },
+        ]
+      })
+    )
+
     set({
-      profiles: { ...baseProfiles, ...storedProfiles },
+      profiles,
       isHydrated: true,
     })
   },

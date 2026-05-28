@@ -40,17 +40,17 @@ export const mockProfileRecords: Array<Profile> = [
     description:
       "Bar Tabac es un bar de barrio en Palermo que combina noches de música, gastronomía de autor y encuentros con emprendimientos locales.",
     avatarUrl:
-      "https://images.unsplash.com/photo-1554118811-1e0d58220f8d?auto=format&fit=crop&w=200&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=200&q=80",
     representativeImageUrl:
-      "https://images.unsplash.com/photo-1554118811-1e0d58220f8d?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
     socialLinks: [
       { id: "1", platform: "instagram", handle: "@cafetabac" },
       { id: "2", platform: "facebook", handle: "Café Tabac" },
       { id: "3", platform: "twitter", handle: "@cafetabac" },
       { id: "4", platform: "youtube", handle: "Café Tabac" },
     ],
-    validationStatus: "not_validated",
-    statusBadge: { label: "No validado", tone: "warning" },
+    validationStatus: "validated",
+    statusBadge: { label: "Organizador verificado", tone: "success" },
   },
   {
     id: "profile-crudo",
@@ -120,8 +120,8 @@ export const mockProfileRecords: Array<Profile> = [
     representativeImageUrl:
       "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
     socialLinks: [{ id: "1", platform: "instagram", handle: "@878bar" }],
-    validationStatus: "not_validated",
-    statusBadge: { label: "No validado", tone: "warning" },
+    validationStatus: "validated",
+    statusBadge: { label: "Organizador verificado", tone: "success" },
   },
   {
     id: "profile-cafe-rita",
@@ -136,7 +136,8 @@ export const mockProfileRecords: Array<Profile> = [
     representativeImageUrl:
       "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
     socialLinks: [{ id: "1", platform: "instagram", handle: "@caferita" }],
-    validationStatus: "not_validated",
+    validationStatus: "validated",
+    statusBadge: { label: "Organizador verificado", tone: "success" },
   },
   {
     id: "profile-estudio-pulso",
@@ -210,9 +211,9 @@ export const mockProfileRecords: Array<Profile> = [
     categoryLabel: "Ropa",
     description: "Indigo Wear diseña piezas urbanas en lotes chicos para ferias y pop-ups de emprendedores.",
     avatarUrl:
-      "https://images.unsplash.com/photo-1469334031218-f5d0b85e357f?auto=format&fit=crop&w=200&q=80",
+      "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=200&q=80",
     representativeImageUrl:
-      "https://images.unsplash.com/photo-1469334031218-f5d0b85e357f?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
     socialLinks: [{ id: "1", platform: "instagram", handle: "@indigowear" }],
     statusBadge: { label: "Perfil activo", tone: "success" },
   },
@@ -257,9 +258,9 @@ export const mockProfileRecords: Array<Profile> = [
     categoryLabel: "Diseño",
     description: "Luna Diseño crea accesorios limitados con materiales recuperados y producción local.",
     avatarUrl:
-      "https://images.unsplash.com/photo-1523381210434-271fa511bc63?auto=format&fit=crop&w=200&q=80",
+      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=200&q=80",
     representativeImageUrl:
-      "https://images.unsplash.com/photo-1523381210434-271fa511bc63?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1200&q=80",
     socialLinks: [{ id: "1", platform: "instagram", handle: "@lunadiseno" }],
     statusBadge: { label: "Perfil activo", tone: "success" },
   },

@@ -9,7 +9,7 @@ export function HomePage() {
 
   if (isChecking) {
     return (
-      <main className="grid min-h-svh place-items-center bg-[#f4f6fa] p-6">
+      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando sesión...</p>
       </main>
     )
