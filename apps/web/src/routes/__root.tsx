@@ -1,7 +1,6 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import appCss from "@workspace/ui/globals.css?url"
 
-
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -13,7 +12,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "nexa",
+        title: "Nexa - Nuevos Planes | Nuevas Conexiones",
       },
     ],
     links: [

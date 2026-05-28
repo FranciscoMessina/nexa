@@ -29,23 +29,35 @@ type NavItem =
 const navItems: Array<NavItem> = [
   { label: "Inicio", to: "/", icon: IconHome, testId: "nav-home" },
   { label: "Mapa", icon: IconMapPin, testId: "nav-map", disabled: true },
-  { label: "Crear evento", to: "/crear-evento", icon: IconCirclePlus, testId: "nav-create-event" },
-  { label: "Mis eventos", to: "/mis-eventos", icon: IconCalendarEvent, testId: "nav-my-events" },
+  {
+    label: "Crear evento",
+    to: "/crear-evento",
+    icon: IconCirclePlus,
+    testId: "nav-create-event",
+  },
+  {
+    label: "Mis eventos",
+    to: "/mis-eventos",
+    icon: IconCalendarEvent,
+    testId: "nav-my-events",
+  },
   { label: "Mi perfil", to: "/perfil", icon: IconUser, testId: "nav-profile" },
 ]
 
 export function AppSidebar() {
   const { logout } = useAuth()
-  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
 
   return (
     <aside
-      className="hidden w-64 shrink-0 flex-col border-r border-[#f3dfa8] bg-[linear-gradient(180deg,#fffef9_0%,#fff8dd_24%,#ffe4c8_52%,#ffc894_78%,#ff9f5c_100%)] px-5 py-6 lg:flex"
+      className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-[#f3dfa8] bg-[linear-gradient(180deg,#fffef9_0%,#fff8dd_24%,#ffe4c8_52%,#ffc894_78%,#ff9f5c_100%)] px-5 py-6 lg:flex"
       data-testid="app-sidebar"
     >
-      <NexaLogo className="shrink-0" variant="compact" />
+      <NexaLogo className="mx-auto h-18 shrink-0" variant="compact" />
 
-      <nav className="mt-8 flex flex-col gap-1">
+      <nav className="mt-22 flex flex-col gap-1">
         {navItems.map((item) => {
           const isActive = !("disabled" in item) && pathname === item.to
           const Icon = item.icon
@@ -59,6 +71,10 @@ export function AppSidebar() {
               >
                 <Icon size={20} stroke={1.8} />
                 {item.label}
+
+                <span className="ml-auto rounded-full bg-orange-500/50 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-black">
+                  Proximamente
+                </span>
               </span>
             )
           }
@@ -98,11 +114,9 @@ export function AppSidebar() {
           data-testid="sidebar-promo-card"
         >
           <p className="text-xs font-bold tracking-[0.16em] text-[#102e60] uppercase">
-            Nuevos{" "}
-            <span className="text-[#1a3462]">planes</span>.
+            Nuevos <span className="text-[#1a3462]">planes</span>.
             <br />
-            Nuevas{" "}
-            <span className="text-[#1a3462]">conexiones</span>.
+            Nuevas <span className="text-[#1a3462]">conexiones</span>.
           </p>
           <div
             aria-hidden

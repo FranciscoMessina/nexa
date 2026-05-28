@@ -8,8 +8,9 @@ import {
   getPostLoginPathForRole,
 } from "@/features/auth/api/auth.api"
 import { useRedirectAuthenticatedUser } from "@/features/auth/hooks/useAuthRedirect"
-import { NexaLogo } from "@/shared/components/nexa-logo"
+import { NEXA_LOGO_SRC, NexaLogo } from "@/shared/components/nexa-logo"
 import { useAuth } from "@/shared/hooks/useAuth"
+import { cn } from "@workspace/ui/lib/utils"
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -23,7 +24,9 @@ export function LoginPage() {
   const [remember, setRemember] = useState(false)
 
   const canSubmit = useMemo(() => {
-    return email.trim().length > 0 && password.trim().length >= MIN_PASSWORD_LENGTH
+    return (
+      email.trim().length > 0 && password.trim().length >= MIN_PASSWORD_LENGTH
+    )
   }, [email, password])
 
   async function handleSubmit(event: BaseSyntheticEvent): Promise<void> {
@@ -47,20 +50,28 @@ export function LoginPage() {
     <main className="min-h-svh bg-[radial-gradient(circle_at_top_left,#ffe7d9_0%,#f8f9fc_32%,#f6f7fb_100%)] px-4 py-6 sm:px-6 lg:px-12">
       <div className="mx-auto grid min-h-[calc(100svh-3rem)] w-full max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_1fr]">
         <section className="relative hidden h-full min-h-160 overflow-hidden rounded-[2.25rem] bg-white/80 p-10 shadow-[0_25px_90px_-45px_rgba(30,54,110,0.35)] backdrop-blur lg:flex lg:flex-col">
-          <div className="absolute -left-20 -top-20 size-56 rounded-full bg-linear-to-br from-[#ffd2b9] to-[#ffdfcb]" />
+          <div className="absolute -top-20 -left-20 size-56 rounded-full bg-linear-to-br from-[#ffd2b9] to-[#ffdfcb]" />
           <div className="absolute -bottom-28 -left-14 h-64 w-80 rounded-[50%] bg-linear-to-r from-[#ffc06f] to-[#ff9f5d] opacity-70" />
 
-          <div className="relative z-10 flex flex-col items-start justify-center">
-            <NexaLogo className="max-w-56" variant="full" />
+          <div className="relative z-10 flex h-full flex-col items-center justify-center">
+            <img
+              alt="nexa - Nuevos planes. Nuevas conexiones."
+              className={cn("h-auto w-full")}
+              data-testid="nexa-logo"
+              src={NEXA_LOGO_SRC}
+            />
           </div>
         </section>
 
         <section className="rounded-[2rem] border border-white/70 bg-white/90 p-6 shadow-[0_18px_70px_-45px_rgba(14,33,76,0.5)] backdrop-blur sm:p-8 lg:p-10">
           <div className="mb-8 flex flex-col gap-2 text-center lg:text-left">
             <NexaLogo className="mx-auto max-w-44 lg:hidden" variant="full" />
-            <h1 className="text-4xl font-bold tracking-tight text-[#0e2a59]">Iniciar Sesión</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-[#0e2a59]">
+              Iniciar Sesión
+            </h1>
             <p className="text-base text-[#66789c]">
-              Ingresa tu correo electrónico y contraseña para acceder a tu cuenta.
+              Ingresa tu correo electrónico y contraseña para acceder a tu
+              cuenta.
             </p>
           </div>
 
@@ -72,7 +83,10 @@ export function LoginPage() {
             }}
           >
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#1f3660]" htmlFor="email">
+              <label
+                className="text-sm font-semibold text-[#1f3660]"
+                htmlFor="email"
+              >
                 Correo electrónico
               </label>
               <div className="flex items-center gap-3 rounded-xl border border-[#d9dfeb] bg-white px-4 py-3 focus-within:border-[#f4a318] focus-within:ring-2 focus-within:ring-[#ffd18a]">
@@ -93,7 +107,10 @@ export function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#1f3660]" htmlFor="password">
+              <label
+                className="text-sm font-semibold text-[#1f3660]"
+                htmlFor="password"
+              >
                 Contraseña
               </label>
               <div className="flex items-center gap-3 rounded-xl border border-[#d9dfeb] bg-white px-4 py-3 focus-within:border-[#f4a318] focus-within:ring-2 focus-within:ring-[#ffd18a]">
@@ -112,14 +129,20 @@ export function LoginPage() {
                   value={password}
                 />
                 <button
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                  }
                   className="text-[#8194b3] transition-colors hover:text-[#4f6488]"
                   onClick={() => {
                     setShowPassword((previousState) => !previousState)
                   }}
                   type="button"
                 >
-                  {showPassword ? <IconEyeClosed size={20} /> : <IconEye size={20} />}
+                  {showPassword ? (
+                    <IconEyeClosed size={20} />
+                  ) : (
+                    <IconEye size={20} />
+                  )}
                 </button>
               </div>
             </div>
@@ -158,7 +181,6 @@ export function LoginPage() {
               {isSubmitting ? "Ingresando..." : "Iniciar Sesión"}
             </button>
           </form>
-
         </section>
       </div>
     </main>

@@ -23,7 +23,9 @@ export function HomePage() {
     <AppShell>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Muro de eventos</h1>
+          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">
+            Muro de eventos
+          </h1>
           <p className="mt-2 text-base text-[#6b7d9c]">
             Descubrí eventos verificados y comunitarios cerca de vos.
           </p>

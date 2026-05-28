@@ -12,22 +12,19 @@ export function NexaLogo({ className, variant = "compact" }: NexaLogoProps) {
     return (
       <img
         alt="nexa - Nuevos planes. Nuevas conexiones."
-        className={cn("h-auto w-full max-w-[11.5rem]", className)}
+        className={cn("h-auto w-full max-w-46", className)}
         data-testid="nexa-logo"
-        src={NEXA_LOGO_SRC}
+        src={NEXA_LOGO_SRC.replace(".png", "-svg.svg")}
       />
     )
   }
 
   return (
-    <div
-      className={cn("h-[5.65rem] w-[9.5rem] overflow-hidden", className)}
-      data-testid="nexa-logo"
-    >
+    <div className={cn("w-38", className)} data-testid="nexa-logo">
       <img
         alt="nexa"
-        className="w-[9.5rem] max-w-none"
-        src={NEXA_LOGO_SRC}
+        className="w-38 max-w-none"
+        src={NEXA_LOGO_SRC.replace(".png", "-svg.svg")}
       />
     </div>
   )

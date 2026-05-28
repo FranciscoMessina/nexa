@@ -1,13 +1,16 @@
 import { Link } from "@tanstack/react-router"
+import { cn } from "@workspace/ui/lib/utils"
 import { useEffect, useState } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventCard } from "@/features/events/components/event-card"
-import { getMyEventsCopy, getMyEventsSections } from "@/features/events/data/my-events"
-import type { EventItem } from "@/features/events/types/event.types"
+import {
+  getMyEventsCopy,
+  getMyEventsSections,
+} from "@/features/events/data/my-events"
 import { useEventAttendanceStore } from "@/features/events/stores/event-attendance.store"
+import type { EventItem } from "@/features/events/types/event.types"
 import { AppShell } from "@/features/home/components/app-shell"
 import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
-import { cn } from "@workspace/ui/lib/utils"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type MyEventsTab = "upcoming" | "past"
@@ -71,7 +74,10 @@ function SectionPanel({
   }
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" data-testid={testId}>
+    <div
+      className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
+      data-testid={testId}
+    >
       {events.map((event) => (
         <EventCard event={event} key={event.id} />
       ))}
@@ -86,7 +92,9 @@ export function MyEventsPage() {
   })
   const hydrate = useEventAttendanceStore((state) => state.hydrate)
   const isHydrated = useEventAttendanceStore((state) => state.isHydrated)
-  const attendingByProfile = useEventAttendanceStore((state) => state.byProfileId)
+  const attendingByProfile = useEventAttendanceStore(
+    (state) => state.byProfileId
+  )
   const [activeTab, setActiveTab] = useState<MyEventsTab>("upcoming")
 
   useEffect(() => {
@@ -94,14 +102,18 @@ export function MyEventsPage() {
   }, [hydrate])
 
   const profileId = user ? getMockProfileForEmail(user.email)?.id : undefined
-  const attendingEventIds = profileId ? (attendingByProfile[profileId] ?? []) : []
+  const attendingEventIds = profileId
+    ? (attendingByProfile[profileId] ?? [])
+    : []
 
   const sections =
     isHydrated && profileId && currentUserRole
       ? getMyEventsSections(profileId, currentUserRole, attendingEventIds)
       : { upcoming: [], past: [] }
 
-  const copy = currentUserRole ? getMyEventsCopy(currentUserRole) : getMyEventsCopy("asistente")
+  const copy = currentUserRole
+    ? getMyEventsCopy(currentUserRole)
+    : getMyEventsCopy("asistente")
 
   if (isChecking) {
     return (
@@ -119,7 +131,9 @@ export function MyEventsPage() {
     <AppShell>
       <div className="space-y-6" data-testid="my-events-page">
         <div>
-          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Mis eventos</h1>
+          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">
+            Mis eventos
+          </h1>
           <p className="mt-2 text-base text-[#6b7d9c]">{copy.subtitle}</p>
         </div>
 
@@ -143,7 +157,9 @@ export function MyEventsPage() {
             type="button"
           >
             {copy.upcomingTitle}
-            <span className="ml-1.5 text-xs font-medium opacity-80">({sections.upcoming.length})</span>
+            <span className="ml-1.5 text-xs font-medium opacity-80">
+              ({sections.upcoming.length})
+            </span>
           </button>
 
           <button
@@ -162,7 +178,9 @@ export function MyEventsPage() {
             type="button"
           >
             {copy.pastTitle}
-            <span className="ml-1.5 text-xs font-medium opacity-80">({sections.past.length})</span>
+            <span className="ml-1.5 text-xs font-medium opacity-80">
+              ({sections.past.length})
+            </span>
           </button>
         </div>
 

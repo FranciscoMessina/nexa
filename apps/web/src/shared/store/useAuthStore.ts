@@ -1,6 +1,6 @@
 import { create } from "zustand"
-import type { AuthUser, LoginPayload } from "@/features/auth/types/auth.types"
 import { loginMock } from "@/features/auth/api/auth.api"
+import type { AuthUser, LoginPayload } from "@/features/auth/types/auth.types"
 
 const STORAGE_KEY = "nexa-auth-user"
 
