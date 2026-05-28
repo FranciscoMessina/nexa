@@ -17,7 +17,6 @@ type EventDraftState = {
   location: string
   date: string
   category: string
-  imageSrc: string
   description: string
   priceAmount: string
   priceLabel: string
@@ -34,7 +33,6 @@ type EventDraftErrorField =
   | "location"
   | "date"
   | "category"
-  | "imageSrc"
   | "description"
   | "priceAmount"
   | "priceLabel"
@@ -49,7 +47,6 @@ const initialDraftState: EventDraftState = {
   location: "",
   date: "",
   category: "",
-  imageSrc: "",
   description: "",
   priceAmount: "",
   priceLabel: "",
@@ -116,9 +113,6 @@ function validateEventDraft(draft: EventDraftState): EventDraftErrors {
     errors.category = "Seleccioná una categoría."
   }
 
-  if (!draft.imageSrc.trim()) {
-    errors.imageSrc = "Pegá una URL de imagen principal."
-  }
 
   if (!draft.description.trim()) {
     errors.description = "Ingresá una descripción."
@@ -307,39 +301,9 @@ function EventPublishModal({
               />
             </div>
 
-            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-              Tipo de evento
-              <select
-                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                onChange={(event) => {
-                  const nextType = event.target.value === "verified" ? "verified" : "community"
-                  onDraftChange("labelType", nextType)
-                  onDraftChange(
-                    "labelText",
-                    nextType === "verified" ? "Evento verificado" : "Evento comunitario"
-                  )
-                }}
-                value={draft.labelType}
-              >
-                <option value="community">Comunitario</option>
-                <option value="verified">Verificado</option>
-              </select>
-            </label>
+            {/* El tipo de evento se setea automáticamente según si el organizador está verificado */}
 
-            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-              Imagen principal
-              <input
-                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                onChange={(event) => {
-                  onDraftChange("imageSrc", event.target.value)
-                }}
-                required
-                value={draft.imageSrc}
-              />
-              {errors.imageSrc ? (
-                <span className="block text-xs font-normal text-rose-600">{errors.imageSrc}</span>
-              ) : null}
-            </label>
+            {/* Imagen principal eliminada: se usará la primera URL de la Galería */}
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
               Descripción
@@ -528,7 +492,6 @@ export function MyEventsPage() {
       !draft.location.trim() ||
       !draft.date ||
       !draft.category.trim() ||
-      !draft.imageSrc.trim() ||
       !draft.description.trim() ||
       !draft.priceLabel.trim() ||
       Number.isNaN(priceAmount) ||
@@ -543,7 +506,7 @@ export function MyEventsPage() {
         profileId: organizerProfile.id,
         name: organizerProfile.displayName,
         avatarUrl: organizerProfile.avatarUrl,
-        verified: true,
+        verified: organizerProfile.validationStatus === "validated",
         contactEmail: user.email,
       },
       label: {
@@ -556,7 +519,7 @@ export function MyEventsPage() {
       date: parsedDate,
       category: draft.category,
       image: {
-        src: draft.imageSrc,
+        src: gallery[0],
       },
       ctaText: "Ver más detalle",
       ctaHref: `/events/${createdEventId ?? ""}`,
@@ -601,6 +564,15 @@ export function MyEventsPage() {
           <button
             className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
             onClick={() => {
+              const organizerProfile = user ? getMockProfileForEmail(user.email) : undefined
+              const verified = organizerProfile?.validationStatus === "validated"
+
+              setDraft((current) => ({
+                ...current,
+                labelType: verified ? "verified" : "community",
+                labelText: verified ? "Evento verificado" : "Evento comunitario",
+              }))
+
               setIsPublishModalOpen(true)
             }}
             type="button"

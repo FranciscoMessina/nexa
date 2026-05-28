@@ -190,7 +190,8 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const participatingProfiles = getMockProfilesByIds(
     event.participatingVentures?.map((venture) => venture.profileId) ?? []
   )
-  const priceLabel = event.price.amount === 0 ? "Gratis" : formatCurrency(event.price.amount, event.price.currency)
+  const hasCustomPriceLabel = Boolean(event.price.label && event.price.label.trim().length > 0)
+  const formattedPrice = event.price.amount === 0 ? "Gratis" : formatCurrency(event.price.amount, event.price.currency)
 
   const goToImage = (nextIndex: number) => {
     if (galleryImages.length === 0) {
@@ -448,8 +449,8 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                     </span>
                   ) : (
                     <div className="mt-2">
-                      <p className="text-3xl font-bold tracking-tight text-[#1e1b4b]">{priceLabel}</p>
-                      <p className="mt-1 text-sm text-[#6b7d9c]">por persona</p>
+                      <p className="text-3xl font-bold tracking-tight text-[#1e1b4b]">{formattedPrice}</p>
+                      <p className="mt-1 text-sm text-[#6b7d9c]">{hasCustomPriceLabel ? event.price.label.trim() : "por persona"}</p>
                     </div>
                   )}
                 </div>
