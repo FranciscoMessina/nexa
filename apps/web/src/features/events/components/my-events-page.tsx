@@ -28,6 +28,21 @@ type EventDraftState = {
   gallery: string
 }
 
+type EventDraftErrorField =
+  | "title"
+  | "summary"
+  | "location"
+  | "date"
+  | "category"
+  | "imageSrc"
+  | "description"
+  | "priceAmount"
+  | "priceLabel"
+  | "gallery"
+  | "requirements"
+
+type EventDraftErrors = Partial<Record<EventDraftErrorField, string>>
+
 const initialDraftState: EventDraftState = {
   title: "",
   summary: "",
@@ -76,9 +91,63 @@ function parseDateInput(value: string): Date | null {
   return date
 }
 
+function validateEventDraft(draft: EventDraftState): EventDraftErrors {
+  const errors: EventDraftErrors = {}
+
+  if (!draft.title.trim()) {
+    errors.title = "Ingresá un título."
+  }
+
+  if (!draft.summary.trim()) {
+    errors.summary = "Ingresá un resumen."
+  }
+
+  if (!draft.location.trim()) {
+    errors.location = "Ingresá una ubicación."
+  }
+
+  if (!draft.date.trim()) {
+    errors.date = "Seleccioná una fecha."
+  } else if (!parseDateInput(draft.date)) {
+    errors.date = "Usá el formato dd/mm/aaaa."
+  }
+
+  if (!draft.category.trim()) {
+    errors.category = "Seleccioná una categoría."
+  }
+
+  if (!draft.imageSrc.trim()) {
+    errors.imageSrc = "Pegá una URL de imagen principal."
+  }
+
+  if (!draft.description.trim()) {
+    errors.description = "Ingresá una descripción."
+  }
+
+  if (!draft.priceAmount.trim()) {
+    errors.priceAmount = "Ingresá un precio."
+  } else if (Number.isNaN(Number(draft.priceAmount))) {
+    errors.priceAmount = "El precio debe ser un número."
+  }
+
+  if (!draft.priceLabel.trim()) {
+    errors.priceLabel = "Ingresá una etiqueta de precio."
+  }
+
+  if (!draft.gallery.trim()) {
+    errors.gallery = "Pegá al menos una URL de imagen."
+  } else if (splitGallery(draft.gallery).length === 0) {
+    errors.gallery = "Pegá al menos una URL de imagen válida."
+  }
+
+
+  return errors
+}
+
 type EventPublishModalProps = {
   draft: EventDraftState
   createdEventId: string | null
+  errors: EventDraftErrors
   isOpen: boolean
   onClose: () => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
@@ -91,6 +160,7 @@ type EventPublishModalProps = {
 function EventPublishModal({
   draft,
   createdEventId,
+  errors,
   isOpen,
   onClose,
   onSubmit,
@@ -157,7 +227,7 @@ function EventPublishModal({
         </div>
 
         <div className="max-h-[calc(100svh-7rem)] overflow-y-auto p-5 sm:p-6">
-          <form className="grid gap-4 md:grid-cols-2" onSubmit={onSubmit}>
+          <form className="grid gap-4 md:grid-cols-2" noValidate onSubmit={onSubmit}>
             <label className="space-y-2 text-sm font-medium text-[#1a3462]">
               Título
               <input
@@ -168,6 +238,7 @@ function EventPublishModal({
                 required
                 value={draft.title}
               />
+              {errors.title ? <span className="block text-xs font-normal text-rose-600">{errors.title}</span> : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462]">
@@ -187,6 +258,9 @@ function EventPublishModal({
                   </option>
                 ))}
               </select>
+              {errors.category ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.category}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
@@ -199,6 +273,9 @@ function EventPublishModal({
                 required
                 value={draft.summary}
               />
+              {errors.summary ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.summary}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
@@ -211,12 +288,16 @@ function EventPublishModal({
                 required
                 value={draft.location}
               />
+              {errors.location ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.location}</span>
+              ) : null}
             </label>
 
             <div className="space-y-2 text-sm font-medium text-[#1a3462]">
               <EventDatePicker
                 emptyValue=""
                 label="Fecha"
+                error={errors.date}
                 onChange={(value) => {
                   onDraftChange("date", value)
                 }}
@@ -255,6 +336,9 @@ function EventPublishModal({
                 required
                 value={draft.imageSrc}
               />
+              {errors.imageSrc ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.imageSrc}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
@@ -267,6 +351,9 @@ function EventPublishModal({
                 required
                 value={draft.description}
               />
+              {errors.description ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.description}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462]">
@@ -280,6 +367,9 @@ function EventPublishModal({
                 required
                 value={draft.priceAmount}
               />
+              {errors.priceAmount ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.priceAmount}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462]">
@@ -292,6 +382,9 @@ function EventPublishModal({
                 required
                 value={draft.priceLabel}
               />
+              {errors.priceLabel ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.priceLabel}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
@@ -305,6 +398,9 @@ function EventPublishModal({
                 required
                 value={draft.gallery}
               />
+              {errors.gallery ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.gallery}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
@@ -314,9 +410,11 @@ function EventPublishModal({
                 onChange={(event) => {
                   onDraftChange("requirements", event.target.value)
                 }}
-                required
                 value={draft.requirements}
               />
+              {errors.requirements ? (
+                <span className="block text-xs font-normal text-rose-600">{errors.requirements}</span>
+              ) : null}
             </label>
 
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
@@ -371,6 +469,7 @@ export function MyEventsPage() {
   const [draft, setDraft] = useState<EventDraftState>(initialDraftState)
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false)
+  const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
 
   const profileId = user ? getMockProfileForEmail(user.email)?.id : undefined
 
@@ -386,6 +485,17 @@ export function MyEventsPage() {
       ...currentDraft,
       [key]: value,
     }))
+
+    setDraftErrors((currentErrors) => {
+      if (!(key in currentErrors)) {
+        return currentErrors
+      }
+
+      const nextErrors = { ...currentErrors }
+      delete nextErrors[key as EventDraftErrorField]
+
+      return nextErrors
+    })
   }
 
   const handleCreateEvent = (event: FormEvent<HTMLFormElement>) => {
@@ -398,6 +508,13 @@ export function MyEventsPage() {
     const organizerProfile = getMockProfileForEmail(user.email)
 
     if (!organizerProfile) {
+      return
+    }
+
+    const errors = validateEventDraft(draft)
+
+    if (Object.keys(errors).length > 0) {
+      setDraftErrors(errors)
       return
     }
 
@@ -456,6 +573,7 @@ export function MyEventsPage() {
 
     setCreatedEventId(createdEvent.id)
     setDraft(initialDraftState)
+    setDraftErrors({})
     setIsPublishModalOpen(false)
   }
 
@@ -494,9 +612,13 @@ export function MyEventsPage() {
         <EventPublishModal
           createdEventId={createdEventId}
           draft={draft}
+          errors={draftErrors}
           isOpen={isPublishModalOpen}
           onClose={() => {
             setIsPublishModalOpen(false)
+            setDraftErrors({})
+            setDraft(initialDraftState)
+            setCreatedEventId(null)
           }}
           onDraftChange={handleDraftChange}
           onSubmit={handleCreateEvent}

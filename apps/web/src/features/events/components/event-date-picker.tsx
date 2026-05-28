@@ -10,6 +10,7 @@ type EventDatePickerProps = {
   max?: string
   emptyValue?: string
   placeholder?: string
+  error?: string
 }
 
 export function EventDatePicker({
@@ -21,6 +22,7 @@ export function EventDatePicker({
   max,
   emptyValue = "",
   placeholder = "dd/mm/aaaa",
+  error,
 }: EventDatePickerProps) {
   const hasDate = value !== emptyValue
 
@@ -55,6 +57,7 @@ export function EventDatePicker({
           </span>
         ) : null}
       </div>
+      {error ? <span className="text-xs font-normal text-rose-600">{error}</span> : null}
     </label>
   )
 }
