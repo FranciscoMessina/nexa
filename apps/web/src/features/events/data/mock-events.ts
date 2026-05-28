@@ -8,7 +8,9 @@ type CreateMockEventInput = {
   location: string
   date: Date
   category: string
-  image: EventCardData["image"]
+  image: {
+    src: string
+  }
   ctaText?: string
   ctaHref?: string
   description: string
@@ -18,7 +20,11 @@ type CreateMockEventInput = {
   participatingVentures?: EventCardData["participatingVentures"]
   attendeeProfileIds?: Array<string>
   requirements: string
-  coordinates: EventCardData["coordinates"]
+}
+
+const mockEventCoordinates: EventCardData["coordinates"] = {
+  lat: -34.6037,
+  lng: -58.3816,
 }
 
 export const featuredEvent: EventCardData = {
@@ -476,17 +482,20 @@ function buildMockEventId(): string {
 }
 
 export function createMockEvent(input: CreateMockEventInput): EventCardData {
+  const title = input.title.trim()
+  const location = input.location.trim()
+
   const event: EventCardData = {
     id: buildMockEventId(),
     label: input.label,
-    title: input.title.trim(),
+    title,
     summary: input.summary.trim(),
-    location: input.location.trim(),
+    location,
     date: input.date,
     category: input.category.trim(),
     image: {
       src: input.image.src.trim(),
-      alt: input.image.alt.trim(),
+      alt: `${title} - ${location}`,
     },
     ctaText: input.ctaText?.trim() || "Ver más detalle",
     ctaHref: input.ctaHref,
@@ -503,7 +512,7 @@ export function createMockEvent(input: CreateMockEventInput): EventCardData {
     participatingVentures: input.participatingVentures,
     attendeeProfileIds: input.attendeeProfileIds,
     requirements: input.requirements.trim(),
-    coordinates: input.coordinates,
+    coordinates: mockEventCoordinates,
   }
 
   event.ctaHref = `/events/${event.id}`

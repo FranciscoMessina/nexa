@@ -18,14 +18,11 @@ type EventDraftState = {
   date: string
   category: string
   imageSrc: string
-  imageAlt: string
   description: string
   priceAmount: string
   priceLabel: string
   registrationUrl: string
   requirements: string
-  coordinatesLat: string
-  coordinatesLng: string
   labelType: "verified" | "community"
   labelText: string
   gallery: string
@@ -38,14 +35,11 @@ const initialDraftState: EventDraftState = {
   date: "",
   category: "",
   imageSrc: "",
-  imageAlt: "",
   description: "",
   priceAmount: "",
   priceLabel: "",
   registrationUrl: "",
   requirements: "",
-  coordinatesLat: "",
-  coordinatesLng: "",
   labelType: "community",
   labelText: "Evento comunitario",
   gallery: "",
@@ -263,18 +257,6 @@ function EventPublishModal({
               />
             </label>
 
-            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-              Texto alternativo
-              <input
-                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                onChange={(event) => {
-                  onDraftChange("imageAlt", event.target.value)
-                }}
-                required
-                value={draft.imageAlt}
-              />
-            </label>
-
             <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
               Descripción
               <textarea
@@ -334,32 +316,6 @@ function EventPublishModal({
                 }}
                 required
                 value={draft.requirements}
-              />
-            </label>
-
-            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-              Latitud
-              <input
-                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                inputMode="decimal"
-                onChange={(event) => {
-                  onDraftChange("coordinatesLat", event.target.value)
-                }}
-                required
-                value={draft.coordinatesLat}
-              />
-            </label>
-
-            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-              Longitud
-              <input
-                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                inputMode="decimal"
-                onChange={(event) => {
-                  onDraftChange("coordinatesLng", event.target.value)
-                }}
-                required
-                value={draft.coordinatesLng}
               />
             </label>
 
@@ -446,8 +402,6 @@ export function MyEventsPage() {
     }
 
     const priceAmount = Number(draft.priceAmount)
-    const coordinatesLat = Number(draft.coordinatesLat)
-    const coordinatesLng = Number(draft.coordinatesLng)
     const gallery = splitGallery(draft.gallery)
     const parsedDate = parseDateInput(draft.date)
 
@@ -458,12 +412,9 @@ export function MyEventsPage() {
       !draft.date ||
       !draft.category.trim() ||
       !draft.imageSrc.trim() ||
-      !draft.imageAlt.trim() ||
       !draft.description.trim() ||
       !draft.priceLabel.trim() ||
       Number.isNaN(priceAmount) ||
-      Number.isNaN(coordinatesLat) ||
-      Number.isNaN(coordinatesLng) ||
       !parsedDate ||
       gallery.length === 0
     ) {
@@ -489,7 +440,6 @@ export function MyEventsPage() {
       category: draft.category,
       image: {
         src: draft.imageSrc,
-        alt: draft.imageAlt,
       },
       ctaText: "Ver más detalle",
       ctaHref: `/events/${createdEventId ?? ""}`,
@@ -502,10 +452,6 @@ export function MyEventsPage() {
       gallery,
       registrationUrl: draft.registrationUrl.trim() || undefined,
       requirements: draft.requirements,
-      coordinates: {
-        lat: coordinatesLat,
-        lng: coordinatesLng,
-      },
     })
 
     setCreatedEventId(createdEvent.id)
