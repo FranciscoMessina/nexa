@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { FormEvent } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventCard } from "@/features/events/components/event-card"
@@ -81,6 +81,324 @@ function parseDateInput(value: string): Date | null {
   return date
 }
 
+type EventPublishModalProps = {
+  draft: EventDraftState
+  createdEventId: string | null
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void
+  onDraftChange: <TKey extends keyof EventDraftState>(
+    key: TKey,
+    value: EventDraftState[TKey]
+  ) => void
+}
+
+function EventPublishModal({
+  draft,
+  createdEventId,
+  isOpen,
+  onClose,
+  onSubmit,
+  onDraftChange,
+}: EventPublishModalProps) {
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [isOpen, onClose])
+
+  if (!isOpen) {
+    return null
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="presentation">
+      <button
+        aria-label="Cerrar modal"
+        className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
+        onClick={onClose}
+        type="button"
+      />
+
+      <section
+        aria-labelledby="publish-event-title"
+        aria-modal="true"
+        className="relative z-10 w-full max-w-4xl overflow-hidden rounded-[2rem] border border-[#dce5f2] bg-white shadow-[0_30px_120px_-50px_rgba(10,37,88,0.5)]"
+        role="dialog"
+      >
+        <div className="flex items-center justify-between gap-4 border-b border-[#e8edf5] px-5 py-4 sm:px-6">
+          <div>
+            <h2 id="publish-event-title" className="text-xl font-bold text-[#0a2558]">
+              Publicar evento
+            </h2>
+            <p className="mt-1 text-sm text-[#6b7d9c]">
+              Cargá todos los datos del evento y se agregará enseguida al listado.
+            </p>
+          </div>
+
+          <button
+            className="rounded-full border border-[#d5deed] px-3 py-1.5 text-sm font-semibold text-[#1a3462] transition hover:bg-[#f4f7fb]"
+            onClick={onClose}
+            type="button"
+          >
+            Cerrar
+          </button>
+        </div>
+
+        <div className="max-h-[calc(100svh-7rem)] overflow-y-auto p-5 sm:p-6">
+          <form className="grid gap-4 md:grid-cols-2" onSubmit={onSubmit}>
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Título
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("title", event.target.value)
+                }}
+                required
+                value={draft.title}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Categoría
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("category", event.target.value)
+                }}
+                required
+                value={draft.category}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
+              Resumen
+              <textarea
+                className="min-h-24 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("summary", event.target.value)
+                }}
+                required
+                value={draft.summary}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
+              Ubicación
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("location", event.target.value)
+                }}
+                required
+                value={draft.location}
+              />
+            </label>
+
+            <div className="space-y-2 text-sm font-medium text-[#1a3462]">
+              <EventDatePicker
+                emptyValue=""
+                label="Fecha"
+                onChange={(value) => {
+                  onDraftChange("date", value)
+                }}
+                placeholder="dd/mm/aaaa"
+                testId="event-date-input"
+                value={draft.date}
+              />
+            </div>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Tipo de evento
+              <select
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  const nextType = event.target.value === "verified" ? "verified" : "community"
+                  onDraftChange("labelType", nextType)
+                  onDraftChange(
+                    "labelText",
+                    nextType === "verified" ? "Evento verificado" : "Evento comunitario"
+                  )
+                }}
+                value={draft.labelType}
+              >
+                <option value="community">Comunitario</option>
+                <option value="verified">Verificado</option>
+              </select>
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Imagen principal
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("imageSrc", event.target.value)
+                }}
+                required
+                value={draft.imageSrc}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Texto alternativo
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("imageAlt", event.target.value)
+                }}
+                required
+                value={draft.imageAlt}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
+              Descripción
+              <textarea
+                className="min-h-28 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("description", event.target.value)
+                }}
+                required
+                value={draft.description}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Precio
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                inputMode="numeric"
+                onChange={(event) => {
+                  onDraftChange("priceAmount", event.target.value)
+                }}
+                required
+                value={draft.priceAmount}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Etiqueta de precio
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("priceLabel", event.target.value)
+                }}
+                required
+                value={draft.priceLabel}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
+              Galería de imágenes
+              <textarea
+                className="min-h-24 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("gallery", event.target.value)
+                }}
+                placeholder="Pegá URLs separadas por coma o salto de línea"
+                required
+                value={draft.gallery}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
+              Requisitos
+              <textarea
+                className="min-h-24 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("requirements", event.target.value)
+                }}
+                required
+                value={draft.requirements}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Latitud
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                inputMode="decimal"
+                onChange={(event) => {
+                  onDraftChange("coordinatesLat", event.target.value)
+                }}
+                required
+                value={draft.coordinatesLat}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462]">
+              Longitud
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                inputMode="decimal"
+                onChange={(event) => {
+                  onDraftChange("coordinatesLng", event.target.value)
+                }}
+                required
+                value={draft.coordinatesLng}
+              />
+            </label>
+
+            <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
+              URL de registro
+              <input
+                className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
+                onChange={(event) => {
+                  onDraftChange("registrationUrl", event.target.value)
+                }}
+                value={draft.registrationUrl}
+              />
+            </label>
+
+            <div className="md:col-span-2 flex flex-wrap items-center gap-3 border-t border-[#edf2f8] pt-2">
+              <button
+                className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
+                type="submit"
+              >
+                Publicar evento
+              </button>
+
+              <button
+                className="rounded-xl border border-[#d5deed] px-5 py-2.5 text-sm font-semibold text-[#1a3462] transition hover:bg-[#f4f7fb]"
+                onClick={onClose}
+                type="button"
+              >
+                Cancelar
+              </button>
+
+              {createdEventId ? (
+                <Link
+                  className="text-sm font-semibold text-[#5b4bb7] hover:text-[#3f3485]"
+                  params={{ eventId: createdEventId }}
+                  to="/events/$eventId"
+                >
+                  Abrir último evento creado
+                </Link>
+              ) : null}
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  )
+}
+
 export function MyEventsPage() {
   const { user, currentUserRole } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
@@ -88,6 +406,7 @@ export function MyEventsPage() {
   })
   const [draft, setDraft] = useState<EventDraftState>(initialDraftState)
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false)
 
   const profileId = user ? getMockProfileForEmail(user.email)?.id : undefined
 
@@ -183,6 +502,7 @@ export function MyEventsPage() {
 
     setCreatedEventId(createdEvent.id)
     setDraft(initialDraftState)
+    setIsPublishModalOpen(false)
   }
 
   if (isChecking) {
@@ -206,239 +526,27 @@ export function MyEventsPage() {
         </div>
 
         {currentUserRole === "organizador" ? (
-          <section className="rounded-2xl border border-[#dce5f2] bg-white p-5 shadow-[0_16px_48px_-42px_rgba(15,40,90,0.32)]">
-            <div className="mb-5">
-              <h2 className="text-xl font-bold text-[#0a2558]">Publicar evento</h2>
-              <p className="mt-1 text-sm text-[#6b7d9c]">
-                Cargá todos los datos del evento. Se va a agregar enseguida a este listado.
-              </p>
-            </div>
-
-            <form className="grid gap-4 md:grid-cols-2" onSubmit={handleCreateEvent}>
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Título
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("title", event.target.value)
-                  }}
-                  required
-                  value={draft.title}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Categoría
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("category", event.target.value)
-                  }}
-                  required
-                  value={draft.category}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
-                Resumen
-                <textarea
-                  className="min-h-24 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("summary", event.target.value)
-                  }}
-                  required
-                  value={draft.summary}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
-                Ubicación
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("location", event.target.value)
-                  }}
-                  required
-                  value={draft.location}
-                />
-              </label>
-
-              <div className="space-y-2 text-sm font-medium text-[#1a3462]">
-                <EventDatePicker
-                  emptyValue=""
-                  label="Fecha"
-                  onChange={(value) => {
-                    handleDraftChange("date", value)
-                  }}
-                  placeholder="dd/mm/aaaa"
-                  testId="event-date-input"
-                  value={draft.date}
-                />
-              </div>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Tipo de evento
-                <select
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    const nextType = event.target.value === "verified" ? "verified" : "community"
-                    handleDraftChange("labelType", nextType)
-                    handleDraftChange(
-                      "labelText",
-                      nextType === "verified" ? "Evento verificado" : "Evento comunitario"
-                    )
-                  }}
-                  value={draft.labelType}
-                >
-                  <option value="community">Comunitario</option>
-                  <option value="verified">Verificado</option>
-                </select>
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Imagen principal
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("imageSrc", event.target.value)
-                  }}
-                  required
-                  value={draft.imageSrc}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Texto alternativo
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("imageAlt", event.target.value)
-                  }}
-                  required
-                  value={draft.imageAlt}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
-                Descripción
-                <textarea
-                  className="min-h-28 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("description", event.target.value)
-                  }}
-                  required
-                  value={draft.description}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Precio
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  inputMode="numeric"
-                  onChange={(event) => {
-                    handleDraftChange("priceAmount", event.target.value)
-                  }}
-                  required
-                  value={draft.priceAmount}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Etiqueta de precio
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("priceLabel", event.target.value)
-                  }}
-                  required
-                  value={draft.priceLabel}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
-                Galería de imágenes
-                <textarea
-                  className="min-h-24 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("gallery", event.target.value)
-                  }}
-                  placeholder="Pegá URLs separadas por coma o salto de línea"
-                  required
-                  value={draft.gallery}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
-                Requisitos
-                <textarea
-                  className="min-h-24 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("requirements", event.target.value)
-                  }}
-                  required
-                  value={draft.requirements}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Latitud
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  inputMode="decimal"
-                  onChange={(event) => {
-                    handleDraftChange("coordinatesLat", event.target.value)
-                  }}
-                  required
-                  value={draft.coordinatesLat}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462]">
-                Longitud
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  inputMode="decimal"
-                  onChange={(event) => {
-                    handleDraftChange("coordinatesLng", event.target.value)
-                  }}
-                  required
-                  value={draft.coordinatesLng}
-                />
-              </label>
-
-              <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
-                URL de registro
-                <input
-                  className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-                  onChange={(event) => {
-                    handleDraftChange("registrationUrl", event.target.value)
-                  }}
-                  value={draft.registrationUrl}
-                />
-              </label>
-
-              <div className="md:col-span-2 flex flex-wrap items-center gap-3">
-                <button
-                  className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
-                  type="submit"
-                >
-                  Publicar evento
-                </button>
-
-                {createdEventId ? (
-                  <Link
-                    className="text-sm font-semibold text-[#5b4bb7] hover:text-[#3f3485]"
-                    params={{ eventId: createdEventId }}
-                    to="/events/$eventId"
-                  >
-                    Abrir último evento creado
-                  </Link>
-                ) : null}
-              </div>
-            </form>
-          </section>
+          <button
+            className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
+            onClick={() => {
+              setIsPublishModalOpen(true)
+            }}
+            type="button"
+          >
+            Publicar evento
+          </button>
         ) : null}
+
+        <EventPublishModal
+          createdEventId={createdEventId}
+          draft={draft}
+          isOpen={isPublishModalOpen}
+          onClose={() => {
+            setIsPublishModalOpen(false)
+          }}
+          onDraftChange={handleDraftChange}
+          onSubmit={handleCreateEvent}
+        />
 
         {events.length === 0 ? (
           <div
