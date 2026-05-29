@@ -4,8 +4,17 @@ export { EventCard } from "./components/event-card"
 export { EventDetailPage } from "./components/event-detail-page"
 export { MyEventsPage } from "./components/my-events-page"
 export { CreateEventPage } from "./components/create-event-page"
+export { EditEventPage } from "./components/edit-event-page"
+export { EventMapPage } from "./components/event-map-page"
 export { useFilteredEvents } from "./hooks/use-filtered-events"
-export { getMockEventById, mockEvents, toEventItem } from "./data/mock-events"
+export {
+  createMockEvent,
+  deleteMockEvent,
+  getMockEventById,
+  getMockEvents,
+  toEventItem,
+  updateMockEvent,
+} from "./data/mock-events"
 export type {
 	EventCardData,
 	EventCoordinates,

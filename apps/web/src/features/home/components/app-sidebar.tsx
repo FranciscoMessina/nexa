@@ -11,24 +11,16 @@ import { cn } from "@workspace/ui/lib/utils"
 import { NexaLogo } from "@/shared/components/nexa-logo"
 import { useAuth } from "@/shared/hooks/useAuth"
 
-type NavItem =
-  | {
-      label: string
-      to: "/" | "/perfil" | "/crear-evento" | "/mis-eventos"
-      icon: typeof IconHome
-      testId: string
-      disabled?: false
-    }
-  | {
-      label: string
-      icon: typeof IconMapPin
-      testId: string
-      disabled: true
-    }
+type NavItem = {
+  label: string
+  to: "/" | "/perfil" | "/crear-evento" | "/mis-eventos" | "/mapa"
+  icon: typeof IconHome
+  testId: string
+}
 
 const navItems: Array<NavItem> = [
   { label: "Inicio", to: "/", icon: IconHome, testId: "nav-home" },
-  { label: "Mapa", icon: IconMapPin, testId: "nav-map", disabled: true },
+  { label: "Mapa", to: "/mapa", icon: IconMapPin, testId: "nav-map" },
   {
     label: "Crear evento",
     to: "/crear-evento",
@@ -59,25 +51,8 @@ export function AppSidebar() {
 
       <nav className="mt-22 flex flex-col gap-1">
         {navItems.map((item) => {
-          const isActive = !("disabled" in item) && pathname === item.to
+          const isActive = pathname === item.to
           const Icon = item.icon
-
-          if ("disabled" in item) {
-            return (
-              <span
-                className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#8a9bb8] opacity-60"
-                data-testid={item.testId}
-                key={item.label}
-              >
-                <Icon size={20} stroke={1.8} />
-                {item.label}
-
-                <span className="ml-auto rounded-full bg-orange-500/50 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-black">
-                  Proximamente
-                </span>
-              </span>
-            )
-          }
 
           return (
             <Link

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { cn } from "@workspace/ui/lib/utils"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventCard } from "@/features/events/components/event-card"
 import {
@@ -8,6 +8,7 @@ import {
   getMyEventsSections,
 } from "@/features/events/data/my-events"
 import { useEventAttendanceStore } from "@/features/events/stores/event-attendance.store"
+import { useEventCatalogStore } from "@/features/events/stores/event-catalog.store"
 import type { EventItem } from "@/features/events/types/event.types"
 import { AppShell } from "@/features/home/components/app-shell"
 import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
@@ -91,7 +92,9 @@ export function MyEventsPage() {
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
   const hydrate = useEventAttendanceStore((state) => state.hydrate)
+  const hydrateCatalog = useEventCatalogStore((state) => state.hydrate)
   const isHydrated = useEventAttendanceStore((state) => state.isHydrated)
+  const userEvents = useEventCatalogStore((state) => state.userEvents)
   const attendingByProfile = useEventAttendanceStore(
     (state) => state.byProfileId
   )
@@ -99,17 +102,21 @@ export function MyEventsPage() {
 
   useEffect(() => {
     hydrate()
-  }, [hydrate])
+    hydrateCatalog()
+  }, [hydrate, hydrateCatalog])
 
   const profileId = user ? getMockProfileForEmail(user.email)?.id : undefined
   const attendingEventIds = profileId
     ? (attendingByProfile[profileId] ?? [])
     : []
 
-  const sections =
-    isHydrated && profileId && currentUserRole
-      ? getMyEventsSections(profileId, currentUserRole, attendingEventIds)
-      : { upcoming: [], past: [] }
+  const sections = useMemo(
+    () =>
+      isHydrated && profileId && currentUserRole
+        ? getMyEventsSections(profileId, currentUserRole, attendingEventIds)
+        : { upcoming: [], past: [] },
+    [attendingEventIds, currentUserRole, isHydrated, profileId, userEvents]
+  )
 
   const copy = currentUserRole
     ? getMyEventsCopy(currentUserRole)

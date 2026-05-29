@@ -39,11 +39,7 @@ function isValidPassword(password: string): boolean {
   return password.trim().length >= MIN_PASSWORD_LENGTH
 }
 
-export function getPostLoginPathForRole(role: UserRole): "/" | "/dashboard" {
-  if (role === "organizador") {
-    return "/dashboard"
-  }
-
+export function getPostLoginPathForRole(_role: UserRole): "/" {
   return "/"
 }
 

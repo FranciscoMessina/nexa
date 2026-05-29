@@ -30,6 +30,8 @@ export type EventCoordinates = {
 
 export type EventDetailData = {
   id: string
+  /** Solo eventos publicados por un usuario en la app; habilita editar y eliminar. */
+  createdByProfileId?: string
   label: EventLabel
   title: string
   summary: string

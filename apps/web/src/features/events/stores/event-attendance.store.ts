@@ -12,6 +12,7 @@ type EventAttendanceState = {
   isAttending: (profileId: string, eventId: string) => boolean
   getAttendingEventIds: (profileId: string) => Array<string>
   getAttendanceCount: (eventId: string, seedAttendeeProfileIds?: Array<string>) => number
+  clearAttendanceForEvent: (eventId: string) => void
 }
 
 function readStoredAttendance(): AttendanceByProfile {
@@ -92,5 +93,16 @@ export const useEventAttendanceStore = create<EventAttendanceState>()((set, get)
     }
 
     return counted.size
+  },
+  clearAttendanceForEvent: (eventId) => {
+    const nextByProfile = Object.fromEntries(
+      Object.entries(get().byProfileId).map(([profileId, eventIds]) => [
+        profileId,
+        eventIds.filter((id) => id !== eventId),
+      ])
+    )
+
+    writeStoredAttendance(nextByProfile)
+    set({ byProfileId: nextByProfile })
   },
 }))

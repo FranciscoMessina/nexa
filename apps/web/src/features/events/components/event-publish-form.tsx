@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import type { FormEvent } from "react"
 import { EventDatePicker } from "@/features/events/components/event-date-picker"
+import { EventLocationField } from "@/features/events/components/event-location-field"
 import { eventCategoryOptions } from "@/features/events/data/event-categories"
 import type { EventDraftErrors, EventDraftState } from "@/features/events/utils/event-publish.utils"
 
@@ -8,6 +9,8 @@ type EventPublishFormProps = {
   draft: EventDraftState
   createdEventId: string | null
   errors: EventDraftErrors
+  submitLabel?: string
+  successMessage?: string
   onDraftChange: <TKey extends keyof EventDraftState>(
     key: TKey,
     value: EventDraftState[TKey]
@@ -19,6 +22,8 @@ export function EventPublishForm({
   draft,
   createdEventId,
   errors,
+  submitLabel = "Publicar evento",
+  successMessage = "Evento publicado",
   onDraftChange,
   onSubmit,
 }: EventPublishFormProps) {
@@ -79,20 +84,17 @@ export function EventPublishForm({
         ) : null}
       </label>
 
-      <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
-        Ubicación
-        <input
-          className="w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-          onChange={(event) => {
-            onDraftChange("location", event.target.value)
+      <div className="md:col-span-2">
+        <EventLocationField
+          coordinates={draft.coordinates}
+          error={errors.location}
+          onChange={(location, coordinates) => {
+            onDraftChange("location", location)
+            onDraftChange("coordinates", coordinates)
           }}
-          required
           value={draft.location}
         />
-        {errors.location ? (
-          <span className="block text-xs font-normal text-rose-600">{errors.location}</span>
-        ) : null}
-      </label>
+      </div>
 
       <div className="space-y-2 text-sm font-medium text-[#1a3462]">
         <EventDatePicker
@@ -169,17 +171,18 @@ export function EventPublishForm({
           className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
           type="submit"
         >
-          Publicar evento
+          {submitLabel}
         </button>
 
         {createdEventId ? (
           <>
+            <span className="text-sm font-semibold text-emerald-700">{successMessage}</span>
             <Link
               className="text-sm font-semibold text-[#5b4bb7] hover:text-[#3f3485]"
               params={{ eventId: createdEventId }}
               to="/events/$eventId"
             >
-              Ver evento publicado
+              Ver evento
             </Link>
             <Link
               className="text-sm font-semibold text-[#5b4bb7] hover:text-[#3f3485]"

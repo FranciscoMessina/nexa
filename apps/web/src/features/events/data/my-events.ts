@@ -1,4 +1,4 @@
-import { mockEvents, toEventItem } from "@/features/events/data/mock-events"
+import { getMockEvents, toEventItem } from "@/features/events/data/mock-events"
 import type { EventCardData, EventItem } from "@/features/events/types/event.types"
 import type { UserRole } from "@/features/auth/types/auth.types"
 
@@ -83,15 +83,16 @@ function filterEventsForProfile(
   role: UserRole,
   attendingEventIds: Array<string>
 ): Array<EventCardData> {
-  const organized = mockEvents.filter((event) => event.organizer.profileId === profileId)
-  const attending = mockEvents.filter((event) => attendingEventIds.includes(event.id))
+  const allEvents = getMockEvents()
+  const organized = allEvents.filter((event) => event.organizer.profileId === profileId)
+  const attending = allEvents.filter((event) => attendingEventIds.includes(event.id))
 
   if (role === "organizador") {
     return uniqueEventsById([...organized, ...attending])
   }
 
   if (role === "emprendedor") {
-    const participating = mockEvents.filter((event) =>
+    const participating = allEvents.filter((event) =>
       event.participatingVentures?.some((venture) => venture.profileId === profileId)
     )
 

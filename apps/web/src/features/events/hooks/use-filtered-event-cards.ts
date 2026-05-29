@@ -1,7 +1,7 @@
 import { useMemo } from "react"
-import type { EventItem } from "@/features/events/types/event.types"
+import { getMockEvents } from "@/features/events/data/mock-events"
+import type { EventCardData } from "@/features/events/types/event.types"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
-import { getMockEvents, toEventItem } from "@/features/events/data/mock-events"
 import { useEventCatalogStore } from "@/features/events/stores/event-catalog.store"
 
 function toDateKey(date: Date): string {
@@ -20,13 +20,24 @@ function matchesDateFilter(startsAt: Date, dateFilter: string): boolean {
   return toDateKey(startsAt) === dateFilter
 }
 
-export function useFilteredEvents(): Array<EventItem> {
+function parseNeighborhood(location: string): string {
+  const parts = location
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  return parts.at(-1) ?? ""
+}
+
+export function useFilteredEventCards(): Array<EventCardData> {
   const { neighborhood, category, date, eventType } = useEventFilters()
   const userEvents = useEventCatalogStore((state) => state.userEvents)
 
   return useMemo(() => {
-    return getMockEvents().map(toEventItem).filter((event) => {
-      if (neighborhood !== "all" && event.neighborhood !== neighborhood) {
+    return getMockEvents().filter((event) => {
+      const eventNeighborhood = parseNeighborhood(event.location)
+
+      if (neighborhood !== "all" && eventNeighborhood !== neighborhood) {
         return false
       }
 
@@ -34,11 +45,11 @@ export function useFilteredEvents(): Array<EventItem> {
         return false
       }
 
-      if (!matchesDateFilter(event.startsAt, date)) {
+      if (!matchesDateFilter(event.date, date)) {
         return false
       }
 
-      if (eventType !== "all" && event.kind !== eventType) {
+      if (eventType !== "all" && event.label.type !== eventType) {
         return false
       }
 

@@ -4,7 +4,7 @@ import { AppShell } from "@/features/home/components/app-shell"
 
 export function HomePage() {
   const { isChecking, isAllowed } = useRequireAuthentication({
-    allowedRoles: ["emprendedor", "asistente"],
+    allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
 
   if (isChecking) {

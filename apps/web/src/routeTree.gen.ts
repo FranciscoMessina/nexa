@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PerfilIndexRouteImport } from './routes/perfil/index'
 import { Route as MisEventosIndexRouteImport } from './routes/mis-eventos/index'
+import { Route as MapaIndexRouteImport } from './routes/mapa/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CrearEventoIndexRouteImport } from './routes/crear-evento/index'
 import { Route as PerfilesProfileIdRouteImport } from './routes/perfiles/$profileId'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
+import { Route as EventsEventIdEditarIndexRouteImport } from './routes/events/$eventId/editar/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,6 +33,11 @@ const PerfilIndexRoute = PerfilIndexRouteImport.update({
 const MisEventosIndexRoute = MisEventosIndexRouteImport.update({
   id: '/mis-eventos/',
   path: '/mis-eventos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaIndexRoute = MapaIndexRouteImport.update({
+  id: '/mapa/',
+  path: '/mapa/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
@@ -58,37 +65,49 @@ const EventsEventIdRoute = EventsEventIdRouteImport.update({
   path: '/events/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsEventIdEditarIndexRoute =
+  EventsEventIdEditarIndexRouteImport.update({
+    id: '/editar/',
+    path: '/editar/',
+    getParentRoute: () => EventsEventIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/events/$eventId': typeof EventsEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/perfiles/$profileId': typeof PerfilesProfileIdRoute
   '/crear-evento/': typeof CrearEventoIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/mapa/': typeof MapaIndexRoute
   '/mis-eventos/': typeof MisEventosIndexRoute
   '/perfil/': typeof PerfilIndexRoute
+  '/events/$eventId/editar/': typeof EventsEventIdEditarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/events/$eventId': typeof EventsEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/perfiles/$profileId': typeof PerfilesProfileIdRoute
   '/crear-evento': typeof CrearEventoIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/login': typeof LoginIndexRoute
+  '/mapa': typeof MapaIndexRoute
   '/mis-eventos': typeof MisEventosIndexRoute
   '/perfil': typeof PerfilIndexRoute
+  '/events/$eventId/editar': typeof EventsEventIdEditarIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/events/$eventId': typeof EventsEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/perfiles/$profileId': typeof PerfilesProfileIdRoute
   '/crear-evento/': typeof CrearEventoIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/mapa/': typeof MapaIndexRoute
   '/mis-eventos/': typeof MisEventosIndexRoute
   '/perfil/': typeof PerfilIndexRoute
+  '/events/$eventId/editar/': typeof EventsEventIdEditarIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,8 +118,10 @@ export interface FileRouteTypes {
     | '/crear-evento/'
     | '/dashboard/'
     | '/login/'
+    | '/mapa/'
     | '/mis-eventos/'
     | '/perfil/'
+    | '/events/$eventId/editar/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +130,10 @@ export interface FileRouteTypes {
     | '/crear-evento'
     | '/dashboard'
     | '/login'
+    | '/mapa'
     | '/mis-eventos'
     | '/perfil'
+    | '/events/$eventId/editar'
   id:
     | '__root__'
     | '/'
@@ -119,17 +142,20 @@ export interface FileRouteTypes {
     | '/crear-evento/'
     | '/dashboard/'
     | '/login/'
+    | '/mapa/'
     | '/mis-eventos/'
     | '/perfil/'
+    | '/events/$eventId/editar/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  EventsEventIdRoute: typeof EventsEventIdRoute
+  EventsEventIdRoute: typeof EventsEventIdRouteWithChildren
   PerfilesProfileIdRoute: typeof PerfilesProfileIdRoute
   CrearEventoIndexRoute: typeof CrearEventoIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
+  MapaIndexRoute: typeof MapaIndexRoute
   MisEventosIndexRoute: typeof MisEventosIndexRoute
   PerfilIndexRoute: typeof PerfilIndexRoute
 }
@@ -155,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/mis-eventos'
       fullPath: '/mis-eventos/'
       preLoaderRoute: typeof MisEventosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa/': {
+      id: '/mapa/'
+      path: '/mapa'
+      fullPath: '/mapa/'
+      preLoaderRoute: typeof MapaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login/': {
@@ -192,16 +225,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/$eventId/editar/': {
+      id: '/events/$eventId/editar/'
+      path: '/editar'
+      fullPath: '/events/$eventId/editar/'
+      preLoaderRoute: typeof EventsEventIdEditarIndexRouteImport
+      parentRoute: typeof EventsEventIdRoute
+    }
   }
 }
 
+interface EventsEventIdRouteChildren {
+  EventsEventIdEditarIndexRoute: typeof EventsEventIdEditarIndexRoute
+}
+
+const EventsEventIdRouteChildren: EventsEventIdRouteChildren = {
+  EventsEventIdEditarIndexRoute: EventsEventIdEditarIndexRoute,
+}
+
+const EventsEventIdRouteWithChildren = EventsEventIdRoute._addFileChildren(
+  EventsEventIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  EventsEventIdRoute: EventsEventIdRoute,
+  EventsEventIdRoute: EventsEventIdRouteWithChildren,
   PerfilesProfileIdRoute: PerfilesProfileIdRoute,
   CrearEventoIndexRoute: CrearEventoIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
+  MapaIndexRoute: MapaIndexRoute,
   MisEventosIndexRoute: MisEventosIndexRoute,
   PerfilIndexRoute: PerfilIndexRoute,
 }

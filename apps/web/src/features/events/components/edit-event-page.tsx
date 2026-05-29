@@ -1,46 +1,56 @@
 import { useState } from "react"
 import type { FormEvent } from "react"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventPublishForm } from "@/features/events/components/event-publish-form"
 import { resolveDraftCoordinates } from "@/features/events/components/event-location-field"
-import { createMockEvent } from "@/features/events/data/mock-events"
+import { getMockEventById, updateMockEvent } from "@/features/events/data/mock-events"
 import { AppShell } from "@/features/home/components/app-shell"
 import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
 import { useAuth } from "@/shared/hooks/useAuth"
 import { isAssistantOrganizer } from "@/features/events/utils/event-label.utils"
+import { canUserManageEvent } from "@/features/events/stores/event-catalog.store"
 import {
-  buildInitialEventDraft,
+  buildDraftFromEvent,
+  validateEventDraft,
   parseDateInput,
   splitGallery,
-  validateEventDraft,
   type EventDraftErrorField,
   type EventDraftErrors,
   type EventDraftState,
 } from "@/features/events/utils/event-publish.utils"
 
-export function CreateEventPage() {
+type EditEventPageProps = {
+  eventId: string
+}
+
+export function EditEventPage({ eventId }: EditEventPageProps) {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
   const organizerProfile = user ? getMockProfileForEmail(user.email) : undefined
-  const [draft, setDraft] = useState<EventDraftState>(() =>
-    buildInitialEventDraft(
-      organizerProfile?.validationStatus ?? "pending",
-      organizerProfile?.kind,
-    )
+  const event = getMockEventById(eventId)
+  const canEdit = event && organizerProfile && canUserManageEvent(event, organizerProfile.id)
+
+  const [draft, setDraft] = useState<EventDraftState | null>(() =>
+    event ? buildDraftFromEvent(event) : null
   )
-  const [createdEventId, setCreatedEventId] = useState<string | null>(null)
+  const [savedEventId, setSavedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
 
   const handleDraftChange = <TKey extends keyof EventDraftState>(
     key: TKey,
     value: EventDraftState[TKey]
   ) => {
-    setDraft((currentDraft) => ({
-      ...currentDraft,
-      [key]: value,
-    }))
+    setDraft((currentDraft) => {
+      if (!currentDraft) {
+        return currentDraft
+      }
+
+      return { ...currentDraft, [key]: value }
+    })
 
     setDraftErrors((currentErrors) => {
       if (!(key in currentErrors)) {
@@ -54,10 +64,10 @@ export function CreateEventPage() {
     })
   }
 
-  const handleCreateEvent = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const handleSaveEvent = async (formEvent: FormEvent<HTMLFormElement>) => {
+    formEvent.preventDefault()
 
-    if (!user || !organizerProfile) {
+    if (!user || !organizerProfile || !draft || !event) {
       return
     }
 
@@ -90,7 +100,7 @@ export function CreateEventPage() {
     const verifiedOrganizer =
       !communityOrganizer && organizerProfile.validationStatus === "validated"
 
-    const createdEvent = createMockEvent(organizerProfile.id, {
+    const updated = updateMockEvent(event.id, organizerProfile.id, {
       organizer: {
         profileId: organizerProfile.id,
         name: organizerProfile.displayName,
@@ -115,9 +125,7 @@ export function CreateEventPage() {
       location: draft.location,
       date: parsedDate,
       category: draft.category,
-      image: {
-        src: gallery[0],
-      },
+      image: { src: gallery[0] },
       description: draft.description,
       gallery,
       registrationUrl: draft.registrationUrl.trim() || undefined,
@@ -125,14 +133,10 @@ export function CreateEventPage() {
       coordinates,
     })
 
-    setCreatedEventId(createdEvent.id)
-    setDraft(
-      buildInitialEventDraft(
-        organizerProfile.validationStatus ?? "pending",
-        organizerProfile.kind,
-      ),
-    )
-    setDraftErrors({})
+    if (updated) {
+      setSavedEventId(updated.id)
+      setDraftErrors({})
+    }
   }
 
   if (isChecking) {
@@ -147,31 +151,66 @@ export function CreateEventPage() {
     return null
   }
 
+  if (!event || !canEdit || !draft) {
+    return (
+      <AppShell>
+        <div className="mx-auto max-w-4xl rounded-2xl border border-[#e8edf5] bg-white p-8 text-center">
+          <h1 className="text-2xl font-bold text-[#0a2558]">No podés editar este evento</h1>
+          <p className="mt-2 text-sm text-[#6b7d9c]">
+            Solo el usuario que lo publicó puede modificarlo.
+          </p>
+          <Link
+            className="mt-6 inline-flex text-sm font-semibold text-[#5b4bb7] hover:text-[#3f3485]"
+            params={{ eventId }}
+            to="/events/$eventId"
+          >
+            Volver al evento
+          </Link>
+        </div>
+      </AppShell>
+    )
+  }
+
   return (
     <AppShell>
-      <div className="mx-auto max-w-4xl space-y-6" data-testid="create-event-page">
+      <div className="mx-auto max-w-4xl space-y-6" data-testid="edit-event-page">
         <div>
-          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Crear evento</h1>
+          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Editar evento</h1>
           <p className="mt-2 text-base text-[#6b7d9c]">
-            Completá los datos y publicá tu evento. Aparecerá en el muro y en Mis eventos.
+            Actualizá los datos de tu publicación. Los cambios se ven en el muro y en Mis eventos.
           </p>
         </div>
 
-        {!organizerProfile ? (
-          <div className="rounded-2xl border border-dashed border-[#d5deed] bg-white px-6 py-10 text-center">
-            <p className="text-sm text-[#6b7d9c]">
-              No encontramos tu perfil. Iniciá sesión con un usuario de demo para publicar eventos.
-            </p>
-          </div>
-        ) : (
-          <EventPublishForm
-            createdEventId={createdEventId}
-            draft={draft}
-            errors={draftErrors}
-            onDraftChange={handleDraftChange}
-            onSubmit={handleCreateEvent}
-          />
-        )}
+        <EventPublishForm
+          createdEventId={savedEventId}
+          draft={draft}
+          errors={draftErrors}
+          onDraftChange={handleDraftChange}
+          onSubmit={handleSaveEvent}
+          submitLabel="Guardar cambios"
+          successMessage="Cambios guardados"
+        />
+
+        <div className="flex flex-wrap gap-3">
+          <Link
+            className="inline-flex rounded-xl border border-[#d5deed] px-5 py-2.5 text-sm font-semibold text-[#1a3462] transition hover:bg-[#f4f7fb]"
+            params={{ eventId }}
+            to="/events/$eventId"
+          >
+            Cancelar
+          </Link>
+          {savedEventId ? (
+            <button
+              className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
+              onClick={() => {
+                void navigate({ to: "/events/$eventId", params: { eventId: savedEventId } })
+              }}
+              type="button"
+            >
+              Ir al evento
+            </button>
+          ) : null}
+        </div>
       </div>
     </AppShell>
   )

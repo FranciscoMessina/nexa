@@ -9,19 +9,22 @@ import {
   IconExternalLink,
   IconLink,
   IconMapPin,
+  IconPencil,
   IconPhoto,
   IconShare,
   IconShieldCheck,
   IconTag,
+  IconTrash,
   IconUserCheck,
   IconUserMinus,
   IconUsers,
 } from "@tabler/icons-react"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
-import { getMockEventById } from "@/features/events/data/mock-events"
+import { deleteMockEvent, getMockEventById } from "@/features/events/data/mock-events"
+import { canUserManageEvent } from "@/features/events/stores/event-catalog.store"
 import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
 import { useEventAttendanceStore } from "@/features/events/stores/event-attendance.store"
 import { AppShell } from "@/features/home/components/app-shell"
@@ -130,7 +133,8 @@ function EventToneBadge({ tone }: { tone: EventBadgeTone }) {
 }
 
 export function EventDetailPage({ eventId }: EventDetailPageProps) {
-  const { user, currentUserRole } = useAuth()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
@@ -170,10 +174,10 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
         <div className="mx-auto flex max-w-5xl flex-col gap-6">
           <Link
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7] transition hover:text-[#3f3485]"
-            to={currentUserRole === "organizador" ? "/mis-eventos" : "/"}
+            to="/"
           >
             <IconArrowLeft size={16} stroke={2} />
-            {currentUserRole === "organizador" ? "Volver a mis eventos" : "Volver al muro de eventos"}
+            Volver al muro de eventos
           </Link>
 
           <div className="rounded-[2rem] border border-[#e8edf5] bg-white p-8 shadow-[0_16px_50px_-42px_rgba(12,35,75,0.35)]">
@@ -193,6 +197,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const shareUrl = getShareUrl()
   const mapUrl = getMapUrl(event.coordinates.lat, event.coordinates.lng)
   const viewerProfile = user ? getMockProfileForEmail(user.email) : undefined
+  const canManageEvent = canUserManageEvent(event, viewerProfile?.id)
   const isOwnEvent = viewerProfile?.id === event.organizer.profileId
   const attending =
     isHydrated && viewerProfile ? isAttending(viewerProfile.id, event.id) : false
@@ -240,10 +245,10 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
       <div className="mx-auto max-w-7xl space-y-6">
         <Link
           className="inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7] transition hover:text-[#3f3485]"
-          to={currentUserRole === "organizador" ? "/mis-eventos" : "/"}
+          to="/"
         >
           <IconArrowLeft size={16} stroke={2} />
-          {currentUserRole === "organizador" ? "Volver a mis eventos" : "Volver al muro de eventos"}
+          Volver al muro de eventos
         </Link>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -463,6 +468,46 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                     {attendanceLabel}
                   </div>
                 </div>
+
+                {canManageEvent ? (
+                  <div className="space-y-3 border-t border-[#edf2f8] pt-4">
+                    <p className="text-sm font-semibold text-[#1e1b4b]">Tu publicación</p>
+                    <Link
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-white px-5 py-3.5 text-sm font-semibold text-[#1a3462] transition hover:bg-[#f4f7fb]"
+                      data-testid="event-edit-button"
+                      params={{ eventId: event.id }}
+                      to="/events/$eventId/editar"
+                    >
+                      <IconPencil size={16} stroke={2} />
+                      Editar evento
+                    </Link>
+                    <button
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+                      data-testid="event-delete-button"
+                      onClick={() => {
+                        if (!viewerProfile) {
+                          return
+                        }
+
+                        const confirmed = window.confirm(
+                          "¿Eliminar este evento? Se quitará del muro y de Mis eventos."
+                        )
+
+                        if (!confirmed) {
+                          return
+                        }
+
+                        if (deleteMockEvent(event.id, viewerProfile.id)) {
+                          void navigate({ to: "/mis-eventos" })
+                        }
+                      }}
+                      type="button"
+                    >
+                      <IconTrash size={16} stroke={2} />
+                      Eliminar evento
+                    </button>
+                  </div>
+                ) : null}
 
                 {!isOwnEvent && viewerProfile ? (
                   attending ? (

@@ -9,9 +9,11 @@ import type { EventFilterOption } from "@/features/events/types/event.types"
 import { EventDatePicker } from "@/features/events/components/event-date-picker"
 import { eventFilterCategoryOptions } from "@/features/events/data/event-categories"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
-import { mockEvents } from "@/features/events/data/mock-events"
+import { getMockEvents } from "@/features/events/data/mock-events"
+import { useEventCatalogStore } from "@/features/events/stores/event-catalog.store"
+import { sortFilterOptionsAlphabetically } from "@/features/events/utils/sort-filter-options.utils"
 
-const neighborhoodOptions: Array<EventFilterOption> = [
+const neighborhoodOptions = sortFilterOptionsAlphabetically([
   { value: "all", label: "Todos" },
   { value: "Palermo", label: "Palermo" },
   { value: "Colegiales", label: "Colegiales" },
@@ -21,13 +23,13 @@ const neighborhoodOptions: Array<EventFilterOption> = [
   { value: "San Telmo", label: "San Telmo" },
   { value: "Puerto Madero", label: "Puerto Madero" },
   { value: "Microcentro", label: "Microcentro" },
-]
+])
 
-const eventTypeOptions: Array<EventFilterOption> = [
+const eventTypeOptions = sortFilterOptionsAlphabetically([
   { value: "all", label: "Todos" },
   { value: "verified", label: "Verificados" },
   { value: "community", label: "Comunitarios" },
-]
+])
 
 function toDateKey(date: Date): string {
   const year = date.getFullYear()
@@ -38,7 +40,7 @@ function toDateKey(date: Date): string {
 }
 
 function getEventDateBounds(): { min: string; max: string } {
-  const dateKeys = mockEvents.map((event) => toDateKey(event.date)).sort()
+  const dateKeys = getMockEvents().map((event) => toDateKey(event.date)).sort()
 
   return {
     min: dateKeys[0] ?? "",
@@ -100,7 +102,8 @@ export function EventFilters() {
     reset,
   } = useEventFilters()
 
-  const { min, max } = useMemo(() => getEventDateBounds(), [])
+  const userEvents = useEventCatalogStore((state) => state.userEvents)
+  const { min, max } = useMemo(() => getEventDateBounds(), [userEvents])
 
   return (
     <div

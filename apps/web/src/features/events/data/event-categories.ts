@@ -1,6 +1,7 @@
 import type { EventFilterOption } from "@/features/events/types/event.types"
+import { sortFilterOptionsAlphabetically } from "@/features/events/utils/sort-filter-options.utils"
 
-export const eventCategoryOptions: Array<EventFilterOption> = [
+const eventCategoryOptionsSource: Array<EventFilterOption> = [
   { value: "Música", label: "Música" },
   { value: "Gastronomía", label: "Gastronomía" },
   { value: "Arte y Cultura", label: "Arte y Cultura" },
@@ -10,7 +11,11 @@ export const eventCategoryOptions: Array<EventFilterOption> = [
   { value: "Cine y Entretenimiento", label: "Cine y Entretenimiento" },
 ]
 
-export const eventFilterCategoryOptions: Array<EventFilterOption> = [
+export const eventCategoryOptions = sortFilterOptionsAlphabetically(
+  eventCategoryOptionsSource
+)
+
+export const eventFilterCategoryOptions = sortFilterOptionsAlphabetically([
   { value: "all", label: "Todas" },
   ...eventCategoryOptions,
-]
+])

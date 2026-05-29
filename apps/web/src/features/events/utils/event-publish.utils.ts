@@ -1,9 +1,10 @@
-import type { EventKind } from "@/features/events/types/event.types"
+import type { EventCardData, EventCoordinates, EventKind } from "@/features/events/types/event.types"
 
 export type EventDraftState = {
   title: string
   summary: string
   location: string
+  coordinates: EventCoordinates | null
   date: string
   category: string
   description: string
@@ -30,6 +31,7 @@ export const initialEventDraftState: EventDraftState = {
   title: "",
   summary: "",
   location: "",
+  coordinates: null,
   date: "",
   category: "",
   description: "",
@@ -84,6 +86,8 @@ export function validateEventDraft(draft: EventDraftState): EventDraftErrors {
 
   if (!draft.location.trim()) {
     errors.location = "Ingresá una ubicación."
+  } else if (!draft.coordinates) {
+    errors.location = "Seleccioná una dirección sugerida o ingresá una ubicación válida."
   }
 
   if (!draft.date.trim()) {
@@ -137,5 +141,30 @@ export function buildInitialEventDraft(
     ...initialEventDraftState,
     labelType: label.type,
     labelText: label.text,
+  }
+}
+
+export function formatDateInputValue(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
+
+export function buildDraftFromEvent(event: EventCardData): EventDraftState {
+  return {
+    title: event.title,
+    summary: event.summary,
+    location: event.location,
+    coordinates: event.coordinates,
+    date: formatDateInputValue(event.date),
+    category: event.category,
+    description: event.description,
+    registrationUrl: event.registrationUrl ?? "",
+    requirements: event.requirements,
+    labelType: event.label.type,
+    labelText: event.label.text,
+    gallery: event.gallery.join("\n"),
   }
 }
