@@ -4,21 +4,22 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
-    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
-    "db:migrate": "dotenv -e ../../apps/web/.env.local -- prisma migrate dev --schema=./prisma/schema.prisma",
-    "db:push": "dotenv -e ../../apps/web/.env.local -- prisma db push --schema=./prisma/schema.prisma",
-    "db:studio": "dotenv -e ../../apps/web/.env.local -- prisma studio --schema=./prisma/schema.prisma",
-    "db:validate": "dotenv -e .env.validate -- prisma validate --schema=./prisma/schema.prisma",
+    "db:generate": "dotenv -e ../../apps/web/.env.local -- drizzle-kit generate",
+    "db:migrate": "dotenv -e ../../apps/web/.env.local -- drizzle-kit migrate",
+    "db:push": "dotenv -e ../../apps/web/.env.local -- drizzle-kit push",
+    "db:studio": "dotenv -e ../../apps/web/.env.local -- drizzle-kit studio",
+    "db:validate": "dotenv -e .env.validate -- drizzle-kit check",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.0"
+    "drizzle-orm": "^0.44.2",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
+    "dotenv": "^17.2.1",
     "dotenv-cli": "^11.0.0",
-    "prisma": "^6.19.0",
+    "drizzle-kit": "^0.31.4",
     "typescript": "^5.9.3"
   },
   "exports": {

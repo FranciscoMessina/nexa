@@ -1,1 +1,2 @@
-export { prisma, isDatabaseConfigured } from "./client"
+export { db, isDatabaseConfigured } from "./client"
+export * from "./schema"
