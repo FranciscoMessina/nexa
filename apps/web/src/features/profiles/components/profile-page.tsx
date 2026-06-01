@@ -6,7 +6,8 @@ import {
   IconShieldCheck,
   IconTag,
 } from "@tabler/icons-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useImageUpload } from "@/features/storage"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
 import type { UserRole } from "@/features/auth/types/auth.types"
@@ -114,6 +115,8 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState<Profile | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+  const { isUploading, error: imageUploadError, upload: uploadImage } = useImageUpload()
 
   useEffect(() => {
     hydrate()
@@ -200,6 +203,28 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     })
   }
 
+  async function handleAvatarSelect(file: File): Promise<void> {
+    if (!displayProfile) {
+      return
+    }
+
+    const publicUrl = await uploadImage(file, "avatar", displayProfile.id)
+    if (publicUrl) {
+      updateDraft({ avatarUrl: publicUrl })
+    }
+  }
+
+  async function handleRepresentativeSelect(file: File): Promise<void> {
+    if (!displayProfile) {
+      return
+    }
+
+    const publicUrl = await uploadImage(file, "representative", displayProfile.id)
+    if (publicUrl) {
+      updateDraft({ representativeImageUrl: publicUrl })
+    }
+  }
+
   return (
     <AppShell>
       <div className="space-y-6" data-testid="profile-page">
@@ -231,15 +256,42 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="relative">
+                <input
+                  accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (file) {
+                      void handleAvatarSelect(file)
+                    }
+                    event.target.value = ""
+                  }}
+                  ref={avatarInputRef}
+                  type="file"
+                />
                 <img
                   alt={displayProfile.displayName}
                   className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-md"
                   src={displayProfile.avatarUrl}
                 />
                 {canEdit && isEditing ? (
-                  <span className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#5b4bb7] shadow">
+                  <button
+                    aria-label="Cambiar foto de perfil"
+                    className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#5b4bb7] shadow disabled:opacity-60"
+                    disabled={isUploading}
+                    onClick={() => {
+                      avatarInputRef.current?.click()
+                    }}
+                    type="button"
+                  >
                     <IconCamera size={16} stroke={1.8} />
-                  </span>
+                  </button>
+                ) : null}
+                {canEdit && isEditing && isUploading ? (
+                  <p className="mt-1 text-xs text-[#6b7d9c]">Subiendo foto…</p>
+                ) : null}
+                {canEdit && isEditing && imageUploadError ? (
+                  <p className="mt-1 text-xs text-rose-600">{imageUploadError}</p>
                 ) : null}
               </div>
 
@@ -304,9 +356,14 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
         <ProfileFormFields
           isEditing={isEditing}
           isOwnProfile={canEdit}
+          isUploadingRepresentative={isUploading}
           onChange={updateDraft}
+          onRepresentativeImageSelect={(file) => {
+            void handleRepresentativeSelect(file)
+          }}
           onSocialLinkChange={updateSocialLink}
           profile={displayProfile}
+          representativeUploadError={imageUploadError}
         />
 
         {canEdit && isEditing ? (

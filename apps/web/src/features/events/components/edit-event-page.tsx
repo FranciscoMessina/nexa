@@ -189,6 +189,7 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
           onSubmit={handleSaveEvent}
           submitLabel="Guardar cambios"
           successMessage="Cambios guardados"
+          uploadOwnerId={eventId}
         />
 
         <div className="flex flex-wrap gap-3">

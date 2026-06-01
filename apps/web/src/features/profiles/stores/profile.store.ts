@@ -99,8 +99,14 @@ export const useProfileStore = create<ProfileStoreState>()((set, get) => ({
           profileId,
           {
             ...storedProfile,
-            avatarUrl: baseProfile.avatarUrl,
-            representativeImageUrl: baseProfile.representativeImageUrl,
+            avatarUrl:
+              storedProfile.avatarUrl !== baseProfile.avatarUrl
+                ? storedProfile.avatarUrl
+                : baseProfile.avatarUrl,
+            representativeImageUrl:
+              storedProfile.representativeImageUrl !== baseProfile.representativeImageUrl
+                ? storedProfile.representativeImageUrl
+                : baseProfile.representativeImageUrl,
           },
         ]
       })

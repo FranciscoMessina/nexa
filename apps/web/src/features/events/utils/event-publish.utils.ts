@@ -105,9 +105,9 @@ export function validateEventDraft(draft: EventDraftState): EventDraftErrors {
   }
 
   if (!draft.gallery.trim()) {
-    errors.gallery = "Pegá al menos una URL de imagen."
+    errors.gallery = "Pegá URLs o subí al menos una imagen."
   } else if (splitGallery(draft.gallery).length === 0) {
-    errors.gallery = "Pegá al menos una URL de imagen válida."
+    errors.gallery = "Pegá al menos una URL o imagen válida."
   }
 
   return errors

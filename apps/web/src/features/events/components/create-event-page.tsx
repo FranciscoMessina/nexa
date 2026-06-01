@@ -32,6 +32,11 @@ export function CreateEventPage() {
   )
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
+  const [uploadOwnerId] = useState(() =>
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `draft-${Date.now()}`
+  )
 
   const handleDraftChange = <TKey extends keyof EventDraftState>(
     key: TKey,
@@ -170,6 +175,7 @@ export function CreateEventPage() {
             errors={draftErrors}
             onDraftChange={handleDraftChange}
             onSubmit={handleCreateEvent}
+            uploadOwnerId={uploadOwnerId}
           />
         )}
       </div>
