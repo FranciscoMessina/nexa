@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vite dev --port 3000",
+    "prebuild": "bun run --filter @workspace/database db:generate",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint",
@@ -19,6 +20,7 @@
     "@tanstack/react-start": "^1.132.0",
     "@tanstack/router-plugin": "^1.132.0",
     "@vis.gl/react-google-maps": "^1.8.3",
+    "@workspace/database": "workspace:*",
     "@workspace/ui": "workspace:*",
     "leaflet": "^1.9.4",
     "nitro": "latest",

@@ -7,7 +7,12 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "db:generate": "turbo db:generate",
+    "db:migrate": "bun run --filter @workspace/database db:migrate",
+    "db:push": "bun run --filter @workspace/database db:push",
+    "db:studio": "bun run --filter @workspace/database db:studio",
+    "db:validate": "bun run --filter @workspace/database db:validate"
   },
   "devDependencies": {
     "prettier": "^3.8.1",

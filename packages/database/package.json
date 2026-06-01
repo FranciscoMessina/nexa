@@ -1,0 +1,27 @@
+{
+  "name": "@workspace/database",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:migrate": "dotenv -e ../../apps/web/.env.local -- prisma migrate dev --schema=./prisma/schema.prisma",
+    "db:push": "dotenv -e ../../apps/web/.env.local -- prisma db push --schema=./prisma/schema.prisma",
+    "db:studio": "dotenv -e ../../apps/web/.env.local -- prisma studio --schema=./prisma/schema.prisma",
+    "db:validate": "dotenv -e .env.validate -- prisma validate --schema=./prisma/schema.prisma",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "dotenv-cli": "^11.0.0",
+    "prisma": "^6.19.0",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

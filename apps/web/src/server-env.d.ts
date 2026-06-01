@@ -5,5 +5,7 @@ declare namespace NodeJS {
     SUPABASE_STORAGE_BUCKET?: string
     SUPABASE_STORAGE_BUCKET_PROFILES?: string
     SUPABASE_STORAGE_BUCKET_EVENTS?: string
+    DATABASE_URL?: string
+    DIRECT_URL?: string
   }
 }

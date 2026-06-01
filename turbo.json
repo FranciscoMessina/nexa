@@ -3,9 +3,13 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^db:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".output/**"]
+    },
+    "db:generate": {
+      "cache": false,
+      "outputs": ["../../node_modules/.prisma/**", "node_modules/.prisma/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
