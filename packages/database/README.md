@@ -31,6 +31,8 @@ DIRECT_URL="postgresql://postgres:[PASSWORD]@db.[ref].supabase.co:5432/postgres"
 
 **Importante:** sin `DIRECT_URL`, `bun run db:migrate` falla con `url: undefined`. Ambas deben apuntar al mismo proyecto Supabase, solo cambia el host/puerto según el tipo de conexión que indica el dashboard.
 
+**Windows / redes sin IPv6:** el host `db.[ref].supabase.co` (conexión “direct”) a veces solo resuelve a IPv6. Si `db:migrate` se queda en “applying migrations…” o falla con `getaddrinfo ENOTFOUND`, usá en `DIRECT_URL` la connection string **Session pooler** (puerto `5432`, usuario `postgres.[ref]`) del dashboard de Supabase — la misma familia de URL que `DATABASE_URL`, no el host `db.*`.
+
 No commitees `.env.local` (contiene contraseñas).
 
 ### 3. Aplicar el esquema por primera vez
