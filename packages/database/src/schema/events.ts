@@ -23,8 +23,6 @@ export const events = pgTable("events", {
   startsAt: timestamp("starts_at", { withTimezone: true }),
   endsAt: timestamp("ends_at", { withTimezone: true }),
   category: categoryEnum("category").array(),
-  ctaText: text("cta_text"),
-  ctaHref: text("cta_href"),
   description: text("description"),
   priceAmount: numeric("price_amount", { precision: 12, scale: 2 }),
   priceCurrency: text("price_currency"),

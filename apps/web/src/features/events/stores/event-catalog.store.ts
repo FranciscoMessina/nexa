@@ -121,8 +121,6 @@ export const useEventCatalogStore = create<EventCatalogState>()((set, get) => ({
         src: input.image.src.trim(),
         alt: `${title} - ${location}`,
       },
-      ctaText: input.ctaText?.trim() || "Ver más detalle",
-      ctaHref: input.ctaHref,
       description: input.description.trim(),
       price: input.price ?? { amount: 0, currency: "ARS", label: "" },
       gallery: input.gallery.map((image) => image.trim()).filter(Boolean),
@@ -134,8 +132,6 @@ export const useEventCatalogStore = create<EventCatalogState>()((set, get) => ({
       requirements: input.requirements.trim(),
       coordinates: input.coordinates ?? { lat: -34.6037, lng: -58.3816 },
     })
-
-    event.ctaHref = `/events/${event.id}`
 
     const nextUserEvents = [event, ...get().userEvents]
     writeStoredUserEvents(nextUserEvents)

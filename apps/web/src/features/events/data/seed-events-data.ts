@@ -28,9 +28,6 @@ export const featuredEvent: EventCardData = {
     src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80",
     alt: "Personas compartiendo una velada en un bar con luces cálidas y botellas al fondo",
   },
-  ctaText: "Ver más detalle",
-  ctaHref: "/",
-
   description:
     "Brutal presenta una promo de vinos con degustación de cuatro etiquetas y una tabla de quesos y fiambres preparada por el local. La velada incluye una charla breve de maridaje y música en vivo de Loza Jazz, en un formato íntimo para pocas mesas.",
   price: emptyEventPrice,
@@ -77,9 +74,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
       alt: "DJ en un bar con luces cálidas y público reducido",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
-
     description:
       "Antares Bar abre a la noche con un DJ set en formato reducido: música electrónica suave, cervezas artesanales y picada para compartir en mesas. El emprendimiento invitado pone la música; el bar organiza el espacio y la barra, sin pista masiva.",
     price: emptyEventPrice,
@@ -122,9 +116,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80",
       alt: "Vasos de cerveza artesanales servidos sobre una mesa de madera",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
-
     description:
       "Una degustación guiada por el maestro cervecero de Antares donde se recorren seis estilos diferentes: desde una Kolsch refrescante hasta una Imperial Stout de guarda. Cada cerveza viene acompañada de un maridaje sugerido y una breve explicación del proceso de elaboración. Ideal para quienes quieren profundizar su conocimiento cervecero en un ambiente distendido.",
     price: emptyEventPrice,
@@ -167,9 +158,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&fit=crop&w=1200&q=80",
       alt: "Banda de jazz tocando en un bar con iluminación tenue",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
-
     description:
       "878 Bar recibe a Loza Jazz para una sesión íntima de jazz en vivo. El bar organiza la velada y la banda presenta estándares y temas propios para un público reducido, con barra del local.",
     price: emptyEventPrice,
@@ -214,9 +202,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
       alt: "Grupo de personas leyendo y conversando en una cafetería",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
-
     description:
       "María López convoca a vecinos y lectores para comentar 'Las correcciones' de Jonathan Franzen en Café Rita. Es un evento comunitario: quien organiza es una usuaria de Nexa que asiste a otros eventos del barrio; el café facilita mesas, café y medialunas con un arancel simbólico.",
     price: emptyEventPrice,
@@ -259,9 +244,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1200&q=80",
       alt: "Mesa de trabajo con pinceles, papeles y acuarelas",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
-
     description:
       "Estudio Pulso, emprendimiento de arte y talleres, organiza una tarde de acuarela en Café Walden. Incluye materiales, demostración de técnicas básicas y espacio para terminar una pieza propia. El café presta el salón en formato comunitario.",
     price: emptyEventPrice,
@@ -304,8 +286,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
       alt: "Grupo de personas practicando yoga al aire libre en una plaza",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
     description:
       "María López organiza una clase abierta de yoga en Parque Centenario para vecinos del barrio. Es un evento comunitario, no oficial del espacio público: traé tu mat o alquilá una en el lugar.",
     price: emptyEventPrice,
@@ -344,8 +324,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
       alt: "Banda de rock en vivo en un bar con luces de escenario",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
     description:
       "Bar Basílico presenta a Roots & Calle, banda de rock nacional, en un show íntimo para público reducido. El dúo porteño recorre clásicos y temas propios del rock nacional argentino. El bar cura la noche; la banda, como emprendimiento musical, lleva el show en vivo. Entrada con consumición mínima y mesas numeradas.",
     price: emptyEventPrice,
@@ -388,8 +366,6 @@ export const seedEvents: Array<EventCardData> = [
       src: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
       alt: "Ropa exhibida en un pop-up de marcas locales dentro de un patio",
     },
-    ctaText: "Ver más detalle",
-    ctaHref: "/",
     description:
       "Bar Tabac convoca a marcas de ropa del barrio para un pop-up de indumentaria en el patio. Participan Crudo, Indigo Wear y Urbe Street con piezas limitadas y probadores, mientras el bar ofrece tragos y picadas. Entrada libre, formato comunitario.",
     price: emptyEventPrice,

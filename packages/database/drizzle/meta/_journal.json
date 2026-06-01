@@ -22,6 +22,13 @@
       "when": 1780292329607,
       "tag": "0002_watery_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780295254393,
+      "tag": "0003_fearless_apocalypse",
+      "breakpoints": true
     }
   ]
 }

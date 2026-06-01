@@ -11,8 +11,6 @@ export type CreateMockEventInput = {
   image: {
     src: string
   }
-  ctaText?: string
-  ctaHref?: string
   description: string
   price?: EventCardData["price"]
   gallery: Array<string>
