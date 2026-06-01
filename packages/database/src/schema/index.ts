@@ -1,3 +1,4 @@
-// Domain tables: add pgTable definitions here and export them.
-
-export {}
+export * from "./enums"
+export * from "./users"
+export * from "./events"
+export * from "./relations"
