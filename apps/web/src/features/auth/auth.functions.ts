@@ -28,6 +28,11 @@ export const signInFn = createServerFn({ method: "POST" })
 export const signUpFn = createServerFn({ method: "POST" })
   .inputValidator((data: SignUpPayload) => data)
   .handler(async ({ data }): Promise<SignUpResult> => {
+    const { assertPasswordMeetsPolicy } = await import(
+      "./utils/password-policy.utils"
+    )
+    assertPasswordMeetsPolicy(data.password)
+
     const { signUpWithPassword } = await import("./api/auth.supabase.server")
     const { user, needsEmailConfirmation, error } = await signUpWithPassword({
       email: data.email,

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { IconEye, IconEyeClosed, IconLock, IconMail } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import type { BaseSyntheticEvent } from "react"
+import { AuthFormNotice } from "@/features/auth/components/auth-form-notice"
 import {
   AuthError,
   MIN_PASSWORD_LENGTH,
@@ -164,12 +165,7 @@ export function LoginPage() {
             </div>
 
             {errorMessage ? (
-              <p
-                className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600"
-                data-testid="login-error"
-              >
-                {errorMessage}
-              </p>
+              <AuthFormNotice data-testid="login-error">{errorMessage}</AuthFormNotice>
             ) : null}
 
             <button

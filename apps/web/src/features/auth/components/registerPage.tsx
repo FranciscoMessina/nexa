@@ -8,9 +8,13 @@ import {
 } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import type { BaseSyntheticEvent } from "react"
+import { AuthFormNotice } from "@/features/auth/components/auth-form-notice"
+import {
+  isPasswordPolicyComplete,
+  PasswordRequirementsChecklist,
+} from "@/features/auth/components/password-requirements-checklist"
 import {
   AuthError,
-  MIN_PASSWORD_LENGTH,
   ROLE_OPTIONS,
   getPostLoginPathForRole,
 } from "@/features/auth/constants/auth.constants"
@@ -35,25 +39,20 @@ export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(false)
 
-  const passwordsMatch = password === confirmPassword
-
   const canSubmit = useMemo(() => {
     return (
       displayName.trim().length > 0 &&
       email.trim().length > 0 &&
-      password.trim().length >= MIN_PASSWORD_LENGTH &&
-      confirmPassword.trim().length >= MIN_PASSWORD_LENGTH &&
-      passwordsMatch
+      isPasswordPolicyComplete(password, confirmPassword)
     )
-  }, [confirmPassword, displayName, email, password, passwordsMatch])
+  }, [confirmPassword, displayName, email, password])
 
   async function handleSubmit(event: BaseSyntheticEvent): Promise<void> {
     event.preventDefault()
     setErrorMessage(null)
     setSuccessMessage(null)
 
-    if (!passwordsMatch) {
-      setErrorMessage("Las contraseñas no coinciden.")
+    if (!isPasswordPolicyComplete(password, confirmPassword)) {
       return
     }
 
@@ -206,11 +205,10 @@ export function RegisterPage() {
                   className="w-full border-none bg-transparent text-base text-[#152c55] outline-none placeholder:text-[#9aa8c0]"
                   data-testid="register-password-input"
                   id="password"
-                  minLength={MIN_PASSWORD_LENGTH}
                   onChange={(event) => {
                     setPassword(event.target.value)
                   }}
-                  placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
+                  placeholder="Creá una contraseña segura"
                   type={showPassword ? "text" : "password"}
                   value={password}
                 />
@@ -227,6 +225,10 @@ export function RegisterPage() {
                   {showPassword ? <IconEyeClosed size={20} /> : <IconEye size={20} />}
                 </button>
               </div>
+              <PasswordRequirementsChecklist
+                confirmPassword={confirmPassword}
+                password={password}
+              />
             </div>
 
             <div className="space-y-2">
@@ -243,7 +245,6 @@ export function RegisterPage() {
                   className="w-full border-none bg-transparent text-base text-[#152c55] outline-none placeholder:text-[#9aa8c0]"
                   data-testid="register-confirm-password-input"
                   id="confirmPassword"
-                  minLength={MIN_PASSWORD_LENGTH}
                   onChange={(event) => {
                     setConfirmPassword(event.target.value)
                   }}
@@ -252,9 +253,6 @@ export function RegisterPage() {
                   value={confirmPassword}
                 />
               </div>
-              {confirmPassword.length > 0 && !passwordsMatch ? (
-                <p className="text-xs text-red-600">Las contraseñas no coinciden.</p>
-              ) : null}
             </div>
 
             <label className="inline-flex items-center gap-3 text-sm text-[#6f7f9b]">
@@ -271,21 +269,13 @@ export function RegisterPage() {
             </label>
 
             {errorMessage ? (
-              <p
-                className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600"
-                data-testid="register-error"
-              >
-                {errorMessage}
-              </p>
+              <AuthFormNotice data-testid="register-error">{errorMessage}</AuthFormNotice>
             ) : null}
 
             {successMessage ? (
-              <p
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
-                data-testid="register-success"
-              >
+              <AuthFormNotice data-testid="register-success" variant="success">
                 {successMessage}
-              </p>
+              </AuthFormNotice>
             ) : null}
 
             <button
