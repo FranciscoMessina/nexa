@@ -20,20 +20,20 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
-import { deleteMockEvent, getMockEventById } from "@/features/events/data/mock-events"
-import { canUserManageEvent } from "@/features/events/stores/event-catalog.store"
+import {
+  useAttendanceStateQuery,
+  useDeleteEventMutation,
+  useEventQuery,
+  useToggleAttendanceMutation,
+} from "@/features/events/hooks/events-queries"
+import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
 import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
-import { useEventAttendanceStore } from "@/features/events/stores/event-attendance.store"
 import { AppShell } from "@/features/home/components/app-shell"
 import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
-import {
-  getMockProfileById,
-  getMockProfileForEmail,
-  getMockProfilesByIds,
-} from "@/features/profiles/data/mock-profiles"
+import { useProfileQuery, useProfilesByIdsQuery } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type EventDetailPageProps = {
@@ -138,23 +138,20 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
-  const hydrate = useEventAttendanceStore((state) => state.hydrate)
-  const isHydrated = useEventAttendanceStore((state) => state.isHydrated)
-  const setAttending = useEventAttendanceStore((state) => state.setAttending)
-  const isAttending = useEventAttendanceStore((state) => state.isAttending)
+  const { data: event, isLoading: isEventLoading } = useEventQuery(eventId)
+  const { data: attendanceState } = useAttendanceStateQuery(eventId)
+  const toggleAttendance = useToggleAttendanceMutation(eventId)
+  const deleteEventMutation = useDeleteEventMutation()
+  const ventureIds = event?.participatingVentures?.map((venture) => venture.profileId) ?? []
+  const { data: organizerProfile } = useProfileQuery(event?.organizer.profileId)
+  const { data: participatingProfiles = [] } = useProfilesByIdsQuery(ventureIds)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [linkCopied, setLinkCopied] = useState(false)
 
-  const seedAttendeeIds = getMockEventById(eventId)?.attendeeProfileIds ?? []
-  const attendanceCount = useEventAttendanceStore((state) =>
-    state.getAttendanceCount(eventId, seedAttendeeIds)
-  )
+  const attendanceCount = attendanceState?.attendanceCount ?? 0
+  const attending = attendanceState?.isAttending ?? false
 
-  useEffect(() => {
-    hydrate()
-  }, [hydrate])
-
-  if (isChecking) {
+  if (isChecking || isEventLoading) {
     return (
       <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando sesión...</p>
@@ -165,8 +162,6 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   if (!isAllowed) {
     return null
   }
-
-  const event = getMockEventById(eventId)
 
   if (!event) {
     return (
@@ -196,21 +191,14 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const activeImage = galleryImages[activeImageIndex] ?? event.image.src
   const shareUrl = getShareUrl()
   const mapUrl = getMapUrl(event.coordinates.lat, event.coordinates.lng)
-  const viewerProfile = user ? getMockProfileForEmail(user.email) : undefined
-  const canManageEvent = canUserManageEvent(event, viewerProfile?.id)
-  const isOwnEvent = viewerProfile?.id === event.organizer.profileId
-  const attending =
-    isHydrated && viewerProfile ? isAttending(viewerProfile.id, event.id) : false
+  const canManageEvent = canUserManageEvent(event, user?.id)
+  const isOwnEvent = user?.id === event.organizer.profileId
   const attendanceLabel =
     attendanceCount === 1
       ? "1 persona confirmó que va a asistir"
       : `${attendanceCount} personas confirmaron que van a asistir`
   const descriptionParagraphs = splitParagraphs(event.description)
   const requirementItems = splitRequirements(event.requirements)
-  const organizerProfile = getMockProfileById(event.organizer.profileId)
-  const participatingProfiles = getMockProfilesByIds(
-    event.participatingVentures?.map((venture) => venture.profileId) ?? []
-  )
   const goToImage = (nextIndex: number) => {
     if (galleryImages.length === 0) {
       return
@@ -485,7 +473,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
                       data-testid="event-delete-button"
                       onClick={() => {
-                        if (!viewerProfile) {
+                        if (!user) {
                           return
                         }
 
@@ -497,9 +485,9 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                           return
                         }
 
-                        if (deleteMockEvent(event.id, viewerProfile.id)) {
+                        void deleteEventMutation.mutateAsync(event.id).then(() => {
                           void navigate({ to: "/mis-eventos" })
-                        }
+                        })
                       }}
                       type="button"
                     >
@@ -509,13 +497,13 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                   </div>
                 ) : null}
 
-                {!isOwnEvent && viewerProfile ? (
+                {!isOwnEvent && user ? (
                   attending ? (
                     <button
                       className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-white px-5 py-3.5 text-sm font-semibold text-[#1a3462] transition hover:-translate-y-0.5 hover:bg-[#f4f7fb]"
                       data-testid="event-decline-attendance-button"
                       onClick={() => {
-                        setAttending(viewerProfile.id, event.id, false)
+                        void toggleAttendance.mutateAsync()
                       }}
                       type="button"
                     >
@@ -527,7 +515,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-18px_rgba(249,115,22,0.75)] transition hover:-translate-y-0.5 hover:bg-[#ea680f]"
                       data-testid="event-attend-button"
                       onClick={() => {
-                        setAttending(viewerProfile.id, event.id, true)
+                        void toggleAttendance.mutateAsync()
                       }}
                       type="button"
                     >

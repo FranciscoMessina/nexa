@@ -1,17 +1,13 @@
 import { Link } from "@tanstack/react-router"
 import { cn } from "@workspace/ui/lib/utils"
-import { useEffect, useMemo, useState } from "react"
+import { useState } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventCard } from "@/features/events/components/event-card"
-import {
-  getMyEventsCopy,
-  getMyEventsSections,
-} from "@/features/events/data/my-events"
-import { useEventAttendanceStore } from "@/features/events/stores/event-attendance.store"
-import { useEventCatalogStore } from "@/features/events/stores/event-catalog.store"
+import { getMyEventsCopy } from "@/features/events/data/my-events-copy"
+import { useMyEventsSectionsQuery } from "@/features/events/hooks/events-queries"
+import { toEventItem } from "@/features/events/utils/event-item.utils"
 import type { EventItem } from "@/features/events/types/event.types"
 import { AppShell } from "@/features/home/components/app-shell"
-import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type MyEventsTab = "upcoming" | "past"
@@ -89,126 +85,74 @@ function SectionPanel({
 export function MyEventsPage() {
   const { user, currentUserRole } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
-    allowedRoles: ["asistente", "organizador", "emprendedor"],
+    allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
-  const hydrate = useEventAttendanceStore((state) => state.hydrate)
-  const hydrateCatalog = useEventCatalogStore((state) => state.hydrate)
-  const isHydrated = useEventAttendanceStore((state) => state.isHydrated)
-  const userEvents = useEventCatalogStore((state) => state.userEvents)
-  const attendingByProfile = useEventAttendanceStore(
-    (state) => state.byProfileId
-  )
   const [activeTab, setActiveTab] = useState<MyEventsTab>("upcoming")
-
-  useEffect(() => {
-    hydrate()
-    hydrateCatalog()
-  }, [hydrate, hydrateCatalog])
-
-  const profileId = user ? getMockProfileForEmail(user.email)?.id : undefined
-  const attendingEventIds = profileId
-    ? (attendingByProfile[profileId] ?? [])
-    : []
-
-  const sections = useMemo(
-    () =>
-      isHydrated && profileId && currentUserRole
-        ? getMyEventsSections(profileId, currentUserRole, attendingEventIds)
-        : { upcoming: [], past: [] },
-    [attendingEventIds, currentUserRole, isHydrated, profileId, userEvents]
-  )
-
-  const copy = currentUserRole
-    ? getMyEventsCopy(currentUserRole)
-    : getMyEventsCopy("asistente")
+  const { data: sections, isLoading } = useMyEventsSectionsQuery(isAllowed)
 
   if (isChecking) {
     return (
       <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando tus eventos...</p>
+        <p className="text-[#1a3462]">Cargando...</p>
       </main>
     )
   }
 
-  if (!isAllowed) {
+  if (!isAllowed || !user || !currentUserRole) {
     return null
   }
+
+  const copy = getMyEventsCopy(currentUserRole)
+  const upcoming = (sections?.upcoming ?? []).map(toEventItem)
+  const past = (sections?.past ?? []).map(toEventItem)
+  const activeEvents = activeTab === "upcoming" ? upcoming : past
 
   return (
     <AppShell>
       <div className="space-y-6" data-testid="my-events-page">
         <div>
-          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">
-            Mis eventos
-          </h1>
+          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Mis eventos</h1>
           <p className="mt-2 text-base text-[#6b7d9c]">{copy.subtitle}</p>
         </div>
 
-        <div
-          className="inline-flex w-full max-w-md rounded-2xl border border-[#e8edf5] bg-white p-1 shadow-sm"
-          role="tablist"
-        >
-          <button
-            aria-selected={activeTab === "upcoming"}
-            className={cn(
-              "flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition",
+        <div className="flex gap-2 rounded-2xl border border-[#e8edf5] bg-white p-2">
+          {(["upcoming", "past"] as const).map((tab) => (
+            <button
+              className={cn(
+                "flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition",
+                activeTab === tab
+                  ? "bg-[#6d5ae6] text-white"
+                  : "text-[#6b7d9c] hover:bg-[#f4f7fb]"
+              )}
+              data-testid={`my-events-tab-${tab}`}
+              key={tab}
+              onClick={() => {
+                setActiveTab(tab)
+              }}
+              type="button"
+            >
+              {tab === "upcoming" ? copy.upcomingTitle : copy.pastTitle}
+            </button>
+          ))}
+        </div>
+
+        {isLoading ? (
+          <p className="text-sm text-[#6b7d9c]">Cargando tus eventos...</p>
+        ) : (
+          <SectionPanel
+            emptyDescription={
               activeTab === "upcoming"
-                ? "bg-[#fff0eb] text-[#e85a2f] shadow-sm"
-                : "text-[#1a3462] hover:bg-[#f9fbff]"
-            )}
-            data-testid="my-events-tab-upcoming"
-            onClick={() => {
-              setActiveTab("upcoming")
-            }}
-            role="tab"
-            type="button"
-          >
-            {copy.upcomingTitle}
-            <span className="ml-1.5 text-xs font-medium opacity-80">
-              ({sections.upcoming.length})
-            </span>
-          </button>
-
-          <button
-            aria-selected={activeTab === "past"}
-            className={cn(
-              "flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition",
-              activeTab === "past"
-                ? "bg-[#fff0eb] text-[#e85a2f] shadow-sm"
-                : "text-[#1a3462] hover:bg-[#f9fbff]"
-            )}
-            data-testid="my-events-tab-past"
-            onClick={() => {
-              setActiveTab("past")
-            }}
-            role="tab"
-            type="button"
-          >
-            {copy.pastTitle}
-            <span className="ml-1.5 text-xs font-medium opacity-80">
-              ({sections.past.length})
-            </span>
-          </button>
-        </div>
-
-        <div role="tabpanel">
-          {activeTab === "upcoming" ? (
-            <SectionPanel
-              emptyDescription={copy.upcomingEmptyDescription}
-              emptyTitle={copy.upcomingEmptyTitle}
-              events={sections.upcoming}
-              showExploreLink
-              testId="my-events-upcoming"
-            />
-          ) : (
-            <SectionPanel
-              emptyDescription={copy.pastEmptyDescription}
-              emptyTitle={copy.pastEmptyTitle}
-              events={sections.past}
-              testId="my-events-past"
-            />
-          )}
-        </div>
+                ? copy.upcomingEmptyDescription
+                : copy.pastEmptyDescription
+            }
+            emptyTitle={
+              activeTab === "upcoming" ? copy.upcomingEmptyTitle : copy.pastEmptyTitle
+            }
+            events={activeEvents}
+            showExploreLink={activeTab === "upcoming"}
+            testId={activeTab === "upcoming" ? "my-events-upcoming" : "my-events-past"}
+          />
+        )}
       </div>
     </AppShell>
   )

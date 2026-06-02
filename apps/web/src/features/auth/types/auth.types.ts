@@ -1,6 +1,8 @@
 export type UserRole = "emprendedor" | "organizador" | "asistente"
 
 export type AuthUser = {
+  id: string
+  authUserId: string
   email: string
   role: UserRole
   displayName: string
@@ -12,6 +14,18 @@ export type LoginPayload = {
   remember?: boolean
 }
 
+export type SignUpPayload = {
+  email: string
+  password: string
+  displayName: string
+  role: UserRole
+  remember?: boolean
+}
+
+export type SignUpResult =
+  | { status: "session"; user: AuthUser }
+  | { status: "email_confirmation"; email: string }
+
 export type AuthContextValue = {
   user: AuthUser | null
   currentUserRole: UserRole | null
@@ -19,5 +33,6 @@ export type AuthContextValue = {
   isHydrated: boolean
   isSubmitting: boolean
   login: (payload: LoginPayload) => Promise<AuthUser>
-  logout: () => void
+  register: (payload: SignUpPayload) => Promise<SignUpResult>
+  logout: () => Promise<void>
 }

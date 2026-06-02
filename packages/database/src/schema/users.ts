@@ -42,6 +42,8 @@ export const userSocialLinks = pgTable("user_social_links", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   platform: socialPlatformEnum("platform").notNull(),
+  handle: text("handle"),
+  url: text("url"),
 })
 
 export const userGalleryImages = pgTable("user_gallery_images", {

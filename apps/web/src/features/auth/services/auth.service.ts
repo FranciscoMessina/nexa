@@ -1,13 +1,13 @@
-import type { AuthChangeEvent, Subscription } from "@supabase/supabase-js"
 import { AuthError as SupabaseAuthError } from "@supabase/supabase-js"
-import { AuthError, loginMock } from "../api/auth.api"
+import { AuthError } from "../constants/auth.constants"
 import {
-  getSessionFn,
+  getCurrentUserFn,
   getSupabaseStatusFn,
   signInFn,
   signOutFn,
+  signUpFn,
 } from "../auth.functions"
-import type { AuthUser, LoginPayload } from "../types/auth.types"
+import type { AuthUser, LoginPayload, SignUpPayload, SignUpResult } from "../types/auth.types"
 
 const STORAGE_KEY = "nexa-auth-user"
 
@@ -33,6 +33,7 @@ function readStoredUser(): AuthUser | null {
     if (
       parsed &&
       typeof parsed === "object" &&
+      typeof (parsed as AuthUser).id === "string" &&
       typeof (parsed as AuthUser).email === "string" &&
       typeof (parsed as AuthUser).displayName === "string" &&
       typeof (parsed as AuthUser).role === "string"
@@ -66,26 +67,51 @@ function clearStoredUser(): void {
   }
 }
 
-function mapSupabaseAuthError(error: unknown): AuthError {
+function mapSupabaseAuthError(error: unknown, context: "login" | "signup" = "login"): AuthError {
   if (error instanceof SupabaseAuthError) {
     const message = error.message.toLowerCase()
 
+    if (
+      message.includes("already registered") ||
+      message.includes("already exists") ||
+      message.includes("user already")
+    ) {
+      return new AuthError(
+        "email-taken",
+        "Ya existe una cuenta con ese correo. Iniciá sesión o usá otro email."
+      )
+    }
+
     if (message.includes("invalid login credentials") || message.includes("invalid email")) {
-      return new AuthError("invalid-email", "El correo o la contraseña no son válidos.")
+      return new AuthError(
+        "invalid-email",
+        context === "signup"
+          ? "El correo no es válido o ya está en uso."
+          : "El correo o la contraseña no son válidos."
+      )
     }
 
     if (message.includes("password")) {
-      return new AuthError("invalid-password", "La contraseña no es válida.")
+      return new AuthError("invalid-password", "La contraseña no cumple los requisitos mínimos.")
     }
 
-    return new AuthError("invalid-email", error.message)
+    return new AuthError(
+      context === "signup" ? "signup-failed" : "invalid-email",
+      error.message
+    )
   }
 
   if (error instanceof Error) {
-    return new AuthError("invalid-email", error.message)
+    return new AuthError(
+      context === "signup" ? "signup-failed" : "invalid-email",
+      error.message
+    )
   }
 
-  return new AuthError("invalid-email", "No se pudo iniciar sesión.")
+  return new AuthError(
+    context === "signup" ? "signup-failed" : "invalid-email",
+    context === "signup" ? "No se pudo crear la cuenta." : "No se pudo iniciar sesión."
+  )
 }
 
 async function loginWithSupabase(payload: LoginPayload): Promise<AuthUser> {
@@ -99,13 +125,35 @@ async function loginWithSupabase(payload: LoginPayload): Promise<AuthUser> {
 }
 
 async function login(payload: LoginPayload): Promise<AuthUser> {
-  if (await isSupabaseConfiguredOnServer()) {
-    return loginWithSupabase(payload)
+  if (!(await isSupabaseConfiguredOnServer())) {
+    throw new AuthError(
+      "invalid-email",
+      "Supabase no está configurado. Revisá SUPABASE_URL y SUPABASE_ANON_KEY."
+    )
   }
 
-  const user = await loginMock(payload)
-  persistUser(user, payload.remember)
-  return user
+  return loginWithSupabase(payload)
+}
+
+async function register(payload: SignUpPayload): Promise<SignUpResult> {
+  if (!(await isSupabaseConfiguredOnServer())) {
+    throw new AuthError(
+      "signup-failed",
+      "Supabase no está configurado. Revisá SUPABASE_URL y SUPABASE_ANON_KEY."
+    )
+  }
+
+  try {
+    const result = await signUpFn({ data: payload })
+
+    if (result.status === "session") {
+      persistUser(result.user, payload.remember)
+    }
+
+    return result
+  } catch (error) {
+    throw mapSupabaseAuthError(error, "signup")
+  }
 }
 
 async function logout(): Promise<void> {
@@ -118,7 +166,7 @@ async function logout(): Promise<void> {
 
 async function getCurrentUser(): Promise<AuthUser | null> {
   if (await isSupabaseConfiguredOnServer()) {
-    const { user } = await getSessionFn()
+    const { user } = await getCurrentUserFn()
     if (user) {
       return user
     }
@@ -127,22 +175,12 @@ async function getCurrentUser(): Promise<AuthUser | null> {
   return readStoredUser()
 }
 
-function subscribeToAuthChanges(
-  handler: (event: AuthChangeEvent, user: AuthUser | null) => void
-): Subscription {
-  void handler
-  return {
-    id: "server-auth-subscription",
-    callback: () => undefined,
-    unsubscribe: () => undefined,
-  }
-}
-
 export const authService = {
   login,
+  register,
   logout,
   getCurrentUser,
-  subscribeToAuthChanges,
+  hydrateFromSession: getCurrentUser,
 }
 
 export default authService

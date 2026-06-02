@@ -29,6 +29,13 @@
       "when": 1780295254393,
       "tag": "0003_fearless_apocalypse",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1780296000000,
+      "tag": "0004_user_social_links_handle",
+      "breakpoints": true
     }
   ]
 }

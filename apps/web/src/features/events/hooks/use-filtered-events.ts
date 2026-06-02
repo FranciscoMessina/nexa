@@ -1,8 +1,8 @@
 import { useMemo } from "react"
 import type { EventItem } from "@/features/events/types/event.types"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
-import { getMockEvents, toEventItem } from "@/features/events/data/mock-events"
-import { useEventCatalogStore } from "@/features/events/stores/event-catalog.store"
+import { useEventsQuery } from "@/features/events/hooks/events-queries"
+import { toEventItem } from "@/features/events/utils/event-item.utils"
 
 function toDateKey(date: Date): string {
   const year = date.getFullYear()
@@ -20,12 +20,16 @@ function matchesDateFilter(startsAt: Date, dateFilter: string): boolean {
   return toDateKey(startsAt) === dateFilter
 }
 
-export function useFilteredEvents(): Array<EventItem> {
+export function useFilteredEvents(): {
+  events: Array<EventItem>
+  isLoading: boolean
+  isError: boolean
+} {
   const { neighborhood, category, date, eventType } = useEventFilters()
-  const userEvents = useEventCatalogStore((state) => state.userEvents)
+  const { data, isLoading, isError } = useEventsQuery()
 
-  return useMemo(() => {
-    return getMockEvents().map(toEventItem).filter((event) => {
+  const events = useMemo(() => {
+    return (data ?? []).map(toEventItem).filter((event) => {
       if (neighborhood !== "all" && event.neighborhood !== neighborhood) {
         return false
       }
@@ -44,5 +48,7 @@ export function useFilteredEvents(): Array<EventItem> {
 
       return true
     })
-  }, [category, date, eventType, neighborhood, userEvents])
+  }, [category, data, date, eventType, neighborhood])
+
+  return { events, isLoading, isError }
 }

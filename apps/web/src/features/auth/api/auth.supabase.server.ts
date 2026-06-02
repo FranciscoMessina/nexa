@@ -6,6 +6,7 @@ import {
   createSupabaseServerClientWithSession,
   supabaseSessionCookies,
 } from "@/shared/lib/supabase/server"
+import { ensureAppUser, toAuthUser } from "./users.server"
 import type { AuthUser, UserRole } from "../types/auth.types"
 
 const USER_ROLES: ReadonlyArray<UserRole> = [
@@ -20,9 +21,9 @@ function isUserRole(value: unknown): value is UserRole {
 
 /**
  * Set user_metadata.role and displayName (or display_name) in Supabase Dashboard
- * when creating users, until a profiles table exists.
+ * when creating users.
  */
-export function mapSupabaseUserToAuthUser(user: User): AuthUser | null {
+export function mapSupabaseUserToAuthUser(user: User): Omit<AuthUser, "id" | "authUserId"> | null {
   const metadata = user.user_metadata as Record<string, unknown> | undefined
   const role = metadata?.role
   const displayName =
@@ -64,6 +65,61 @@ function clearSessionCookies(): void {
   deleteCookie(supabaseSessionCookies.refresh)
 }
 
+export type SignUpWithPasswordInput = {
+  email: string
+  password: string
+  displayName: string
+  role: UserRole
+}
+
+export type SignUpWithPasswordResult = {
+  user: AuthUser | null
+  needsEmailConfirmation: boolean
+  error: AuthError | null
+}
+
+export async function signUpWithPassword(
+  input: SignUpWithPasswordInput
+): Promise<SignUpWithPasswordResult> {
+  const supabase = createSupabaseServerClient()
+  const email = input.email.trim().toLowerCase()
+  const displayName = input.displayName.trim()
+
+  const res = await supabase.auth.signUp({
+    email,
+    password: input.password,
+    options: {
+      data: {
+        role: input.role,
+        displayName,
+        display_name: displayName,
+      },
+    },
+  })
+
+  if (res.error) {
+    return { user: null, needsEmailConfirmation: false, error: res.error }
+  }
+
+  const supabaseUser = res.data.user
+  const session = res.data.session
+
+  if (!supabaseUser) {
+    return { user: null, needsEmailConfirmation: false, error: null }
+  }
+
+  if (!session?.access_token || !session.refresh_token) {
+    return { user: null, needsEmailConfirmation: true, error: null }
+  }
+
+  persistSessionCookies(session.access_token, session.refresh_token)
+
+  const appUser = await ensureAppUser(supabaseUser)
+  const authUser = toAuthUser(appUser, supabaseUser)
+
+  return { user: authUser, needsEmailConfirmation: false, error: null }
+}
+
 export async function signInWithPassword(
   email: string,
   password: string
@@ -76,11 +132,18 @@ export async function signInWithPassword(
   }
 
   const session = res.data.session
-  const authUser = res.data.user ? mapSupabaseUserToAuthUser(res.data.user) : null
+  const supabaseUser = res.data.user
+
+  if (!supabaseUser) {
+    return { user: null, error: null }
+  }
 
   if (session?.access_token && session.refresh_token) {
     persistSessionCookies(session.access_token, session.refresh_token)
   }
+
+  const appUser = await ensureAppUser(supabaseUser)
+  const authUser = toAuthUser(appUser, supabaseUser)
 
   return { user: authUser, error: null }
 }
@@ -100,5 +163,6 @@ export async function getSessionUser(): Promise<AuthUser | null> {
     return null
   }
 
-  return mapSupabaseUserToAuthUser(data.user)
+  const appUser = await ensureAppUser(data.user)
+  return toAuthUser(appUser, data.user)
 }

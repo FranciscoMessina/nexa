@@ -1,5 +1,5 @@
 import type { EventCardData, EventLabel } from "@/features/events/types/event.types"
-import { getMockProfileById } from "@/features/profiles/data/mock-profiles"
+import type { ProfileKind } from "@/features/profiles/types/profile.types"
 
 const communityLabel: EventLabel = {
   type: "community",
@@ -11,14 +11,22 @@ const verifiedLabel: EventLabel = {
   text: "Evento verificado",
 }
 
-export function isAssistantOrganizer(profileId: string): boolean {
-  const profile = getMockProfileById(profileId)
-  return profile?.kind === "usuario"
+export function isAssistantOrganizerKind(kind: ProfileKind | undefined): boolean {
+  return kind === "usuario"
 }
 
-/** Asistentes → comunitario; bares/cafés verificados → verificado (sin mirar emprendimientos invitados). */
-export function resolveEventLabel(event: Pick<EventCardData, "label" | "organizer">): EventLabel {
-  if (isAssistantOrganizer(event.organizer.profileId)) {
+/** @deprecated Usar isAssistantOrganizerKind con el kind del perfil organizador */
+export function isAssistantOrganizer(profileId: string): boolean {
+  void profileId
+  return false
+}
+
+/** Asistentes → comunitario; bares/cafés verificados → verificado. */
+export function resolveEventLabel(
+  event: Pick<EventCardData, "label" | "organizer">,
+  organizerKind?: ProfileKind
+): EventLabel {
+  if (organizerKind === "usuario" || isAssistantOrganizer(event.organizer.profileId)) {
     return communityLabel
   }
 
@@ -29,8 +37,11 @@ export function resolveEventLabel(event: Pick<EventCardData, "label" | "organize
   return event.label
 }
 
-export function withResolvedEventLabel(event: EventCardData): EventCardData {
-  const label = resolveEventLabel(event)
+export function withResolvedEventLabel(
+  event: EventCardData,
+  organizerKind?: ProfileKind
+): EventCardData {
+  const label = resolveEventLabel(event, organizerKind)
 
   if (label.type === event.label.type && label.text === event.label.text) {
     return event

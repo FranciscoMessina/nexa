@@ -1,4 +1,19 @@
-import type { Profile } from "@/features/profiles/types/profile.types"
+type Profile = {
+  id: string
+  kind: string
+  displayName: string
+  headline: string
+  location: string
+  categoryLabel: string
+  description: string
+  avatarUrl: string
+  representativeImageUrl: string
+  socialLinks: Array<{ id: string; platform: string; handle: string }>
+  validationStatus?: string
+  email?: string
+  phone?: string
+  birthDate?: string
+}
 
 export const mockProfileRecords: Array<Profile> = [
   {

@@ -1,15 +1,14 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { FormEvent } from "react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventPublishForm } from "@/features/events/components/event-publish-form"
 import { resolveDraftCoordinates } from "@/features/events/components/event-location-field"
-import { getMockEventById, updateMockEvent } from "@/features/events/data/mock-events"
+import { useEventQuery, useUpdateEventMutation } from "@/features/events/hooks/events-queries"
+import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
 import { AppShell } from "@/features/home/components/app-shell"
-import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
+import { useCurrentProfileQuery } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
-import { isAssistantOrganizer } from "@/features/events/utils/event-label.utils"
-import { canUserManageEvent } from "@/features/events/stores/event-catalog.store"
 import {
   buildDraftFromEvent,
   validateEventDraft,
@@ -30,15 +29,20 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
-  const organizerProfile = user ? getMockProfileForEmail(user.email) : undefined
-  const event = getMockEventById(eventId)
+  const { data: organizerProfile } = useCurrentProfileQuery(Boolean(user))
+  const { data: event, isLoading } = useEventQuery(eventId)
+  const updateEventMutation = useUpdateEventMutation(eventId)
   const canEdit = event && organizerProfile && canUserManageEvent(event, organizerProfile.id)
 
-  const [draft, setDraft] = useState<EventDraftState | null>(() =>
-    event ? buildDraftFromEvent(event) : null
-  )
+  const [draft, setDraft] = useState<EventDraftState | null>(null)
   const [savedEventId, setSavedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
+
+  useEffect(() => {
+    if (event) {
+      setDraft(buildDraftFromEvent(event))
+    }
+  }, [event])
 
   const handleDraftChange = <TKey extends keyof EventDraftState>(
     key: TKey,
@@ -96,11 +100,11 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
       return
     }
 
-    const communityOrganizer = isAssistantOrganizer(organizerProfile.id)
+    const communityOrganizer = organizerProfile.kind === "usuario"
     const verifiedOrganizer =
       !communityOrganizer && organizerProfile.validationStatus === "validated"
 
-    const updated = updateMockEvent(event.id, organizerProfile.id, {
+    const updated = await updateEventMutation.mutateAsync({
       organizer: {
         profileId: organizerProfile.id,
         name: organizerProfile.displayName,
@@ -139,7 +143,7 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
     }
   }
 
-  if (isChecking) {
+  if (isChecking || isLoading) {
     return (
       <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando...</p>

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RegistroIndexRouteImport } from './routes/registro/index'
 import { Route as PerfilIndexRouteImport } from './routes/perfil/index'
 import { Route as MisEventosIndexRouteImport } from './routes/mis-eventos/index'
 import { Route as MapaIndexRouteImport } from './routes/mapa/index'
@@ -23,6 +24,11 @@ import { Route as EventsEventIdEditarIndexRouteImport } from './routes/events/$e
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistroIndexRoute = RegistroIndexRouteImport.update({
+  id: '/registro/',
+  path: '/registro/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilIndexRoute = PerfilIndexRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/mapa/': typeof MapaIndexRoute
   '/mis-eventos/': typeof MisEventosIndexRoute
   '/perfil/': typeof PerfilIndexRoute
+  '/registro/': typeof RegistroIndexRoute
   '/events/$eventId/editar/': typeof EventsEventIdEditarIndexRoute
 }
 export interface FileRoutesByTo {
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/mapa': typeof MapaIndexRoute
   '/mis-eventos': typeof MisEventosIndexRoute
   '/perfil': typeof PerfilIndexRoute
+  '/registro': typeof RegistroIndexRoute
   '/events/$eventId/editar': typeof EventsEventIdEditarIndexRoute
 }
 export interface FileRoutesById {
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/mapa/': typeof MapaIndexRoute
   '/mis-eventos/': typeof MisEventosIndexRoute
   '/perfil/': typeof PerfilIndexRoute
+  '/registro/': typeof RegistroIndexRoute
   '/events/$eventId/editar/': typeof EventsEventIdEditarIndexRoute
 }
 export interface FileRouteTypes {
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/mapa/'
     | '/mis-eventos/'
     | '/perfil/'
+    | '/registro/'
     | '/events/$eventId/editar/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/mapa'
     | '/mis-eventos'
     | '/perfil'
+    | '/registro'
     | '/events/$eventId/editar'
   id:
     | '__root__'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/mapa/'
     | '/mis-eventos/'
     | '/perfil/'
+    | '/registro/'
     | '/events/$eventId/editar/'
   fileRoutesById: FileRoutesById
 }
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   MapaIndexRoute: typeof MapaIndexRoute
   MisEventosIndexRoute: typeof MisEventosIndexRoute
   PerfilIndexRoute: typeof PerfilIndexRoute
+  RegistroIndexRoute: typeof RegistroIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registro/': {
+      id: '/registro/'
+      path: '/registro'
+      fullPath: '/registro/'
+      preLoaderRoute: typeof RegistroIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil/': {
@@ -257,6 +277,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapaIndexRoute: MapaIndexRoute,
   MisEventosIndexRoute: MisEventosIndexRoute,
   PerfilIndexRoute: PerfilIndexRoute,
+  RegistroIndexRoute: RegistroIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

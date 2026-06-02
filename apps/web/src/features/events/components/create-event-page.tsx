@@ -3,11 +3,10 @@ import type { FormEvent } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventPublishForm } from "@/features/events/components/event-publish-form"
 import { resolveDraftCoordinates } from "@/features/events/components/event-location-field"
-import { createMockEvent } from "@/features/events/data/mock-events"
+import { useCreateEventMutation } from "@/features/events/hooks/events-queries"
 import { AppShell } from "@/features/home/components/app-shell"
-import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
+import { useCurrentProfileQuery } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
-import { isAssistantOrganizer } from "@/features/events/utils/event-label.utils"
 import {
   buildInitialEventDraft,
   parseDateInput,
@@ -23,20 +22,17 @@ export function CreateEventPage() {
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
-  const organizerProfile = user ? getMockProfileForEmail(user.email) : undefined
+  const { data: organizerProfile } = useCurrentProfileQuery(Boolean(user))
+  const createEventMutation = useCreateEventMutation()
   const [draft, setDraft] = useState<EventDraftState>(() =>
     buildInitialEventDraft(
-      organizerProfile?.validationStatus ?? "pending",
-      organizerProfile?.kind,
+      organizerProfile?.validationStatus === "validated" ? "validated" : "pending",
+      organizerProfile?.kind
     )
   )
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
-  const [uploadOwnerId] = useState(() =>
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `draft-${Date.now()}`
-  )
+  const uploadOwnerId = user?.id ?? "draft"
 
   const handleDraftChange = <TKey extends keyof EventDraftState>(
     key: TKey,
@@ -91,11 +87,11 @@ export function CreateEventPage() {
       return
     }
 
-    const communityOrganizer = isAssistantOrganizer(organizerProfile.id)
+    const communityOrganizer = organizerProfile.kind === "usuario"
     const verifiedOrganizer =
       !communityOrganizer && organizerProfile.validationStatus === "validated"
 
-    const createdEvent = createMockEvent(organizerProfile.id, {
+    const createdEvent = await createEventMutation.mutateAsync({
       organizer: {
         profileId: organizerProfile.id,
         name: organizerProfile.displayName,
@@ -133,9 +129,9 @@ export function CreateEventPage() {
     setCreatedEventId(createdEvent.id)
     setDraft(
       buildInitialEventDraft(
-        organizerProfile.validationStatus ?? "pending",
-        organizerProfile.kind,
-      ),
+        organizerProfile.validationStatus === "validated" ? "validated" : "pending",
+        organizerProfile.kind
+      )
     )
     setDraftErrors({})
   }
@@ -165,7 +161,7 @@ export function CreateEventPage() {
         {!organizerProfile ? (
           <div className="rounded-2xl border border-dashed border-[#d5deed] bg-white px-6 py-10 text-center">
             <p className="text-sm text-[#6b7d9c]">
-              No encontramos tu perfil. Iniciá sesión con un usuario de demo para publicar eventos.
+              No encontramos tu perfil. Iniciá sesión para publicar eventos.
             </p>
           </div>
         ) : (

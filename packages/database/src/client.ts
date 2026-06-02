@@ -16,11 +16,14 @@ function createDb(): Database | null {
     return null
   }
 
+  const useSsl = /supabase\.com/i.test(connectionString)
+
   const sql =
     globalForDb.sql ??
     postgres(connectionString, {
       prepare: false,
       max: 1,
+      ...(useSsl ? { ssl: "require" as const } : {}),
     })
 
   if (process.env.NODE_ENV !== "production") {

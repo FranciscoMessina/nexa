@@ -3,21 +3,15 @@ import { useRequireAuthentication } from "@/features/auth"
 import { EventFilters } from "@/features/events/components/event-filters"
 import { EventMapView, isUsingGoogleMaps } from "@/features/events/components/event-map-view"
 import { useFilteredEventCards } from "@/features/events/hooks/use-filtered-event-cards"
-import { useEventCatalogStore } from "@/features/events/stores/event-catalog.store"
 import { AppShell } from "@/features/home/components/app-shell"
 
 export function EventMapPage() {
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
-  const hydrateCatalog = useEventCatalogStore((state) => state.hydrate)
   const [isMapReady, setIsMapReady] = useState(false)
-  const events = useFilteredEventCards()
+  const { events, isLoading } = useFilteredEventCards()
   const usesGoogleMaps = isUsingGoogleMaps()
-
-  useEffect(() => {
-    hydrateCatalog()
-  }, [hydrateCatalog])
 
   useEffect(() => {
     setIsMapReady(true)
@@ -61,7 +55,7 @@ export function EventMapPage() {
 
         <div className="overflow-hidden rounded-[1.75rem] border border-[#e8edf5] bg-white shadow-[0_18px_60px_-44px_rgba(16,43,88,0.24)]">
           <div className="h-[min(70vh,640px)] w-full">
-            {!isMapReady ? (
+            {!isMapReady || isLoading ? (
               <div className="flex h-full items-center justify-center text-sm text-[#6b7d9c]">
                 Cargando mapa...
               </div>

@@ -1,5 +1,5 @@
-import type { EventCardData, EventItem } from "@/features/events/types/event.types"
-import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
+import type { EventCardData, EventItem } from "../types/event.types"
+import { withResolvedEventLabel } from "./event-label.utils"
 
 function formatCardDate(date: Date): string {
   const day = date.getDate().toString().padStart(2, "0")
@@ -31,19 +31,26 @@ function parseLocation(
 }
 
 export function toEventItem(event: EventCardData): EventItem {
-  const { venue, address, neighborhood } = parseLocation(event.location)
-  const label = resolveEventLabel(event)
+  const resolved = withResolvedEventLabel(event)
+  const { venue, address, neighborhood } = parseLocation(resolved.location)
 
   return {
-    id: event.id,
-    title: event.title,
+    id: resolved.id,
+    title: resolved.title,
     venue,
     address,
     neighborhood,
-    startsAt: event.date,
-    dateLabel: formatCardDate(event.date),
-    category: event.category,
-    kind: label.type,
-    imageUrl: event.image.src,
+    startsAt: resolved.date,
+    dateLabel: formatCardDate(resolved.date),
+    category: resolved.category,
+    kind: resolved.label.type,
+    imageUrl: resolved.image.src,
   }
+}
+
+export function canUserManageEvent(
+  event: Pick<EventCardData, "createdByProfileId">,
+  profileId: string | undefined
+): boolean {
+  return Boolean(profileId && event.createdByProfileId === profileId)
 }

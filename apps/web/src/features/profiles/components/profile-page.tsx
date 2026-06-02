@@ -6,15 +6,17 @@ import {
   IconShieldCheck,
   IconTag,
 } from "@tabler/icons-react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useImageUpload } from "@/features/storage"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
 import type { UserRole } from "@/features/auth/types/auth.types"
 import { AppShell } from "@/features/home/components/app-shell"
-import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
 import { ProfileFormFields } from "@/features/profiles/components/profile-form-fields"
-import { useProfileStore } from "@/features/profiles/stores/profile.store"
+import {
+  useProfileQuery,
+  useUpdateProfileMutation,
+} from "@/features/profiles/hooks/profiles-queries"
 import type { Profile, ProfileKind } from "@/features/profiles/types/profile.types"
 import { useAuth } from "@/shared/hooks/useAuth"
 
@@ -99,15 +101,10 @@ function StatusBadge({ profile }: { profile: Profile }) {
 
 export function ProfilePage({ profileId }: ProfilePageProps) {
   const { user } = useAuth()
-  const hydrate = useProfileStore((state) => state.hydrate)
-  const saveProfile = useProfileStore((state) => state.saveProfile)
-
-  const ownProfileId = user ? getMockProfileForEmail(user.email)?.id : undefined
+  const ownProfileId = user?.id
   const resolvedProfileId = profileId ?? ownProfileId
-
-  const profile = useProfileStore((state) =>
-    resolvedProfileId ? state.profiles[resolvedProfileId] : undefined
-  )
+  const { data: profile, isLoading: isProfileLoading } = useProfileQuery(resolvedProfileId)
+  const updateProfileMutation = useUpdateProfileMutation()
 
   const isOwnProfile = Boolean(ownProfileId && resolvedProfileId === ownProfileId)
   const canEdit = isOwnProfile && !profileId
@@ -117,10 +114,6 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const { isUploading, error: imageUploadError, upload: uploadImage } = useImageUpload()
-
-  useEffect(() => {
-    hydrate()
-  }, [hydrate])
 
   const { isChecking, isAllowed } = useRequireAuthentication(
     profileId
@@ -138,7 +131,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     return profile
   }, [draft, isEditing, profile])
 
-  if (isChecking) {
+  if (isChecking || isProfileLoading) {
     return (
       <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando perfil...</p>
@@ -173,12 +166,24 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     setSaveMessage(null)
   }
 
-  function handleSave(): void {
+  async function handleSave(): Promise<void> {
     if (!draft) {
       return
     }
 
-    saveProfile(draft)
+    await updateProfileMutation.mutateAsync({
+      id: draft.id,
+      displayName: draft.displayName,
+      headline: draft.headline,
+      location: draft.location,
+      description: draft.description,
+      avatarUrl: draft.avatarUrl,
+      representativeImageUrl: draft.representativeImageUrl,
+      email: draft.email,
+      phone: draft.phone,
+      birthDate: draft.birthDate,
+      socialLinks: draft.socialLinks,
+    })
     setDraft(null)
     setIsEditing(false)
     setSaveMessage("Cambios guardados correctamente.")

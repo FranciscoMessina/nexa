@@ -130,6 +130,7 @@ No edites `_journal.json` a mano salvo migraciones SQL custom (como la FK a `aut
 
 ### Errores frecuentes
 
+- **`db:migrate` termina con código 1 sin mensaje** — Suele ser timeout de conexión. Corré `bun run db:check` para ver el error real y revisá las URLs en el dashboard de Supabase.
 - **`url: undefined`** — Falta `DIRECT_URL` en `apps/web/.env.local`.
 - **Fallo al aplicar `0002`** — Si ya había filas con `platform = 'linkedin'`, borralas o actualizalas antes de migrar.
 - **FK a `auth.users`** — La migración `0001` requiere que exista el esquema `auth` de Supabase (proyecto con Auth habilitado).
@@ -197,9 +198,23 @@ ALTER TABLE "users"
 
 ---
 
+## Seed de datos demo
+
+Desde la raíz del monorepo (con `DATABASE_URL` y `DIRECT_URL` en `apps/web/.env.local`):
+
+```bash
+bun run db:migrate
+bun run db:seed
+```
+
+El seed inserta perfiles y eventos de demo. **No crea usuarios en Supabase Auth**: en el Dashboard creá tres usuarios cuyo `id` coincida con los UUID que imprime el script (`f1000001-...`, etc.), con `user_metadata.role` y `user_metadata.displayName`, y contraseña conocida para desarrollo.
+
+Emails sugeridos: `asistente@nexa.mock`, `organizador@nexa.mock`, `emprendedor@nexa.mock`.
+
+También podés **registrarte desde la app** en `/registro` (Supabase Auth + fila en `users` vía `ensureAppUser`). Si el proyecto exige confirmación de email, Supabase enviará el enlace y podrás iniciar sesión después de confirmar.
+
 ## Próximos pasos (fuera de este paquete)
 
 - Políticas RLS en Supabase (`auth.uid()` ↔ `users.auth_user_id`)
-- Trigger o lógica de app para `events.favorites_count`
-- Poblar `users` al registrarse (trigger o handler post-signup)
-- Reemplazar mocks en `apps/web` por queries Drizzle
+- Trigger o lógica de app para `events.favorites_count` más allá del toggle en app
+- Registro / sign-up UI

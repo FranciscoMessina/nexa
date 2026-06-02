@@ -1,6 +1,6 @@
 import type { EventCardData } from "@/features/events/types/event.types"
 
-export type CreateMockEventInput = {
+export type CreateEventInput = {
   organizer: EventCardData["organizer"]
   label: EventCardData["label"]
   title: string
@@ -20,3 +20,6 @@ export type CreateMockEventInput = {
   requirements: string
   coordinates?: EventCardData["coordinates"]
 }
+
+/** @deprecated Use CreateEventInput */
+export type CreateMockEventInput = CreateEventInput

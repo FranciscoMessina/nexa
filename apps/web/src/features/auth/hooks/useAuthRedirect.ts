@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import type { UserRole } from "@/features/auth/types/auth.types"
-import { getPostLoginPathForRole } from "@/features/auth/api/auth.api"
+import { getPostLoginPathForRole } from "@/features/auth/constants/auth.constants"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type RequireAuthenticationOptions = {
@@ -37,7 +37,10 @@ export function useRequireAuthentication(
       return
     }
 
-    if (!isAuthenticated && location.pathname !== "/login") {
+    const isAuthRoute =
+      location.pathname === "/login" || location.pathname === "/registro"
+
+    if (!isAuthenticated && !isAuthRoute) {
       void navigate({ to: "/login" })
       return
     }

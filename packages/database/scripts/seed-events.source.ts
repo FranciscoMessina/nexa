@@ -1,4 +1,28 @@
-import type { EventCardData } from "../types/event.types"
+type EventCardData = {
+  id: string
+  label: { type: string; text: string }
+  title: string
+  summary: string
+  location: string
+  date: Date
+  category: string
+  image: { src: string; alt: string }
+  description: string
+  price: { amount: number; currency: string; label: string }
+  gallery: Array<string>
+  savedCount: number
+  registrationUrl?: string
+  organizer: {
+    profileId: string
+    name: string
+    avatarUrl: string
+    verified: boolean
+    contactEmail: string
+  }
+  participatingVentures?: Array<{ profileId: string }>
+  requirements: string
+  coordinates: { lat: number; lng: number }
+}
 
 const emptyEventPrice: EventCardData["price"] = {
   amount: 0,
