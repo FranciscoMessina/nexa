@@ -127,6 +127,7 @@ No edites `_journal.json` a mano salvo migraciones SQL custom (como la FK a `aut
 | `0000_nervous_argent.sql` | Enums, 8 tablas, FKs internas |
 | `0001_users_auth_user_fk.sql` | FK `users.auth_user_id` → `auth.users(id)` |
 | `0002_watery_strong_guy.sql` | Quita `linkedin` del enum `social_platform` |
+| `0005_users_headline.sql` | Columna `users.headline` (tagline del perfil) |
 
 ### Errores frecuentes
 
@@ -207,9 +208,17 @@ bun run db:migrate
 bun run db:seed
 ```
 
-El seed inserta perfiles y eventos de demo. **No crea usuarios en Supabase Auth**: en el Dashboard creá tres usuarios cuyo `id` coincida con los UUID que imprime el script (`f1000001-...`, etc.), con `user_metadata.role` y `user_metadata.displayName`, y contraseña conocida para desarrollo.
+El seed inserta perfiles y eventos de demo y **sincroniza filas en `auth.users`** (y `auth.identities` para los tres logins de demo), necesario por la FK `users.auth_user_id` → `auth.users`.
 
-Emails sugeridos: `asistente@nexa.mock`, `organizador@nexa.mock`, `emprendedor@nexa.mock`.
+Al insertar en `auth.users` por SQL, los campos de token (`confirmation_token`, `recovery_token`, etc.) deben ser `''` y no `NULL`; si no, Supabase Auth responde `Database error querying schema` al iniciar sesión.
+
+Credenciales de login de desarrollo (contraseña impresa al final del script, por defecto `nexaseed`):
+
+- `asistente@nexa.mock` → `f1000001-0001-4000-8000-000000000001`
+- `organizador@nexa.mock` → `f1000002-0002-4000-8000-000000000002`
+- `emprendedor@nexa.mock` → `f1000003-0003-4000-8000-000000000003`
+
+Requiere `DIRECT_URL` (o `DATABASE_URL`) con permisos de escritura en el esquema `auth` (conexión directa de Supabase, no el pooler en modo transaction).
 
 También podés **registrarte desde la app** en `/registro` (Supabase Auth + fila en `users` vía `ensureAppUser`). Si el proyecto exige confirmación de email, Supabase enviará el enlace y podrás iniciar sesión después de confirmar.
 

@@ -64,7 +64,7 @@ function mapOrganizer(user: UserRow): EventCardData["organizer"] {
     name: user.displayName ?? "Organizador",
     avatarUrl: user.avatarUrl ?? "",
     verified: Boolean(user.validatedAt),
-    contactEmail: user.email ?? "",
+    contactEmail: user.email,
   }
 }
 
@@ -158,6 +158,6 @@ export function mapUserRowToOrganizer(user: AppUserRow): EventCardData["organize
     name: profile.displayName,
     avatarUrl: profile.avatarUrl,
     verified: profile.validationStatus === "validated",
-    contactEmail: profile.email ?? "",
+    contactEmail: profile.email,
   }
 }

@@ -70,7 +70,7 @@ export function mapUserToProfile(
     id: user.id,
     kind,
     displayName,
-    headline: description || displayName,
+    headline: user.headline?.trim() || description || displayName,
     location: user.location ?? "",
     categoryLabel,
     description,
@@ -83,7 +83,7 @@ export function mapUserToProfile(
     memberSince: user.createdAt
       ? user.createdAt.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
       : undefined,
-    email: user.email ?? undefined,
+    email: user.email,
     phone: user.phone ?? undefined,
     birthDate: user.birthDate ?? undefined,
     city: user.location ?? undefined,

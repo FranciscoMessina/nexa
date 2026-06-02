@@ -21,7 +21,7 @@ export function toAuthUser(appUser: AppUserRow, supabaseUser: User): AuthUser {
   return {
     id: appUser.id,
     authUserId: appUser.authUserId,
-    email: appUser.email ?? mapped.email,
+    email: appUser.email,
     role: appUser.role as UserRole,
     displayName: appUser.displayName ?? mapped.displayName,
   }
@@ -58,6 +58,12 @@ export async function ensureAppUser(supabaseUser: User): Promise<AppUserRow> {
     return existing
   }
 
+  const email = (mapped.email || supabaseUser.email)?.trim().toLowerCase()
+
+  if (!email) {
+    throw new Error("Tu cuenta no tiene un correo electrónico configurado.")
+  }
+
   const database = getDb()
 
   let inserted: AppUserRow[]
@@ -69,7 +75,7 @@ export async function ensureAppUser(supabaseUser: User): Promise<AppUserRow> {
         authUserId: supabaseUser.id,
         role: mapped.role,
         displayName: mapped.displayName,
-        email: mapped.email || supabaseUser.email,
+        email,
       })
       .returning()
   } catch (error) {

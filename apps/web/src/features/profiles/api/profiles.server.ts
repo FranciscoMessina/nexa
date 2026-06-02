@@ -46,7 +46,7 @@ export type UpdateProfileInput = {
   description: string
   avatarUrl: string
   representativeImageUrl: string
-  email?: string
+  email: string
   phone?: string
   birthDate?: string
   socialLinks: Array<ProfileSocialLink>
@@ -65,11 +65,12 @@ export async function updateProfile(input: UpdateProfileInput): Promise<Profile>
     .update(users)
     .set({
       displayName: input.displayName.trim(),
+      headline: input.headline.trim() || null,
       location: input.location.trim() || null,
-      description: input.description.trim() || input.headline.trim() || null,
+      description: input.description.trim() || null,
       avatarUrl: input.avatarUrl.trim() || null,
       representativeImageUrl: input.representativeImageUrl.trim() || null,
-      email: input.email?.trim() || null,
+      email: input.email.trim().toLowerCase(),
       phone: input.phone?.trim() || null,
       birthDate: input.birthDate?.trim() || null,
     })

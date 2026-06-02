@@ -5,32 +5,21 @@ import postgres from "postgres"
 import { drizzle } from "drizzle-orm/postgres-js"
 import * as schema from "../src/schema"
 import {
+  eventAttendees,
   eventEntrepreneurs,
   eventGalleryImages,
   events,
   userSocialLinks,
   users,
 } from "../src/schema"
-import { categoryEnum, socialPlatformEnum } from "../src/schema/enums"
+import {
+  cleanupSeedAuthUsers,
+  insertSeedAuthUsers,
+  SEED_DEV_PASSWORD,
+  type SeedAuthUserInput,
+} from "./seed-auth"
 import { seedEvents } from "./seed-events.source"
-import { mockProfileRecords } from "./seed-profiles.source"
-
-const CATEGORY_UI_TO_DB: Record<string, string> = {
-  Música: "musica",
-  Gastronomía: "gastronomia",
-  "Arte y Cultura": "arte_y_cultura",
-  Deportes: "deportes",
-  "Ferias de Emprendedores": "feria_de_emprendedores",
-  "Talleres y Cursos": "talleres_y_cursos",
-  "Cine y Entretenimiento": "cine_y_entretenimiento",
-  Ropa: "ropa",
-}
-
-const ROLE_BY_KIND: Record<string, "asistente" | "organizador" | "emprendedor"> = {
-  usuario: "asistente",
-  organizador: "organizador",
-  emprendimiento: "emprendedor",
-}
+import { seedUsers } from "./seed-profiles.source"
 
 const LOGIN_AUTH_USER_IDS: Record<string, string> = {
   "asistente@nexa.mock": "f1000001-0001-4000-8000-000000000001",
@@ -38,7 +27,7 @@ const LOGIN_AUTH_USER_IDS: Record<string, string> = {
   "emprendedor@nexa.mock": "f1000003-0003-4000-8000-000000000003",
 }
 
-const PROFILE_ID_BY_LOGIN_EMAIL: Record<string, string> = {
+const SEED_KEY_BY_LOGIN_EMAIL: Record<string, string> = {
   "asistente@nexa.mock": "profile-maria-lopez",
   "organizador@nexa.mock": "profile-antares-bar",
   "emprendedor@nexa.mock": "profile-crudo",
@@ -55,20 +44,67 @@ function uuidFromSeed(key: string): string {
   ].join("-")
 }
 
-function resolveAuthUserId(profileId: string): string {
-  const loginEntry = Object.entries(PROFILE_ID_BY_LOGIN_EMAIL).find(
-    ([, legacyId]) => legacyId === profileId
+function resolveAuthUserId(seedKey: string): string {
+  const loginEntry = Object.entries(SEED_KEY_BY_LOGIN_EMAIL).find(
+    ([, profileSeedKey]) => profileSeedKey === seedKey
   )
 
   if (loginEntry) {
     return LOGIN_AUTH_USER_IDS[loginEntry[0]]
   }
 
-  return uuidFromSeed(`auth:${profileId}`)
+  return uuidFromSeed(`auth:${seedKey}`)
 }
 
-function resolveUserId(profileId: string): string {
-  return uuidFromSeed(`user:${profileId}`)
+function resolveUserId(seedKey: string): string {
+  return uuidFromSeed(`user:${seedKey}`)
+}
+
+function resolveUserIdOrThrow(
+  seedKey: string,
+  seedKeyToUserId: Map<string, string>,
+  context: string
+): string {
+  const userId = seedKeyToUserId.get(seedKey)
+
+  if (!userId) {
+    throw new Error(`${context}: usuario no encontrado para seedKey "${seedKey}"`)
+  }
+
+  return userId
+}
+
+function resolveSeedEmail(seedKey: string, email?: string | null): string {
+  const loginEmail = Object.entries(SEED_KEY_BY_LOGIN_EMAIL).find(
+    ([, profileSeedKey]) => profileSeedKey === seedKey
+  )?.[0]
+
+  if (loginEmail) {
+    return loginEmail
+  }
+
+  if (email?.trim()) {
+    return email.trim().toLowerCase()
+  }
+
+  return `${seedKey}@seed.nexa.mock`
+}
+
+function buildSeedAuthUsers(): Array<SeedAuthUserInput> {
+  return seedUsers.map((seedUser) => {
+    const authUserId = resolveAuthUserId(seedUser.seedKey)
+    const loginEmail = Object.entries(SEED_KEY_BY_LOGIN_EMAIL).find(
+      ([, profileSeedKey]) => profileSeedKey === seedUser.seedKey
+    )?.[0]
+
+    return {
+      id: authUserId,
+      email: resolveSeedEmail(seedUser.seedKey, seedUser.email),
+      displayName: seedUser.displayName,
+      role: seedUser.role,
+      canSignIn: Boolean(loginEmail),
+    }
+  })
 }
 
 async function main(): Promise<void> {
@@ -84,40 +120,48 @@ async function main(): Promise<void> {
   console.log("Limpiando tablas de demo...")
   await db.execute(sql`TRUNCATE TABLE event_favorites, event_attendees, event_entrepreneurs, event_gallery_images, events, user_gallery_images, user_social_links, users RESTART IDENTITY CASCADE`)
 
-  const profileIdToUserId = new Map<string, string>()
+  const seedAuthUsers = buildSeedAuthUsers()
+  const authUserIds = seedAuthUsers.map((authUser) => authUser.id)
+
+  console.log("Sincronizando auth.users (requerido por FK)...")
+  await cleanupSeedAuthUsers(sqlClient, authUserIds)
+  await insertSeedAuthUsers(sqlClient, seedAuthUsers)
+
+  const seedKeyToUserId = new Map<string, string>()
 
   console.log("Insertando usuarios...")
-  for (const profile of mockProfileRecords) {
-    const userId = resolveUserId(profile.id)
-    profileIdToUserId.set(profile.id, userId)
+  for (const seedUser of seedUsers) {
+    const userId = resolveUserId(seedUser.seedKey)
+    seedKeyToUserId.set(seedUser.seedKey, userId)
+
+    const createdAt = seedUser.createdAt ?? new Date()
 
     await db.insert(users).values({
       id: userId,
-      authUserId: resolveAuthUserId(profile.id),
-      role: ROLE_BY_KIND[profile.kind] ?? "asistente",
-      displayName: profile.displayName,
-      location: profile.location,
-      description: profile.description,
-      avatarUrl: profile.avatarUrl,
-      representativeImageUrl: profile.representativeImageUrl,
-      email: profile.email ?? null,
-      phone: profile.phone ?? null,
-      birthDate: profile.birthDate ?? null,
-      validatedAt: profile.validationStatus === "validated" ? new Date() : null,
+      authUserId: resolveAuthUserId(seedUser.seedKey),
+      role: seedUser.role,
+      displayName: seedUser.displayName,
+      headline: seedUser.headline ?? null,
+      location: seedUser.location ?? null,
+      description: seedUser.description ?? null,
+      avatarUrl: seedUser.avatarUrl ?? null,
+      representativeImageUrl: seedUser.representativeImageUrl ?? null,
+      category: seedUser.category ?? null,
+      validatedAt: seedUser.validatedAt ?? null,
+      email: resolveSeedEmail(seedUser.seedKey, seedUser.email),
+      phone: seedUser.phone ?? null,
+      birthDate: seedUser.birthDate ?? null,
+      createdAt,
+      updatedAt: createdAt,
     })
 
-    const validSocialLinks = profile.socialLinks.filter((link) =>
-      socialPlatformEnum.enumValues.includes(
-        link.platform as (typeof socialPlatformEnum.enumValues)[number]
-      )
-    )
-
-    if (validSocialLinks.length > 0) {
+    if (seedUser.socialLinks.length > 0) {
       await db.insert(userSocialLinks).values(
-        validSocialLinks.map((link) => ({
+        seedUser.socialLinks.map((link) => ({
           userId,
-          platform: link.platform as (typeof socialPlatformEnum.enumValues)[number],
-          handle: link.handle,
+          platform: link.platform,
+          handle: link.handle ?? null,
+          url: link.url ?? null,
         }))
       )
     }
@@ -125,17 +169,11 @@ async function main(): Promise<void> {
 
   console.log("Insertando eventos...")
   for (const event of seedEvents) {
-    const createdByUserId = profileIdToUserId.get(event.organizer.profileId)
-
-    if (!createdByUserId) {
-      throw new Error(`Organizador sin usuario: ${event.organizer.profileId}`)
-    }
-
-    const category = CATEGORY_UI_TO_DB[event.category]
-
-    if (!category) {
-      throw new Error(`Categoría desconocida: ${event.category}`)
-    }
+    const createdByUserId = resolveUserIdOrThrow(
+      event.createdBySeedKey,
+      seedKeyToUserId,
+      `Evento "${event.title}"`
+    )
 
     await db.insert(events).values({
       id: event.id,
@@ -143,42 +181,50 @@ async function main(): Promise<void> {
       title: event.title,
       summary: event.summary,
       location: event.location,
-      startsAt: event.date,
-      category: [category as (typeof categoryEnum.enumValues)[number]],
+      startsAt: event.startsAt,
+      endsAt: event.endsAt ?? null,
+      category: event.category,
       description: event.description,
-      priceAmount: String(event.price.amount),
-      priceCurrency: event.price.currency,
-      priceLabel: event.price.label,
-      favoritesCount: event.savedCount,
+      priceAmount: event.priceAmount,
+      priceCurrency: event.priceCurrency,
+      priceLabel: event.priceLabel,
+      favoritesCount: event.favoritesCount,
       registrationUrl: event.registrationUrl ?? null,
       requirements: event.requirements,
-      latitude: event.coordinates.lat,
-      longitude: event.coordinates.lng,
+      latitude: event.latitude,
+      longitude: event.longitude,
     })
 
-    const galleryUrls = [event.image.src, ...event.gallery].filter(Boolean)
-    const uniqueUrls = [...new Set(galleryUrls)]
+    const uniqueGalleryUrls = [...new Set(event.galleryUrls.filter(Boolean))]
 
-    if (uniqueUrls.length > 0) {
+    if (uniqueGalleryUrls.length > 0) {
       await db.insert(eventGalleryImages).values(
-        uniqueUrls.map((url) => ({
+        uniqueGalleryUrls.map((url) => ({
           eventId: event.id,
           url,
         }))
       )
     }
 
-    const ventureIds = event.participatingVentures?.map((venture) => venture.profileId) ?? []
+    const entrepreneurSeedKeys = event.entrepreneurSeedKeys ?? []
 
-    if (ventureIds.length > 0) {
+    if (entrepreneurSeedKeys.length > 0) {
       await db.insert(eventEntrepreneurs).values(
-        ventureIds.map((profileId) => {
-          const userId = profileIdToUserId.get(profileId)
-          if (!userId) {
-            throw new Error(`Emprendedor sin usuario: ${profileId}`)
-          }
-          return { eventId: event.id, userId }
-        })
+        entrepreneurSeedKeys.map((seedKey) => ({
+          eventId: event.id,
+          userId: resolveUserIdOrThrow(seedKey, seedKeyToUserId, `Evento "${event.title}"`),
+        }))
+      )
+    }
+
+    const attendeeSeedKeys = event.attendeeSeedKeys ?? []
+
+    if (attendeeSeedKeys.length > 0) {
+      await db.insert(eventAttendees).values(
+        attendeeSeedKeys.map((seedKey) => ({
+          eventId: event.id,
+          userId: resolveUserIdOrThrow(seedKey, seedKeyToUserId, `Evento "${event.title}"`),
+        }))
       )
     }
   }
@@ -186,13 +232,21 @@ async function main(): Promise<void> {
   await sqlClient.end({ timeout: 5 })
   console.log("Seed completado.")
   console.log("")
-  console.log("Creá en Supabase Auth estos usuarios (id = auth_user_id) con metadata role + displayName:")
+  console.log("Login de demo (email + contraseña):")
   for (const [email, authUserId] of Object.entries(LOGIN_AUTH_USER_IDS)) {
-    console.log(`- ${email} → ${authUserId}`)
+    console.log(`- ${email} → ${authUserId} (password: ${SEED_DEV_PASSWORD})`)
   }
 }
 
 void main().catch((error) => {
+  if (error && typeof error === "object" && "message" in error) {
+    console.error(error.message)
+  }
+
+  if (error && typeof error === "object" && "detail" in error && error.detail) {
+    console.error(String(error.detail))
+  }
+
   console.error(error)
   process.exit(1)
 })
