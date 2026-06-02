@@ -7,7 +7,7 @@ import { resolveDraftCoordinates } from "@/features/events/components/event-loca
 import { useEventQuery, useUpdateEventMutation } from "@/features/events/hooks/events-queries"
 import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
 import { AppShell } from "@/features/home/components/app-shell"
-import { useCurrentProfileQuery } from "@/features/profiles/hooks/profiles-queries"
+import { useOwnProfile } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
 import {
   buildDraftFromEvent,
@@ -29,7 +29,7 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
-  const { data: organizerProfile } = useCurrentProfileQuery(Boolean(user))
+  const { profile: organizerProfile, isResolving: isProfileResolving } = useOwnProfile()
   const { data: event, isLoading } = useEventQuery(eventId)
   const updateEventMutation = useUpdateEventMutation(eventId)
   const canEdit = event && organizerProfile && canUserManageEvent(event, organizerProfile.id)
@@ -143,7 +143,7 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
     }
   }
 
-  if (isChecking || isLoading) {
+  if (isChecking || isLoading || isProfileResolving) {
     return (
       <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando...</p>
@@ -155,7 +155,7 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
     return null
   }
 
-  if (!event || !canEdit || !draft) {
+  if (!event || !organizerProfile || !canEdit || !draft) {
     return (
       <AppShell>
         <div className="mx-auto max-w-4xl rounded-2xl border border-[#e8edf5] bg-white p-8 text-center">

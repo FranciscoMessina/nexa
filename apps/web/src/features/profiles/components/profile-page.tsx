@@ -14,6 +14,7 @@ import type { UserRole } from "@/features/auth/types/auth.types"
 import { AppShell } from "@/features/home/components/app-shell"
 import { ProfileFormFields } from "@/features/profiles/components/profile-form-fields"
 import {
+  useOwnProfile,
   useProfileQuery,
   useUpdateProfileMutation,
 } from "@/features/profiles/hooks/profiles-queries"
@@ -102,10 +103,18 @@ function StatusBadge({ profile }: { profile: Profile }) {
 export function ProfilePage({ profileId }: ProfilePageProps) {
   const { user } = useAuth()
   const ownProfileId = user?.id
-  const resolvedProfileId = profileId ?? ownProfileId
-  const { data: profile, isLoading: isProfileLoading } = useProfileQuery(resolvedProfileId)
+  const ownProfileQuery = useOwnProfile()
+  const publicProfileQuery = useProfileQuery(profileId)
+  const profile = profileId ? publicProfileQuery.data : ownProfileQuery.profile
+  const isProfileResolving = profileId
+    ? publicProfileQuery.isResolving
+    : ownProfileQuery.isResolving
+  const isProfileResolved = profileId
+    ? publicProfileQuery.isResolved
+    : ownProfileQuery.isResolved
   const updateProfileMutation = useUpdateProfileMutation()
 
+  const resolvedProfileId = profileId ?? ownProfileId
   const isOwnProfile = Boolean(ownProfileId && resolvedProfileId === ownProfileId)
   const canEdit = isOwnProfile && !profileId
 
@@ -120,6 +129,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
       ? undefined
       : {
           allowedRoles: profile ? getAllowedRolesForProfile(profile.kind) : undefined,
+          roleCheckReady: isProfileResolved,
         }
   )
 
@@ -131,7 +141,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     return profile
   }, [draft, isEditing, profile])
 
-  if (isChecking || isProfileLoading) {
+  if (isChecking || isProfileResolving) {
     return (
       <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando perfil...</p>
@@ -139,7 +149,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     )
   }
 
-  if (!isAllowed || !displayProfile) {
+  if (!isAllowed || (isProfileResolved && !displayProfile)) {
     return (
       <AppShell>
         <div className="rounded-2xl border border-[#e8edf5] bg-white p-8 text-center">
@@ -148,6 +158,10 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
         </div>
       </AppShell>
     )
+  }
+
+  if (!displayProfile) {
+    return null
   }
 
   function startEditing(): void {

@@ -5,7 +5,7 @@ import { EventPublishForm } from "@/features/events/components/event-publish-for
 import { resolveDraftCoordinates } from "@/features/events/components/event-location-field"
 import { useCreateEventMutation } from "@/features/events/hooks/events-queries"
 import { AppShell } from "@/features/home/components/app-shell"
-import { useCurrentProfileQuery } from "@/features/profiles/hooks/profiles-queries"
+import { useOwnProfile } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
 import {
   buildInitialEventDraft,
@@ -18,11 +18,15 @@ import {
 } from "@/features/events/utils/event-publish.utils"
 
 export function CreateEventPage() {
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
-  const { data: organizerProfile } = useCurrentProfileQuery(Boolean(user))
+  const {
+    profile: organizerProfile,
+    isResolving: isProfileResolving,
+    isResolved: isProfileResolved,
+  } = useOwnProfile()
   const createEventMutation = useCreateEventMutation()
   const [draft, setDraft] = useState<EventDraftState>(() =>
     buildInitialEventDraft(
@@ -136,7 +140,7 @@ export function CreateEventPage() {
     setDraftErrors({})
   }
 
-  if (isChecking) {
+  if (isChecking || isProfileResolving) {
     return (
       <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
         <p className="text-[#1a3462]">Cargando...</p>
@@ -145,6 +149,32 @@ export function CreateEventPage() {
   }
 
   if (!isAllowed) {
+    return null
+  }
+
+  if (isProfileResolved && !organizerProfile) {
+    return (
+      <AppShell>
+        <div className="mx-auto max-w-4xl space-y-6" data-testid="create-event-page">
+          <div>
+            <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Crear evento</h1>
+            <p className="mt-2 text-base text-[#6b7d9c]">
+              Completá los datos y publicá tu evento. Aparecerá en el muro y en Mis eventos.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-dashed border-[#d5deed] bg-white px-6 py-10 text-center">
+            <p className="text-sm text-[#6b7d9c]">
+              {isAuthenticated
+                ? "No pudimos cargar tu perfil. Intentá de nuevo en unos minutos."
+                : "No encontramos tu perfil. Iniciá sesión para publicar eventos."}
+            </p>
+          </div>
+        </div>
+      </AppShell>
+    )
+  }
+
+  if (!organizerProfile) {
     return null
   }
 
@@ -158,22 +188,14 @@ export function CreateEventPage() {
           </p>
         </div>
 
-        {!organizerProfile ? (
-          <div className="rounded-2xl border border-dashed border-[#d5deed] bg-white px-6 py-10 text-center">
-            <p className="text-sm text-[#6b7d9c]">
-              No encontramos tu perfil. Iniciá sesión para publicar eventos.
-            </p>
-          </div>
-        ) : (
-          <EventPublishForm
-            createdEventId={createdEventId}
-            draft={draft}
-            errors={draftErrors}
-            onDraftChange={handleDraftChange}
-            onSubmit={handleCreateEvent}
-            uploadOwnerId={uploadOwnerId}
-          />
-        )}
+        <EventPublishForm
+          createdEventId={createdEventId}
+          draft={draft}
+          errors={draftErrors}
+          onDraftChange={handleDraftChange}
+          onSubmit={handleCreateEvent}
+          uploadOwnerId={uploadOwnerId}
+        />
       </div>
     </AppShell>
   )

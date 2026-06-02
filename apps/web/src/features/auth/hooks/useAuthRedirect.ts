@@ -6,6 +6,8 @@ import { useAuth } from "@/shared/hooks/useAuth"
 
 type RequireAuthenticationOptions = {
   allowedRoles?: Array<UserRole>
+  /** When false, role checks are deferred (e.g. until profile data is loaded). */
+  roleCheckReady?: boolean
 }
 
 export function useRedirectAuthenticatedUser(): void {
@@ -31,6 +33,7 @@ export function useRequireAuthentication(
   const location = useLocation()
   const { isAuthenticated, isHydrated, currentUserRole } = useAuth()
   const allowedRoles = options?.allowedRoles ?? []
+  const roleCheckReady = options?.roleCheckReady ?? true
 
   useEffect(() => {
     if (!isHydrated) {
@@ -45,7 +48,7 @@ export function useRequireAuthentication(
       return
     }
 
-    if (!currentUserRole || allowedRoles.length === 0) {
+    if (!roleCheckReady || !currentUserRole || allowedRoles.length === 0) {
       return
     }
 
@@ -59,9 +62,11 @@ export function useRequireAuthentication(
     isHydrated,
     location.pathname,
     navigate,
+    roleCheckReady,
   ])
 
   const isRoleAllowed =
+    !roleCheckReady ||
     allowedRoles.length === 0 ||
     (currentUserRole !== null && allowedRoles.includes(currentUserRole))
 

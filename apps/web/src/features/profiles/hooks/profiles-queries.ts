@@ -1,6 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryResult,
+} from "@tanstack/react-query"
 import type { UpdateProfileInput } from "@/features/profiles/api/profiles.server"
 import { profilesService } from "@/features/profiles/services/profiles.service"
+import type { Profile } from "@/features/profiles/types/profile.types"
+import { useAuth } from "@/shared/hooks/useAuth"
 
 export const profilesQueryKeys = {
   detail: (profileId: string) => ["profiles", profileId] as const,
@@ -8,20 +15,60 @@ export const profilesQueryKeys = {
   list: (profileIds: Array<string>) => ["profiles", "list", ...profileIds] as const,
 }
 
+type ProfileQuerySnapshot = Pick<
+  UseQueryResult<Profile | null>,
+  "isFetched" | "isPending" | "fetchStatus"
+>
+
+export function isProfileQueryResolving(
+  query: ProfileQuerySnapshot,
+  enabled: boolean
+): boolean {
+  return (
+    enabled &&
+    (!query.isFetched || query.isPending || query.fetchStatus === "fetching")
+  )
+}
+
 export function useProfileQuery(profileId: string | undefined) {
-  return useQuery({
+  const enabled = Boolean(profileId)
+
+  const query = useQuery({
     queryKey: profilesQueryKeys.detail(profileId ?? ""),
     queryFn: () => profilesService.fetchProfileById(profileId!),
-    enabled: Boolean(profileId),
+    enabled,
   })
+
+  return {
+    ...query,
+    isResolving: isProfileQueryResolving(query, enabled),
+    isResolved: enabled && query.isFetched,
+  }
 }
 
 export function useCurrentProfileQuery(enabled = true) {
-  return useQuery({
+  const query = useQuery({
     queryKey: profilesQueryKeys.current,
     queryFn: () => profilesService.fetchCurrentProfile(),
     enabled,
   })
+
+  return {
+    ...query,
+    isResolving: isProfileQueryResolving(query, enabled),
+    isResolved: enabled && query.isFetched,
+  }
+}
+
+export function useOwnProfile() {
+  const { isHydrated, isAuthenticated } = useAuth()
+  const enabled = isHydrated && isAuthenticated
+  const query = useCurrentProfileQuery(enabled)
+
+  return {
+    ...query,
+    profile: query.data,
+  }
 }
 
 export function useUpdateProfileMutation() {
