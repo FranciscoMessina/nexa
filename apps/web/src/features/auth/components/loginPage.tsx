@@ -6,7 +6,7 @@ import {
   AuthError,
   MIN_PASSWORD_LENGTH,
   getPostLoginPathForRole,
-} from "@/features/auth/api/auth.api"
+} from "@/features/auth/constants/auth.constants"
 import { useRedirectAuthenticatedUser } from "@/features/auth/hooks/useAuthRedirect"
 import { NEXA_LOGO_SRC, NexaLogo } from "@/shared/components/nexa-logo"
 import { useAuth } from "@/shared/hooks/useAuth"
@@ -99,7 +99,7 @@ export function LoginPage() {
                   onChange={(event) => {
                     setEmail(event.target.value)
                   }}
-                  placeholder="emprendedor@nexa.mock"
+                  placeholder="tu@email.com"
                   type="email"
                   value={email}
                 />
@@ -180,6 +180,13 @@ export function LoginPage() {
             >
               {isSubmitting ? "Ingresando..." : "Iniciar Sesión"}
             </button>
+
+            <p className="text-center text-sm text-[#6f7f9b]">
+              ¿No tenés cuenta?{" "}
+              <Link className="font-semibold text-[#ff6f3d]" to="/registro">
+                Registrate
+              </Link>
+            </p>
           </form>
         </section>
       </div>

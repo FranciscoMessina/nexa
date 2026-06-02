@@ -1,0 +1,30 @@
+{
+  "name": "@workspace/database",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "db:generate": "dotenv -e ../../apps/web/.env.local -- drizzle-kit generate",
+    "db:migrate": "dotenv -e ../../apps/web/.env.local -- bun run scripts/migrate.ts",
+    "db:check": "dotenv -e ../../apps/web/.env.local -- bun run scripts/check-db.ts",
+    "db:push": "dotenv -e ../../apps/web/.env.local -- drizzle-kit push",
+    "db:studio": "dotenv -e ../../apps/web/.env.local -- drizzle-kit studio",
+    "db:validate": "dotenv -e .env.validate -- drizzle-kit check",
+    "db:seed": "dotenv -e ../../apps/web/.env.local -- bun run scripts/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.2",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "dotenv": "^17.2.1",
+    "dotenv-cli": "^11.0.0",
+    "drizzle-kit": "^0.31.4",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

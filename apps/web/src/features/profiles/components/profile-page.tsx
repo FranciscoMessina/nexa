@@ -6,14 +6,19 @@ import {
   IconShieldCheck,
   IconTag,
 } from "@tabler/icons-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
+import { useImageUpload } from "@/features/storage"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
 import type { UserRole } from "@/features/auth/types/auth.types"
 import { AppShell } from "@/features/home/components/app-shell"
-import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
 import { ProfileFormFields } from "@/features/profiles/components/profile-form-fields"
-import { useProfileStore } from "@/features/profiles/stores/profile.store"
+import { ProfilePageSkeleton } from "@/shared/components/skeletons/profile-page-skeleton"
+import {
+  useOwnProfile,
+  useProfileQuery,
+  useUpdateProfileMutation,
+} from "@/features/profiles/hooks/profiles-queries"
 import type { Profile, ProfileKind } from "@/features/profiles/types/profile.types"
 import { useAuth } from "@/shared/hooks/useAuth"
 
@@ -98,32 +103,34 @@ function StatusBadge({ profile }: { profile: Profile }) {
 
 export function ProfilePage({ profileId }: ProfilePageProps) {
   const { user } = useAuth()
-  const hydrate = useProfileStore((state) => state.hydrate)
-  const saveProfile = useProfileStore((state) => state.saveProfile)
+  const ownProfileId = user?.id
+  const ownProfileQuery = useOwnProfile()
+  const publicProfileQuery = useProfileQuery(profileId)
+  const profile = profileId ? publicProfileQuery.data : ownProfileQuery.profile
+  const isProfileResolving = profileId
+    ? publicProfileQuery.isResolving
+    : ownProfileQuery.isResolving
+  const isProfileResolved = profileId
+    ? publicProfileQuery.isResolved
+    : ownProfileQuery.isResolved
+  const updateProfileMutation = useUpdateProfileMutation()
 
-  const ownProfileId = user ? getMockProfileForEmail(user.email)?.id : undefined
   const resolvedProfileId = profileId ?? ownProfileId
-
-  const profile = useProfileStore((state) =>
-    resolvedProfileId ? state.profiles[resolvedProfileId] : undefined
-  )
-
   const isOwnProfile = Boolean(ownProfileId && resolvedProfileId === ownProfileId)
   const canEdit = isOwnProfile && !profileId
 
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState<Profile | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
-
-  useEffect(() => {
-    hydrate()
-  }, [hydrate])
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+  const { isUploading, error: imageUploadError, upload: uploadImage } = useImageUpload()
 
   const { isChecking, isAllowed } = useRequireAuthentication(
     profileId
       ? undefined
       : {
           allowedRoles: profile ? getAllowedRolesForProfile(profile.kind) : undefined,
+          roleCheckReady: isProfileResolved,
         }
   )
 
@@ -135,15 +142,19 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     return profile
   }, [draft, isEditing, profile])
 
-  if (isChecking) {
+  if (!isChecking && !isAllowed) {
+    return null
+  }
+
+  if (isChecking || isProfileResolving) {
     return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando perfil...</p>
-      </main>
+      <AppShell>
+        <ProfilePageSkeleton />
+      </AppShell>
     )
   }
 
-  if (!isAllowed || !displayProfile) {
+  if (isProfileResolved && !displayProfile) {
     return (
       <AppShell>
         <div className="rounded-2xl border border-[#e8edf5] bg-white p-8 text-center">
@@ -152,6 +163,10 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
         </div>
       </AppShell>
     )
+  }
+
+  if (!displayProfile) {
+    return null
   }
 
   function startEditing(): void {
@@ -170,12 +185,24 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     setSaveMessage(null)
   }
 
-  function handleSave(): void {
+  async function handleSave(): Promise<void> {
     if (!draft) {
       return
     }
 
-    saveProfile(draft)
+    await updateProfileMutation.mutateAsync({
+      id: draft.id,
+      displayName: draft.displayName,
+      headline: draft.headline,
+      location: draft.location,
+      description: draft.description,
+      avatarUrl: draft.avatarUrl,
+      representativeImageUrl: draft.representativeImageUrl,
+      email: draft.email,
+      phone: draft.phone,
+      birthDate: draft.birthDate,
+      socialLinks: draft.socialLinks,
+    })
     setDraft(null)
     setIsEditing(false)
     setSaveMessage("Cambios guardados correctamente.")
@@ -198,6 +225,28 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
         ),
       }
     })
+  }
+
+  async function handleAvatarSelect(file: File): Promise<void> {
+    if (!displayProfile) {
+      return
+    }
+
+    const publicUrl = await uploadImage(file, "avatar", displayProfile.id)
+    if (publicUrl) {
+      updateDraft({ avatarUrl: publicUrl })
+    }
+  }
+
+  async function handleRepresentativeSelect(file: File): Promise<void> {
+    if (!displayProfile) {
+      return
+    }
+
+    const publicUrl = await uploadImage(file, "representative", displayProfile.id)
+    if (publicUrl) {
+      updateDraft({ representativeImageUrl: publicUrl })
+    }
   }
 
   return (
@@ -231,15 +280,42 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="relative">
+                <input
+                  accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (file) {
+                      void handleAvatarSelect(file)
+                    }
+                    event.target.value = ""
+                  }}
+                  ref={avatarInputRef}
+                  type="file"
+                />
                 <img
                   alt={displayProfile.displayName}
                   className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-md"
                   src={displayProfile.avatarUrl}
                 />
                 {canEdit && isEditing ? (
-                  <span className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#5b4bb7] shadow">
+                  <button
+                    aria-label="Cambiar foto de perfil"
+                    className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#5b4bb7] shadow disabled:opacity-60"
+                    disabled={isUploading}
+                    onClick={() => {
+                      avatarInputRef.current?.click()
+                    }}
+                    type="button"
+                  >
                     <IconCamera size={16} stroke={1.8} />
-                  </span>
+                  </button>
+                ) : null}
+                {canEdit && isEditing && isUploading ? (
+                  <p className="mt-1 text-xs text-[#6b7d9c]">Subiendo foto…</p>
+                ) : null}
+                {canEdit && isEditing && imageUploadError ? (
+                  <p className="mt-1 text-xs text-rose-600">{imageUploadError}</p>
                 ) : null}
               </div>
 
@@ -304,9 +380,14 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
         <ProfileFormFields
           isEditing={isEditing}
           isOwnProfile={canEdit}
+          isUploadingRepresentative={isUploading}
           onChange={updateDraft}
+          onRepresentativeImageSelect={(file) => {
+            void handleRepresentativeSelect(file)
+          }}
           onSocialLinkChange={updateSocialLink}
           profile={displayProfile}
+          representativeUploadError={imageUploadError}
         />
 
         {canEdit && isEditing ? (

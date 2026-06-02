@@ -9,6 +9,7 @@ export function useAuth(): AuthContextValue {
   const currentUserRole = useAuthStore((s: AuthState) => s.currentUserRole)
   const isAuthenticated = useAuthStore((s: AuthState) => s.isAuthenticated)
   const login = useAuthStore((s: AuthState) => s.login)
+  const register = useAuthStore((s: AuthState) => s.register)
   const logout = useAuthStore((s: AuthState) => s.logout)
 
   return {
@@ -18,6 +19,7 @@ export function useAuth(): AuthContextValue {
     isHydrated,
     isSubmitting,
     login,
+    register,
     logout,
   }
 }

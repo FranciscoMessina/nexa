@@ -12,12 +12,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.37.0",
     "@tabler/icons-react": "^3.44.0",
     "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-query": "^5.100.14",
     "@tanstack/react-router": "^1.132.0",
     "@tanstack/react-start": "^1.132.0",
     "@tanstack/router-plugin": "^1.132.0",
     "@vis.gl/react-google-maps": "^1.8.3",
+    "@workspace/database": "workspace:*",
+    "drizzle-orm": "^0.44.2",
     "@workspace/ui": "workspace:*",
     "leaflet": "^1.9.4",
     "nitro": "latest",

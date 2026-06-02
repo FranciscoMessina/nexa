@@ -20,20 +20,23 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
-import { deleteMockEvent, getMockEventById } from "@/features/events/data/mock-events"
-import { canUserManageEvent } from "@/features/events/stores/event-catalog.store"
+import {
+  useAttendanceStateQuery,
+  useDeleteEventMutation,
+  useEventQuery,
+  useToggleAttendanceMutation,
+} from "@/features/events/hooks/events-queries"
+import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
 import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
-import { useEventAttendanceStore } from "@/features/events/stores/event-attendance.store"
 import { AppShell } from "@/features/home/components/app-shell"
 import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
-import {
-  getMockProfileById,
-  getMockProfileForEmail,
-  getMockProfilesByIds,
-} from "@/features/profiles/data/mock-profiles"
+import { useProfileQuery, useProfilesByIdsQuery } from "@/features/profiles/hooks/profiles-queries"
+import { EventAttendanceSidebarSkeleton } from "@/shared/components/skeletons/event-attendance-sidebar-skeleton"
+import { EventDetailSkeleton } from "@/shared/components/skeletons/event-detail-skeleton"
+import { EventProfileCardSkeleton } from "@/shared/components/skeletons/event-profile-card-skeleton"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type EventDetailPageProps = {
@@ -138,35 +141,34 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
-  const hydrate = useEventAttendanceStore((state) => state.hydrate)
-  const isHydrated = useEventAttendanceStore((state) => state.isHydrated)
-  const setAttending = useEventAttendanceStore((state) => state.setAttending)
-  const isAttending = useEventAttendanceStore((state) => state.isAttending)
+  const { data: event, isLoading: isEventLoading } = useEventQuery(eventId)
+  const { data: attendanceState, isResolving: isAttendanceResolving } =
+    useAttendanceStateQuery(eventId)
+  const toggleAttendance = useToggleAttendanceMutation(eventId)
+  const deleteEventMutation = useDeleteEventMutation()
+  const ventureIds = event?.participatingVentures?.map((venture) => venture.profileId) ?? []
+  const { data: organizerProfile, isResolving: isOrganizerResolving } = useProfileQuery(
+    event?.organizer.profileId
+  )
+  const { data: participatingProfiles = [], isResolving: isVenturesResolving } =
+    useProfilesByIdsQuery(ventureIds)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [linkCopied, setLinkCopied] = useState(false)
 
-  const seedAttendeeIds = getMockEventById(eventId)?.attendeeProfileIds ?? []
-  const attendanceCount = useEventAttendanceStore((state) =>
-    state.getAttendanceCount(eventId, seedAttendeeIds)
-  )
+  const attendanceCount = attendanceState?.attendanceCount ?? 0
+  const attending = attendanceState?.isAttending ?? false
 
-  useEffect(() => {
-    hydrate()
-  }, [hydrate])
-
-  if (isChecking) {
-    return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando sesión...</p>
-      </main>
-    )
-  }
-
-  if (!isAllowed) {
+  if (!isChecking && !isAllowed) {
     return null
   }
 
-  const event = getMockEventById(eventId)
+  if (isChecking || isEventLoading) {
+    return (
+      <AppShell>
+        <EventDetailSkeleton />
+      </AppShell>
+    )
+  }
 
   if (!event) {
     return (
@@ -196,21 +198,14 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const activeImage = galleryImages[activeImageIndex] ?? event.image.src
   const shareUrl = getShareUrl()
   const mapUrl = getMapUrl(event.coordinates.lat, event.coordinates.lng)
-  const viewerProfile = user ? getMockProfileForEmail(user.email) : undefined
-  const canManageEvent = canUserManageEvent(event, viewerProfile?.id)
-  const isOwnEvent = viewerProfile?.id === event.organizer.profileId
-  const attending =
-    isHydrated && viewerProfile ? isAttending(viewerProfile.id, event.id) : false
+  const canManageEvent = canUserManageEvent(event, user?.id)
+  const isOwnEvent = user?.id === event.organizer.profileId
   const attendanceLabel =
     attendanceCount === 1
       ? "1 persona confirmó que va a asistir"
       : `${attendanceCount} personas confirmaron que van a asistir`
   const descriptionParagraphs = splitParagraphs(event.description)
   const requirementItems = splitRequirements(event.requirements)
-  const organizerProfile = getMockProfileById(event.organizer.profileId)
-  const participatingProfiles = getMockProfilesByIds(
-    event.participatingVentures?.map((venture) => venture.profileId) ?? []
-  )
   const goToImage = (nextIndex: number) => {
     if (galleryImages.length === 0) {
       return
@@ -409,7 +404,9 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                 <h2 className="text-xl font-bold text-[#1e1b4b]">Organizador</h2>
 
                 <div className="mt-4">
-                  {organizerProfile ? (
+                  {isOrganizerResolving ? (
+                    <EventProfileCardSkeleton testId="event-organizer-profile-card-skeleton" />
+                  ) : organizerProfile ? (
                     <EventProfileCard
                       profile={organizerProfile}
                       subtitle={event.organizer.contactEmail}
@@ -439,17 +436,24 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                 </div>
               </div>
 
-              {participatingProfiles.length > 0 ? (
+              {ventureIds.length > 0 ? (
                 <div>
                   <h2 className="text-xl font-bold text-[#1e1b4b]">Emprendimientos participantes</h2>
                   <div className="mt-4 space-y-3">
-                    {participatingProfiles.map((ventureProfile) => (
-                      <EventProfileCard
-                        key={ventureProfile.id}
-                        profile={ventureProfile}
-                        testId={`event-venture-profile-${ventureProfile.id}`}
-                      />
-                    ))}
+                    {isVenturesResolving
+                      ? ventureIds.map((ventureId) => (
+                          <EventProfileCardSkeleton
+                            key={ventureId}
+                            testId={`event-venture-profile-skeleton-${ventureId}`}
+                          />
+                        ))
+                      : participatingProfiles.map((ventureProfile) => (
+                          <EventProfileCard
+                            key={ventureProfile.id}
+                            profile={ventureProfile}
+                            testId={`event-venture-profile-${ventureProfile.id}`}
+                          />
+                        ))}
                   </div>
                 </div>
               ) : null}
@@ -459,15 +463,64 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
           <aside className="xl:sticky xl:top-6 xl:self-start">
             <div className="rounded-[2rem] border border-[#e8edf5] bg-white p-5 shadow-[0_18px_60px_-44px_rgba(16,43,88,0.3)]">
               <div className="space-y-4">
-                <div
-                  className="rounded-2xl bg-[#f9fbff] p-4 text-sm text-[#51617d]"
-                  data-testid="event-attendance-count"
-                >
-                  <div className="flex items-center gap-2 font-semibold text-[#1e1b4b]">
-                    <IconUsers size={18} stroke={1.9} />
-                    {attendanceLabel}
-                  </div>
-                </div>
+                {isAttendanceResolving ? (
+                  <EventAttendanceSidebarSkeleton
+                    showAttendAction={!isOwnEvent && Boolean(user)}
+                  />
+                ) : (
+                  <>
+                    <div
+                      className="rounded-2xl bg-[#f9fbff] p-4 text-sm text-[#51617d]"
+                      data-testid="event-attendance-count"
+                    >
+                      <div className="flex items-center gap-2 font-semibold text-[#1e1b4b]">
+                        <IconUsers size={18} stroke={1.9} />
+                        {attendanceLabel}
+                      </div>
+                    </div>
+
+                    {!isOwnEvent && user ? (
+                      attending ? (
+                        <button
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-white px-5 py-3.5 text-sm font-semibold text-[#1a3462] transition hover:-translate-y-0.5 hover:bg-[#f4f7fb]"
+                          data-testid="event-decline-attendance-button"
+                          onClick={() => {
+                            void toggleAttendance.mutateAsync()
+                          }}
+                          type="button"
+                        >
+                          <IconUserMinus size={16} stroke={2} />
+                          No asistir al evento
+                        </button>
+                      ) : (
+                        <button
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-18px_rgba(249,115,22,0.75)] transition hover:-translate-y-0.5 hover:bg-[#ea680f]"
+                          data-testid="event-attend-button"
+                          onClick={() => {
+                            void toggleAttendance.mutateAsync()
+                          }}
+                          type="button"
+                        >
+                          <IconUserCheck size={16} stroke={2} />
+                          Asistir al evento
+                        </button>
+                      )
+                    ) : null}
+
+                    {attending ? (
+                      <p className="text-center text-xs text-[#6b7d9c]">
+                        Este evento aparece en{" "}
+                        <Link
+                          className="font-semibold text-[#5b4bb7] hover:text-[#3f3485]"
+                          to="/mis-eventos"
+                        >
+                          Mis eventos
+                        </Link>
+                        .
+                      </p>
+                    ) : null}
+                  </>
+                )}
 
                 {canManageEvent ? (
                   <div className="space-y-3 border-t border-[#edf2f8] pt-4">
@@ -485,7 +538,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
                       data-testid="event-delete-button"
                       onClick={() => {
-                        if (!viewerProfile) {
+                        if (!user) {
                           return
                         }
 
@@ -497,9 +550,9 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                           return
                         }
 
-                        if (deleteMockEvent(event.id, viewerProfile.id)) {
+                        void deleteEventMutation.mutateAsync(event.id).then(() => {
                           void navigate({ to: "/mis-eventos" })
-                        }
+                        })
                       }}
                       type="button"
                     >
@@ -507,44 +560,6 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       Eliminar evento
                     </button>
                   </div>
-                ) : null}
-
-                {!isOwnEvent && viewerProfile ? (
-                  attending ? (
-                    <button
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-white px-5 py-3.5 text-sm font-semibold text-[#1a3462] transition hover:-translate-y-0.5 hover:bg-[#f4f7fb]"
-                      data-testid="event-decline-attendance-button"
-                      onClick={() => {
-                        setAttending(viewerProfile.id, event.id, false)
-                      }}
-                      type="button"
-                    >
-                      <IconUserMinus size={16} stroke={2} />
-                      No asistir al evento
-                    </button>
-                  ) : (
-                    <button
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-18px_rgba(249,115,22,0.75)] transition hover:-translate-y-0.5 hover:bg-[#ea680f]"
-                      data-testid="event-attend-button"
-                      onClick={() => {
-                        setAttending(viewerProfile.id, event.id, true)
-                      }}
-                      type="button"
-                    >
-                      <IconUserCheck size={16} stroke={2} />
-                      Asistir al evento
-                    </button>
-                  )
-                ) : null}
-
-                {attending ? (
-                  <p className="text-center text-xs text-[#6b7d9c]">
-                    Este evento aparece en{" "}
-                    <Link className="font-semibold text-[#5b4bb7] hover:text-[#3f3485]" to="/mis-eventos">
-                      Mis eventos
-                    </Link>
-                    .
-                  </p>
                 ) : null}
 
                 <div className="pt-2">

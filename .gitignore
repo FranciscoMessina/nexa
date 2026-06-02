@@ -6,8 +6,6 @@ node_modules
 # Local env files
 .env
 .env.local
-# Facu: clave de Maps compartida para que el equipo no copie .env a mano
-!apps/web/.env.local
 .env.development.local
 .env.test.local
 .env.production.local

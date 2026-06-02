@@ -7,6 +7,10 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".output/**"]
     },
+    "db:generate": {
+      "cache": false,
+      "outputs": ["drizzle/**"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },

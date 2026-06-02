@@ -1,8 +1,21 @@
 import { EventCard } from "@/features/events/components/event-card"
 import { useFilteredEvents } from "@/features/events/hooks/use-filtered-events"
+import { EventGridSkeleton } from "@/shared/components/skeletons/event-grid-skeleton"
 
 export function EventGrid() {
-  const events = useFilteredEvents()
+  const { events, isLoading, isError } = useFilteredEvents()
+
+  if (isLoading) {
+    return <EventGridSkeleton />
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-16 text-center">
+        <p className="text-sm text-rose-700">No se pudieron cargar los eventos.</p>
+      </div>
+    )
+  }
 
   if (events.length === 0) {
     return (

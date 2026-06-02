@@ -34,7 +34,7 @@ export type Profile = {
   statusBadge?: ProfileStatusBadge
   validationStatus?: "validated" | "not_validated"
   memberSince?: string
-  email?: string
+  email: string
   phone?: string
   firstName?: string
   lastName?: string

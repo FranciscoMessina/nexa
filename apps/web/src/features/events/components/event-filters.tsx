@@ -9,8 +9,7 @@ import type { EventFilterOption } from "@/features/events/types/event.types"
 import { EventDatePicker } from "@/features/events/components/event-date-picker"
 import { eventFilterCategoryOptions } from "@/features/events/data/event-categories"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
-import { getMockEvents } from "@/features/events/data/mock-events"
-import { useEventCatalogStore } from "@/features/events/stores/event-catalog.store"
+import { useEventsQuery } from "@/features/events/hooks/events-queries"
 import { sortFilterOptionsAlphabetically } from "@/features/events/utils/sort-filter-options.utils"
 
 const neighborhoodOptions = sortFilterOptionsAlphabetically([
@@ -39,8 +38,8 @@ function toDateKey(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-function getEventDateBounds(): { min: string; max: string } {
-  const dateKeys = getMockEvents().map((event) => toDateKey(event.date)).sort()
+function getEventDateBounds(events: Array<{ date: Date }>): { min: string; max: string } {
+  const dateKeys = events.map((event) => toDateKey(event.date)).sort()
 
   return {
     min: dateKeys[0] ?? "",
@@ -102,8 +101,8 @@ export function EventFilters() {
     reset,
   } = useEventFilters()
 
-  const userEvents = useEventCatalogStore((state) => state.userEvents)
-  const { min, max } = useMemo(() => getEventDateBounds(), [userEvents])
+  const { data: events = [] } = useEventsQuery()
+  const { min, max } = useMemo(() => getEventDateBounds(events), [events])
 
   return (
     <div

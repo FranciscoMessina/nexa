@@ -1,11 +1,13 @@
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import type { UserRole } from "@/features/auth/types/auth.types"
-import { getPostLoginPathForRole } from "@/features/auth/api/auth.api"
+import { getPostLoginPathForRole } from "@/features/auth/constants/auth.constants"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type RequireAuthenticationOptions = {
   allowedRoles?: Array<UserRole>
+  /** When false, role checks are deferred (e.g. until profile data is loaded). */
+  roleCheckReady?: boolean
 }
 
 export function useRedirectAuthenticatedUser(): void {
@@ -31,18 +33,22 @@ export function useRequireAuthentication(
   const location = useLocation()
   const { isAuthenticated, isHydrated, currentUserRole } = useAuth()
   const allowedRoles = options?.allowedRoles ?? []
+  const roleCheckReady = options?.roleCheckReady ?? true
 
   useEffect(() => {
     if (!isHydrated) {
       return
     }
 
-    if (!isAuthenticated && location.pathname !== "/login") {
+    const isAuthRoute =
+      location.pathname === "/login" || location.pathname === "/registro"
+
+    if (!isAuthenticated && !isAuthRoute) {
       void navigate({ to: "/login" })
       return
     }
 
-    if (!currentUserRole || allowedRoles.length === 0) {
+    if (!roleCheckReady || !currentUserRole || allowedRoles.length === 0) {
       return
     }
 
@@ -56,9 +62,11 @@ export function useRequireAuthentication(
     isHydrated,
     location.pathname,
     navigate,
+    roleCheckReady,
   ])
 
   const isRoleAllowed =
+    !roleCheckReady ||
     allowedRoles.length === 0 ||
     (currentUserRole !== null && allowedRoles.includes(currentUserRole))
 

@@ -1,13 +1,13 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventPublishForm } from "@/features/events/components/event-publish-form"
 import { resolveDraftCoordinates } from "@/features/events/components/event-location-field"
-import { createMockEvent } from "@/features/events/data/mock-events"
+import { useCreateEventMutation } from "@/features/events/hooks/events-queries"
 import { AppShell } from "@/features/home/components/app-shell"
-import { getMockProfileForEmail } from "@/features/profiles/data/mock-profiles"
+import { useOwnProfile } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
-import { isAssistantOrganizer } from "@/features/events/utils/event-label.utils"
+import { FormPageSkeleton } from "@/shared/components/skeletons/form-page-skeleton"
 import {
   buildInitialEventDraft,
   parseDateInput,
@@ -19,19 +19,35 @@ import {
 } from "@/features/events/utils/event-publish.utils"
 
 export function CreateEventPage() {
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
-  const organizerProfile = user ? getMockProfileForEmail(user.email) : undefined
-  const [draft, setDraft] = useState<EventDraftState>(() =>
-    buildInitialEventDraft(
-      organizerProfile?.validationStatus ?? "pending",
-      organizerProfile?.kind,
-    )
-  )
+  const {
+    profile: organizerProfile,
+    isResolving: isProfileResolving,
+    isResolved: isProfileResolved,
+  } = useOwnProfile()
+  const createEventMutation = useCreateEventMutation()
+  const hasAppliedProfileDefaults = useRef(false)
+  const [draft, setDraft] = useState<EventDraftState>(() => buildInitialEventDraft("pending"))
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
+  const uploadOwnerId = user?.id ?? "draft"
+
+  useEffect(() => {
+    if (!organizerProfile || hasAppliedProfileDefaults.current) {
+      return
+    }
+
+    hasAppliedProfileDefaults.current = true
+    setDraft(
+      buildInitialEventDraft(
+        organizerProfile.validationStatus === "validated" ? "validated" : "pending",
+        organizerProfile.kind
+      )
+    )
+  }, [organizerProfile])
 
   const handleDraftChange = <TKey extends keyof EventDraftState>(
     key: TKey,
@@ -86,11 +102,11 @@ export function CreateEventPage() {
       return
     }
 
-    const communityOrganizer = isAssistantOrganizer(organizerProfile.id)
+    const communityOrganizer = organizerProfile.kind === "usuario"
     const verifiedOrganizer =
       !communityOrganizer && organizerProfile.validationStatus === "validated"
 
-    const createdEvent = createMockEvent(organizerProfile.id, {
+    const createdEvent = await createEventMutation.mutateAsync({
       organizer: {
         profileId: organizerProfile.id,
         name: organizerProfile.displayName,
@@ -128,23 +144,45 @@ export function CreateEventPage() {
     setCreatedEventId(createdEvent.id)
     setDraft(
       buildInitialEventDraft(
-        organizerProfile.validationStatus ?? "pending",
-        organizerProfile.kind,
-      ),
+        organizerProfile.validationStatus === "validated" ? "validated" : "pending",
+        organizerProfile.kind
+      )
     )
     setDraftErrors({})
   }
 
+  if (!isChecking && !isAllowed) {
+    return null
+  }
+
   if (isChecking) {
     return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando...</p>
-      </main>
+      <AppShell>
+        <FormPageSkeleton />
+      </AppShell>
     )
   }
 
-  if (!isAllowed) {
-    return null
+  if (isProfileResolved && !organizerProfile) {
+    return (
+      <AppShell>
+        <div className="mx-auto max-w-4xl space-y-6" data-testid="create-event-page">
+          <div>
+            <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Crear evento</h1>
+            <p className="mt-2 text-base text-[#6b7d9c]">
+              Completá los datos y publicá tu evento. Aparecerá en el muro y en Mis eventos.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-dashed border-[#d5deed] bg-white px-6 py-10 text-center">
+            <p className="text-sm text-[#6b7d9c]">
+              {isAuthenticated
+                ? "No pudimos cargar tu perfil. Intentá de nuevo en unos minutos."
+                : "No encontramos tu perfil. Iniciá sesión para publicar eventos."}
+            </p>
+          </div>
+        </div>
+      </AppShell>
+    )
   }
 
   return (
@@ -157,21 +195,15 @@ export function CreateEventPage() {
           </p>
         </div>
 
-        {!organizerProfile ? (
-          <div className="rounded-2xl border border-dashed border-[#d5deed] bg-white px-6 py-10 text-center">
-            <p className="text-sm text-[#6b7d9c]">
-              No encontramos tu perfil. Iniciá sesión con un usuario de demo para publicar eventos.
-            </p>
-          </div>
-        ) : (
-          <EventPublishForm
-            createdEventId={createdEventId}
-            draft={draft}
-            errors={draftErrors}
-            onDraftChange={handleDraftChange}
-            onSubmit={handleCreateEvent}
-          />
-        )}
+        <EventPublishForm
+          createdEventId={createdEventId}
+          draft={draft}
+          errors={draftErrors}
+          isSubmitDisabled={isProfileResolving || !organizerProfile}
+          onDraftChange={handleDraftChange}
+          onSubmit={handleCreateEvent}
+          uploadOwnerId={uploadOwnerId}
+        />
       </div>
     </AppShell>
   )

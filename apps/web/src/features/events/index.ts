@@ -7,21 +7,15 @@ export { CreateEventPage } from "./components/create-event-page"
 export { EditEventPage } from "./components/edit-event-page"
 export { EventMapPage } from "./components/event-map-page"
 export { useFilteredEvents } from "./hooks/use-filtered-events"
-export {
-  createMockEvent,
-  deleteMockEvent,
-  getMockEventById,
-  getMockEvents,
-  toEventItem,
-  updateMockEvent,
-} from "./data/mock-events"
+export { toEventItem, canUserManageEvent } from "./utils/event-item.utils"
+export { eventsService } from "./services/events.service"
 export type {
-	EventCardData,
-	EventCoordinates,
-	EventDetailData,
-	EventItem,
-	EventKind,
-	EventLabel,
-	EventOrganizer,
-	EventPrice,
+  EventCardData,
+  EventCoordinates,
+  EventDetailData,
+  EventItem,
+  EventKind,
+  EventLabel,
+  EventOrganizer,
+  EventPrice,
 } from "./types/event.types"

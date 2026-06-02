@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import {
   IconBrandFacebook,
   IconBrandInstagram,
@@ -46,6 +47,9 @@ type ProfileFormFieldsProps = {
   isOwnProfile: boolean
   onChange: (updates: Partial<Profile>) => void
   onSocialLinkChange: (linkId: string, handle: string) => void
+  onRepresentativeImageSelect?: (file: File) => void
+  isUploadingRepresentative?: boolean
+  representativeUploadError?: string | null
 }
 
 export function ProfileFormFields({
@@ -54,7 +58,11 @@ export function ProfileFormFields({
   isOwnProfile,
   onChange,
   onSocialLinkChange,
+  onRepresentativeImageSelect,
+  isUploadingRepresentative = false,
+  representativeUploadError = null,
 }: ProfileFormFieldsProps) {
+  const representativeInputRef = useRef<HTMLInputElement>(null)
   const nameLabel =
     profile.kind === "usuario"
       ? "Nombre"
@@ -338,14 +346,34 @@ export function ProfileFormFields({
             />
             {isOwnProfile && isEditing ? (
               <>
+                <input
+                  accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (file && onRepresentativeImageSelect) {
+                      onRepresentativeImageSelect(file)
+                    }
+                    event.target.value = ""
+                  }}
+                  ref={representativeInputRef}
+                  type="file"
+                />
                 <button
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#dfe6f3] px-4 py-2.5 text-sm font-semibold text-[#1a3462]"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#dfe6f3] px-4 py-2.5 text-sm font-semibold text-[#1a3462] disabled:opacity-60"
+                  disabled={isUploadingRepresentative}
+                  onClick={() => {
+                    representativeInputRef.current?.click()
+                  }}
                   type="button"
                 >
                   <IconUpload size={18} stroke={1.8} />
-                  Cambiar imagen
+                  {isUploadingRepresentative ? "Subiendo…" : "Cambiar imagen"}
                 </button>
                 <p className="mt-2 text-xs text-[#8a9bb8]">Formatos permitidos: JPG, PNG. Máx. 5MB.</p>
+                {representativeUploadError ? (
+                  <p className="mt-1 text-xs text-rose-600">{representativeUploadError}</p>
+                ) : null}
               </>
             ) : null}
           </>

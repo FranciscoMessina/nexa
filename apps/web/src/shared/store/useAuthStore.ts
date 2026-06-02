@@ -1,8 +1,11 @@
 import { create } from "zustand"
-import { loginMock } from "@/features/auth/api/auth.api"
-import type { AuthUser, LoginPayload } from "@/features/auth/types/auth.types"
-
-const STORAGE_KEY = "nexa-auth-user"
+import { authService } from "@/features/auth/services/auth.service"
+import type {
+  AuthUser,
+  LoginPayload,
+  SignUpPayload,
+  SignUpResult,
+} from "@/features/auth/types/auth.types"
 
 type AuthState = {
   user: AuthUser | null
@@ -10,77 +13,103 @@ type AuthState = {
   isSubmitting: boolean
   currentUserRole: AuthUser["role"] | null
   isAuthenticated: boolean
+  hydrate: () => Promise<void>
   login: (payload: LoginPayload) => Promise<AuthUser>
-  logout: () => void
+  register: (payload: SignUpPayload) => Promise<SignUpResult>
+  logout: () => Promise<void>
 }
 
-function readStoredUser(): AuthUser | null {
-  if (typeof window === "undefined") return null
-
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    if (
-      parsed &&
-      typeof parsed.email === "string" &&
-      typeof parsed.displayName === "string" &&
-      typeof parsed.role === "string"
-    ) {
-      return parsed as AuthUser
+function getInitialAuthState(): Pick<
+  AuthState,
+  "user" | "isHydrated" | "currentUserRole" | "isAuthenticated"
+> {
+  if (typeof window === "undefined") {
+    return {
+      user: null,
+      isHydrated: false,
+      currentUserRole: null,
+      isAuthenticated: false,
     }
-  } catch {
-    // ignore
   }
 
-  return null
-}
+  const cachedUser = authService.getCachedUser()
 
-export const useAuthStore = create<AuthState>()((set) => {
-  const stored = readStoredUser()
+  if (!cachedUser) {
+    return {
+      user: null,
+      isHydrated: false,
+      currentUserRole: null,
+      isAuthenticated: false,
+    }
+  }
 
   return {
-    user: stored,
+    user: cachedUser,
     isHydrated: true,
-    isSubmitting: false,
-    currentUserRole: stored?.role ?? null,
-    isAuthenticated: !!stored,
-
-    login: async (payload: LoginPayload) => {
-      set({ isSubmitting: true })
-      try {
-        const nextUser = await loginMock(payload)
-        set({
-          user: nextUser,
-          currentUserRole: nextUser.role,
-          isAuthenticated: true,
-        })
-        if (typeof window !== "undefined" && payload.remember) {
-          try {
-            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser))
-          } catch {
-            // ignore storage errors
-          }
-        }
-
-        return nextUser
-      } finally {
-        set({ isSubmitting: false })
-      }
-    },
-
-    logout: () => {
-      set({ user: null, isAuthenticated: false, currentUserRole: null })
-      if (typeof window !== "undefined") {
-        try {
-          window.localStorage.removeItem(STORAGE_KEY)
-        } catch {
-          // ignore
-        }
-      }
-    },
+    currentUserRole: cachedUser.role,
+    isAuthenticated: true,
   }
-})
+}
+
+export const useAuthStore = create<AuthState>()((set) => ({
+  ...getInitialAuthState(),
+  isSubmitting: false,
+
+  hydrate: async () => {
+    const user = await authService.getCurrentUser()
+    set({
+      user,
+      currentUserRole: user?.role ?? null,
+      isAuthenticated: Boolean(user),
+      isHydrated: true,
+    })
+  },
+
+  login: async (payload: LoginPayload) => {
+    set({ isSubmitting: true })
+    try {
+      const nextUser = await authService.login(payload)
+      set({
+        user: nextUser,
+        currentUserRole: nextUser.role,
+        isAuthenticated: true,
+        isHydrated: true,
+      })
+      return nextUser
+    } finally {
+      set({ isSubmitting: false })
+    }
+  },
+
+  register: async (payload: SignUpPayload) => {
+    set({ isSubmitting: true })
+    try {
+      const result = await authService.register(payload)
+
+      if (result.status === "session") {
+        set({
+          user: result.user,
+          currentUserRole: result.user.role,
+          isAuthenticated: true,
+          isHydrated: true,
+        })
+      }
+
+      return result
+    } finally {
+      set({ isSubmitting: false })
+    }
+  },
+
+  logout: async () => {
+    await authService.logout()
+    set({
+      user: null,
+      isAuthenticated: false,
+      currentUserRole: null,
+    })
+  },
+}))
 
 export type { AuthState }
 

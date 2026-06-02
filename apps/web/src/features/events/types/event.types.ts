@@ -42,8 +42,6 @@ export type EventDetailData = {
     src: string
     alt: string
   }
-  ctaText: string
-  ctaHref?: string
   description: string
   price: EventPrice
   gallery: Array<string>
