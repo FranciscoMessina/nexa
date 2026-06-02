@@ -212,7 +212,7 @@ El seed inserta perfiles y eventos de demo y **sincroniza filas en `auth.users`*
 
 Al insertar en `auth.users` por SQL, los campos de token (`confirmation_token`, `recovery_token`, etc.) deben ser `''` y no `NULL`; si no, Supabase Auth responde `Database error querying schema` al iniciar sesión.
 
-Credenciales de login de desarrollo (contraseña impresa al final del script, por defecto `nexaseed`):
+Credenciales de login de desarrollo (contraseña en `SEED_DEV_PASSWORD` en `apps/web/.env.local`; el script la imprime al final):
 
 - `asistente@nexa.mock` → `f1000001-0001-4000-8000-000000000001`
 - `organizador@nexa.mock` → `f1000002-0002-4000-8000-000000000002`

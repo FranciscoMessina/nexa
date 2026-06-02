@@ -3,7 +3,17 @@ import type { userRoleEnum } from "../src/schema/enums"
 
 type DbRole = (typeof userRoleEnum.enumValues)[number]
 
-export const SEED_DEV_PASSWORD = "nexaseed"
+export function getSeedDevPassword(): string {
+  const password = process.env.SEED_DEV_PASSWORD?.trim()
+
+  if (!password) {
+    throw new Error(
+      "SEED_DEV_PASSWORD no está definida. Agregala en apps/web/.env.local (ver apps/web/.env.example)."
+    )
+  }
+
+  return password
+}
 
 export type SeedAuthUserInput = {
   id: string
@@ -60,6 +70,7 @@ export async function insertSeedAuthUsers(
   }
 
   const instanceId = await resolveAuthInstanceId(sql)
+  const seedPassword = getSeedDevPassword()
 
   for (const authUser of authUsers) {
     const metadata = JSON.stringify({
@@ -96,7 +107,7 @@ export async function insertSeedAuthUsers(
         'authenticated',
         'authenticated',
         ${authUser.email},
-        crypt(${SEED_DEV_PASSWORD}, gen_salt('bf')),
+        crypt(${seedPassword}, gen_salt('bf')),
         NOW(),
         '',
         '',

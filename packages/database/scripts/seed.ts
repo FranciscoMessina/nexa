@@ -15,7 +15,7 @@ import {
 import {
   cleanupSeedAuthUsers,
   insertSeedAuthUsers,
-  SEED_DEV_PASSWORD,
+  getSeedDevPassword,
   type SeedAuthUserInput,
 } from "./seed-auth"
 import { seedEvents } from "./seed-events.source"
@@ -232,9 +232,10 @@ async function main(): Promise<void> {
   await sqlClient.end({ timeout: 5 })
   console.log("Seed completado.")
   console.log("")
+  const seedPassword = getSeedDevPassword()
   console.log("Login de demo (email + contraseña):")
   for (const [email, authUserId] of Object.entries(LOGIN_AUTH_USER_IDS)) {
-    console.log(`- ${email} → ${authUserId} (password: ${SEED_DEV_PASSWORD})`)
+    console.log(`- ${email} → ${authUserId} (password: ${seedPassword})`)
   }
 }
 
