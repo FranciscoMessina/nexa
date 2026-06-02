@@ -1,7 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query"
 import { eventsService } from "@/features/events/services/events.service"
 import { getAttendanceStateFn, toggleAttendanceFn } from "@/features/events/attendance.functions"
 import type { CreateEventInput } from "@/features/events/types/event-create-input"
+
+type AttendanceQuerySnapshot = Pick<
+  UseQueryResult<Awaited<ReturnType<typeof getAttendanceStateFn>>>,
+  "isFetched" | "isPending" | "fetchStatus"
+>
+
+function isAttendanceQueryResolving(query: AttendanceQuerySnapshot, enabled: boolean): boolean {
+  return enabled && (!query.isFetched || query.isPending || query.fetchStatus === "fetching")
+}
 
 export const eventsQueryKeys = {
   all: ["events"] as const,
@@ -35,11 +44,18 @@ export function useMyEventsSectionsQuery(enabled = true) {
 }
 
 export function useAttendanceStateQuery(eventId: string) {
-  return useQuery({
+  const enabled = Boolean(eventId)
+
+  const query = useQuery({
     queryKey: eventsQueryKeys.attendance(eventId),
     queryFn: () => getAttendanceStateFn({ data: { eventId } }),
-    enabled: Boolean(eventId),
+    enabled,
   })
+
+  return {
+    ...query,
+    isResolving: isAttendanceQueryResolving(query, enabled),
+  }
 }
 
 export function useToggleAttendanceMutation(eventId: string) {

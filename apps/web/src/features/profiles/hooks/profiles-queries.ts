@@ -86,10 +86,16 @@ export function useUpdateProfileMutation() {
 
 export function useProfilesByIdsQuery(profileIds: Array<string>) {
   const sortedIds = [...profileIds].sort()
+  const enabled = profileIds.length > 0
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ["profiles", "list", sortedIds.join(",")],
     queryFn: () => profilesService.fetchProfilesByIds(profileIds),
-    enabled: profileIds.length > 0,
+    enabled,
   })
+
+  return {
+    ...query,
+    isResolving: isProfileQueryResolving(query, enabled),
+  }
 }
