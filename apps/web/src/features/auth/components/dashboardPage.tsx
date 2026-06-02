@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { useRequireAuthentication } from "@/features/auth/hooks/useAuthRedirect"
 import { AppShell } from "@/features/home/components/app-shell"
 import { useAuth } from "@/shared/hooks/useAuth"
+import { DashboardSkeleton } from "@/shared/components/skeletons/form-page-skeleton"
 
 export function DashboardPage() {
   const { user, logout } = useAuth()
@@ -9,16 +10,16 @@ export function DashboardPage() {
     allowedRoles: ["organizador"],
   })
 
-  if (isChecking) {
-    return (
-      <main className="grid min-h-svh place-items-center p-6">
-        <p className="text-[#1a3462]">Cargando sesion...</p>
-      </main>
-    )
+  if (!isChecking && !isAllowed) {
+    return null
   }
 
-  if (!isAllowed) {
-    return null
+  if (isChecking) {
+    return (
+      <AppShell>
+        <DashboardSkeleton />
+      </AppShell>
+    )
   }
 
   return (

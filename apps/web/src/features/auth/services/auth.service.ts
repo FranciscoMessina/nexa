@@ -175,11 +175,16 @@ async function getCurrentUser(): Promise<AuthUser | null> {
   return readStoredUser()
 }
 
+function getCachedUser(): AuthUser | null {
+  return readStoredUser()
+}
+
 export const authService = {
   login,
   register,
   logout,
   getCurrentUser,
+  getCachedUser,
   hydrateFromSession: getCurrentUser,
 }
 

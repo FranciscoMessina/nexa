@@ -7,15 +7,7 @@ export function HomePage() {
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
 
-  if (isChecking) {
-    return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando sesión...</p>
-      </main>
-    )
-  }
-
-  if (!isAllowed) {
+  if (!isChecking && !isAllowed) {
     return null
   }
 

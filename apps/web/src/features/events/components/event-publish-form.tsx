@@ -16,6 +16,7 @@ type EventPublishFormProps = {
   uploadOwnerId: string
   submitLabel?: string
   successMessage?: string
+  isSubmitDisabled?: boolean
   onDraftChange: <TKey extends keyof EventDraftState>(
     key: TKey,
     value: EventDraftState[TKey]
@@ -30,6 +31,7 @@ export function EventPublishForm({
   uploadOwnerId,
   submitLabel = "Publicar evento",
   successMessage = "Evento publicado",
+  isSubmitDisabled = false,
   onDraftChange,
   onSubmit,
 }: EventPublishFormProps) {
@@ -229,7 +231,8 @@ export function EventPublishForm({
 
       <div className="flex flex-wrap items-center gap-3 border-t border-[#edf2f8] pt-2 md:col-span-2">
         <button
-          className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
+          className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isSubmitDisabled}
           type="submit"
         >
           {submitLabel}

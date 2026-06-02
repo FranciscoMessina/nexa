@@ -13,6 +13,7 @@ import { useRequireAuthentication } from "@/features/auth"
 import type { UserRole } from "@/features/auth/types/auth.types"
 import { AppShell } from "@/features/home/components/app-shell"
 import { ProfileFormFields } from "@/features/profiles/components/profile-form-fields"
+import { ProfilePageSkeleton } from "@/shared/components/skeletons/profile-page-skeleton"
 import {
   useOwnProfile,
   useProfileQuery,
@@ -141,15 +142,19 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     return profile
   }, [draft, isEditing, profile])
 
+  if (!isChecking && !isAllowed) {
+    return null
+  }
+
   if (isChecking || isProfileResolving) {
     return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando perfil...</p>
-      </main>
+      <AppShell>
+        <ProfilePageSkeleton />
+      </AppShell>
     )
   }
 
-  if (!isAllowed || (isProfileResolved && !displayProfile)) {
+  if (isProfileResolved && !displayProfile) {
     return (
       <AppShell>
         <div className="rounded-2xl border border-[#e8edf5] bg-white p-8 text-center">

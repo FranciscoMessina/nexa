@@ -34,6 +34,7 @@ import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
 import { AppShell } from "@/features/home/components/app-shell"
 import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
 import { useProfileQuery, useProfilesByIdsQuery } from "@/features/profiles/hooks/profiles-queries"
+import { EventDetailSkeleton } from "@/shared/components/skeletons/event-detail-skeleton"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type EventDetailPageProps = {
@@ -151,16 +152,16 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const attendanceCount = attendanceState?.attendanceCount ?? 0
   const attending = attendanceState?.isAttending ?? false
 
-  if (isChecking || isEventLoading) {
-    return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando sesión...</p>
-      </main>
-    )
+  if (!isChecking && !isAllowed) {
+    return null
   }
 
-  if (!isAllowed) {
-    return null
+  if (isChecking || isEventLoading) {
+    return (
+      <AppShell>
+        <EventDetailSkeleton />
+      </AppShell>
+    )
   }
 
   if (!event) {

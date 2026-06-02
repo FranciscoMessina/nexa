@@ -9,6 +9,7 @@ import { toEventItem } from "@/features/events/utils/event-item.utils"
 import type { EventItem } from "@/features/events/types/event.types"
 import { AppShell } from "@/features/home/components/app-shell"
 import { useAuth } from "@/shared/hooks/useAuth"
+import { EventGridSkeleton } from "@/shared/components/skeletons/event-grid-skeleton"
 
 type MyEventsTab = "upcoming" | "past"
 
@@ -88,21 +89,14 @@ export function MyEventsPage() {
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
   const [activeTab, setActiveTab] = useState<MyEventsTab>("upcoming")
-  const { data: sections, isLoading } = useMyEventsSectionsQuery(isAllowed)
+  const { data: sections, isLoading } = useMyEventsSectionsQuery(isAllowed && !isChecking)
 
-  if (isChecking) {
-    return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando...</p>
-      </main>
-    )
-  }
-
-  if (!isAllowed || !user || !currentUserRole) {
+  if (!isChecking && (!isAllowed || !user || !currentUserRole)) {
     return null
   }
 
-  const copy = getMyEventsCopy(currentUserRole)
+  const copy =
+    user && currentUserRole ? getMyEventsCopy(currentUserRole) : null
   const upcoming = (sections?.upcoming ?? []).map(toEventItem)
   const past = (sections?.past ?? []).map(toEventItem)
   const activeEvents = activeTab === "upcoming" ? upcoming : past
@@ -112,7 +106,9 @@ export function MyEventsPage() {
       <div className="space-y-6" data-testid="my-events-page">
         <div>
           <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Mis eventos</h1>
-          <p className="mt-2 text-base text-[#6b7d9c]">{copy.subtitle}</p>
+          <p className="mt-2 text-base text-[#6b7d9c]">
+            {copy?.subtitle ?? "Organizá y revisá tus eventos en un solo lugar."}
+          </p>
         </div>
 
         <div className="flex gap-2 rounded-2xl border border-[#e8edf5] bg-white p-2">
@@ -126,18 +122,21 @@ export function MyEventsPage() {
               )}
               data-testid={`my-events-tab-${tab}`}
               key={tab}
+              disabled={!copy}
               onClick={() => {
                 setActiveTab(tab)
               }}
               type="button"
             >
-              {tab === "upcoming" ? copy.upcomingTitle : copy.pastTitle}
+              {tab === "upcoming"
+                ? copy?.upcomingTitle ?? "Próximos"
+                : copy?.pastTitle ?? "Pasados"}
             </button>
           ))}
         </div>
 
-        {isLoading ? (
-          <p className="text-sm text-[#6b7d9c]">Cargando tus eventos...</p>
+        {isLoading || !copy ? (
+          <EventGridSkeleton count={3} />
         ) : (
           <SectionPanel
             emptyDescription={

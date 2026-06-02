@@ -4,6 +4,7 @@ import { EventFilters } from "@/features/events/components/event-filters"
 import { EventMapView, isUsingGoogleMaps } from "@/features/events/components/event-map-view"
 import { useFilteredEventCards } from "@/features/events/hooks/use-filtered-event-cards"
 import { AppShell } from "@/features/home/components/app-shell"
+import { MapAreaSkeleton } from "@/shared/components/skeletons/map-area-skeleton"
 
 export function EventMapPage() {
   const { isChecking, isAllowed } = useRequireAuthentication({
@@ -17,15 +18,7 @@ export function EventMapPage() {
     setIsMapReady(true)
   }, [])
 
-  if (isChecking) {
-    return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando sesión...</p>
-      </main>
-    )
-  }
-
-  if (!isAllowed) {
+  if (!isChecking && !isAllowed) {
     return null
   }
 
@@ -56,9 +49,7 @@ export function EventMapPage() {
         <div className="overflow-hidden rounded-[1.75rem] border border-[#e8edf5] bg-white shadow-[0_18px_60px_-44px_rgba(16,43,88,0.24)]">
           <div className="h-[min(70vh,640px)] w-full">
             {!isMapReady || isLoading ? (
-              <div className="flex h-full items-center justify-center text-sm text-[#6b7d9c]">
-                Cargando mapa...
-              </div>
+              <MapAreaSkeleton />
             ) : events.length === 0 ? (
               <div className="flex h-full items-center justify-center px-6 text-center text-sm text-[#6b7d9c]">
                 No hay eventos con estos filtros. Probá ampliar la búsqueda.

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventPublishForm } from "@/features/events/components/event-publish-form"
@@ -7,6 +7,7 @@ import { useCreateEventMutation } from "@/features/events/hooks/events-queries"
 import { AppShell } from "@/features/home/components/app-shell"
 import { useOwnProfile } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
+import { FormPageSkeleton } from "@/shared/components/skeletons/form-page-skeleton"
 import {
   buildInitialEventDraft,
   parseDateInput,
@@ -28,15 +29,25 @@ export function CreateEventPage() {
     isResolved: isProfileResolved,
   } = useOwnProfile()
   const createEventMutation = useCreateEventMutation()
-  const [draft, setDraft] = useState<EventDraftState>(() =>
-    buildInitialEventDraft(
-      organizerProfile?.validationStatus === "validated" ? "validated" : "pending",
-      organizerProfile?.kind
-    )
-  )
+  const hasAppliedProfileDefaults = useRef(false)
+  const [draft, setDraft] = useState<EventDraftState>(() => buildInitialEventDraft("pending"))
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
   const uploadOwnerId = user?.id ?? "draft"
+
+  useEffect(() => {
+    if (!organizerProfile || hasAppliedProfileDefaults.current) {
+      return
+    }
+
+    hasAppliedProfileDefaults.current = true
+    setDraft(
+      buildInitialEventDraft(
+        organizerProfile.validationStatus === "validated" ? "validated" : "pending",
+        organizerProfile.kind
+      )
+    )
+  }, [organizerProfile])
 
   const handleDraftChange = <TKey extends keyof EventDraftState>(
     key: TKey,
@@ -140,16 +151,16 @@ export function CreateEventPage() {
     setDraftErrors({})
   }
 
-  if (isChecking || isProfileResolving) {
-    return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando...</p>
-      </main>
-    )
+  if (!isChecking && !isAllowed) {
+    return null
   }
 
-  if (!isAllowed) {
-    return null
+  if (isChecking) {
+    return (
+      <AppShell>
+        <FormPageSkeleton />
+      </AppShell>
+    )
   }
 
   if (isProfileResolved && !organizerProfile) {
@@ -174,10 +185,6 @@ export function CreateEventPage() {
     )
   }
 
-  if (!organizerProfile) {
-    return null
-  }
-
   return (
     <AppShell>
       <div className="mx-auto max-w-4xl space-y-6" data-testid="create-event-page">
@@ -192,6 +199,7 @@ export function CreateEventPage() {
           createdEventId={createdEventId}
           draft={draft}
           errors={draftErrors}
+          isSubmitDisabled={isProfileResolving || !organizerProfile}
           onDraftChange={handleDraftChange}
           onSubmit={handleCreateEvent}
           uploadOwnerId={uploadOwnerId}

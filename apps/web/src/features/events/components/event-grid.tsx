@@ -1,15 +1,12 @@
 import { EventCard } from "@/features/events/components/event-card"
 import { useFilteredEvents } from "@/features/events/hooks/use-filtered-events"
+import { EventGridSkeleton } from "@/shared/components/skeletons/event-grid-skeleton"
 
 export function EventGrid() {
   const { events, isLoading, isError } = useFilteredEvents()
 
   if (isLoading) {
-    return (
-      <div className="rounded-2xl border border-[#e8edf5] bg-white px-6 py-16 text-center">
-        <p className="text-sm text-[#6b7d9c]">Cargando eventos...</p>
-      </div>
-    )
+    return <EventGridSkeleton />
   }
 
   if (isError) {

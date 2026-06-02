@@ -19,12 +19,41 @@ type AuthState = {
   logout: () => Promise<void>
 }
 
+function getInitialAuthState(): Pick<
+  AuthState,
+  "user" | "isHydrated" | "currentUserRole" | "isAuthenticated"
+> {
+  if (typeof window === "undefined") {
+    return {
+      user: null,
+      isHydrated: false,
+      currentUserRole: null,
+      isAuthenticated: false,
+    }
+  }
+
+  const cachedUser = authService.getCachedUser()
+
+  if (!cachedUser) {
+    return {
+      user: null,
+      isHydrated: false,
+      currentUserRole: null,
+      isAuthenticated: false,
+    }
+  }
+
+  return {
+    user: cachedUser,
+    isHydrated: true,
+    currentUserRole: cachedUser.role,
+    isAuthenticated: true,
+  }
+}
+
 export const useAuthStore = create<AuthState>()((set) => ({
-  user: null,
-  isHydrated: false,
+  ...getInitialAuthState(),
   isSubmitting: false,
-  currentUserRole: null,
-  isAuthenticated: false,
 
   hydrate: async () => {
     const user = await authService.getCurrentUser()

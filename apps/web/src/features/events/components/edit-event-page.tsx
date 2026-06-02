@@ -9,6 +9,7 @@ import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
 import { AppShell } from "@/features/home/components/app-shell"
 import { useOwnProfile } from "@/features/profiles/hooks/profiles-queries"
 import { useAuth } from "@/shared/hooks/useAuth"
+import { FormPageSkeleton } from "@/shared/components/skeletons/form-page-skeleton"
 import {
   buildDraftFromEvent,
   validateEventDraft,
@@ -143,16 +144,16 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
     }
   }
 
-  if (isChecking || isLoading || isProfileResolving) {
-    return (
-      <main className="grid min-h-svh place-items-center bg-[#faf7f2] p-6">
-        <p className="text-[#1a3462]">Cargando...</p>
-      </main>
-    )
+  if (!isChecking && !isAllowed) {
+    return null
   }
 
-  if (!isAllowed) {
-    return null
+  if (isChecking || isLoading || isProfileResolving) {
+    return (
+      <AppShell>
+        <FormPageSkeleton />
+      </AppShell>
+    )
   }
 
   if (!event || !organizerProfile || !canEdit || !draft) {
