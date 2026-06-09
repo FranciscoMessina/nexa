@@ -1,6 +1,8 @@
 export { EventFilters } from "./components/event-filters"
 export { EventGrid } from "./components/event-grid"
 export { EventCard } from "./components/event-card"
+export { EventRecommendationBanner } from "./components/event-recommendation-banner"
+export { EventRecommendationNotice } from "./components/event-recommendation-notice"
 export { EventDetailPage } from "./components/event-detail-page"
 export { MyEventsPage } from "./components/my-events-page"
 export { CreateEventPage } from "./components/create-event-page"
@@ -19,3 +21,4 @@ export type {
   EventOrganizer,
   EventPrice,
 } from "./types/event.types"
+export type { EventRecommendationPayload } from "./api/event-recommendations.server"

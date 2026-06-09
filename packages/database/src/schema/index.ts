@@ -1,4 +1,5 @@
 export * from "./enums"
 export * from "./users"
 export * from "./events"
+export * from "./event-recommendation-deliveries"
 export * from "./relations"

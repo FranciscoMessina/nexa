@@ -96,13 +96,14 @@ function buildSeedAuthUsers(): Array<SeedAuthUserInput> {
     const loginEmail = Object.entries(SEED_KEY_BY_LOGIN_EMAIL).find(
       ([, profileSeedKey]) => profileSeedKey === seedUser.seedKey
     )?.[0]
+    const canSignIn = Boolean(loginEmail)
 
     return {
       id: authUserId,
       email: resolveSeedEmail(seedUser.seedKey, seedUser.email),
       displayName: seedUser.displayName,
       role: seedUser.role,
-      canSignIn: Boolean(loginEmail),
+      canSignIn,
     }
   })
 }
@@ -118,7 +119,7 @@ async function main(): Promise<void> {
   const db = drizzle(sqlClient, { schema })
 
   console.log("Limpiando tablas de demo...")
-  await db.execute(sql`TRUNCATE TABLE event_favorites, event_attendees, event_entrepreneurs, event_gallery_images, events, user_gallery_images, user_social_links, users RESTART IDENTITY CASCADE`)
+  await db.execute(sql`TRUNCATE TABLE event_recommendation_deliveries, event_favorites, event_attendees, event_entrepreneurs, event_gallery_images, events, user_gallery_images, user_social_links, users RESTART IDENTITY CASCADE`)
 
   const seedAuthUsers = buildSeedAuthUsers()
   const authUserIds = seedAuthUsers.map((authUser) => authUser.id)
@@ -135,6 +136,9 @@ async function main(): Promise<void> {
     seedKeyToUserId.set(seedUser.seedKey, userId)
 
     const createdAt = seedUser.createdAt ?? new Date()
+    const loginEmail = Object.entries(SEED_KEY_BY_LOGIN_EMAIL).find(
+      ([, profileSeedKey]) => profileSeedKey === seedUser.seedKey
+    )?.[0]
 
     await db.insert(users).values({
       id: userId,
@@ -149,6 +153,7 @@ async function main(): Promise<void> {
       category: seedUser.category ?? null,
       validatedAt: seedUser.validatedAt ?? null,
       email: resolveSeedEmail(seedUser.seedKey, seedUser.email),
+      acceptsEmailCommunications: Boolean(loginEmail),
       phone: seedUser.phone ?? null,
       birthDate: seedUser.birthDate ?? null,
       createdAt,

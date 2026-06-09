@@ -2,10 +2,12 @@ import {
   createEventFn,
   deleteEventFn,
   getEventByIdFn,
+  getEventRecommendationFn,
   getMyEventsSectionsFn,
   listEventsFn,
   updateEventFn,
 } from "../events.functions"
+import type { EventRecommendationPayload } from "../api/event-recommendations.server"
 import { getAttendingEventIdsFn } from "../attendance.functions"
 import type { CreateEventInput } from "../types/event-create-input"
 import type { EventCardData } from "../types/event.types"
@@ -48,6 +50,11 @@ export async function fetchAttendingEventIds(): Promise<Array<string>> {
   return eventIds
 }
 
+export async function fetchEventRecommendation(): Promise<EventRecommendationPayload | null> {
+  const { recommendation } = await getEventRecommendationFn()
+  return recommendation
+}
+
 export const eventsService = {
   fetchEvents,
   fetchEventById,
@@ -56,6 +63,7 @@ export const eventsService = {
   deleteEvent,
   fetchMyEventsSections,
   fetchAttendingEventIds,
+  fetchEventRecommendation,
 }
 
 export default eventsService

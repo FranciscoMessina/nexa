@@ -67,44 +67,61 @@ function clearStoredUser(): void {
   }
 }
 
+function readAuthErrorMessage(error: unknown): string {
+  if (error instanceof SupabaseAuthError || error instanceof Error) {
+    return error.message
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message
+  }
+
+  return ""
+}
+
 function mapSupabaseAuthError(error: unknown, context: "login" | "signup" = "login"): AuthError {
-  if (error instanceof SupabaseAuthError) {
-    const message = error.message.toLowerCase()
+  const message = readAuthErrorMessage(error).toLowerCase()
 
-    if (
-      message.includes("already registered") ||
-      message.includes("already exists") ||
-      message.includes("user already")
-    ) {
-      return new AuthError(
-        "email-taken",
-        "Ya existe una cuenta con ese correo. Iniciá sesión o usá otro email."
-      )
-    }
-
-    if (message.includes("invalid login credentials") || message.includes("invalid email")) {
-      return new AuthError(
-        "invalid-email",
-        context === "signup"
-          ? "El correo no es válido o ya está en uso."
-          : "El correo o la contraseña no son válidos."
-      )
-    }
-
-    if (message.includes("password")) {
-      return new AuthError("invalid-password", "La contraseña no cumple los requisitos mínimos.")
-    }
-
+  if (
+    message.includes("already registered") ||
+    message.includes("already exists") ||
+    message.includes("user already")
+  ) {
     return new AuthError(
-      context === "signup" ? "signup-failed" : "invalid-email",
-      error.message
+      "email-taken",
+      "Ya existe una cuenta con ese correo. Iniciá sesión o usá otro email."
     )
   }
 
-  if (error instanceof Error) {
+  if (message.includes("invalid login credentials") || message.includes("invalid email")) {
+    return new AuthError(
+      "invalid-email",
+      context === "signup"
+        ? "El correo no es válido o ya está en uso."
+        : "El correo o la contraseña no son válidos."
+    )
+  }
+
+  if (message.includes("password")) {
+    return new AuthError("invalid-password", "La contraseña no cumple los requisitos mínimos.")
+  }
+
+  if (message.includes("rate limit")) {
+    return new AuthError(
+      "signup-failed",
+      "Supabase limitó el envío de correos de confirmación. Esperá unos minutos o desactivá la confirmación de email en el dashboard de Supabase (Authentication → Sign In / Providers → Email)."
+    )
+  }
+
+  if (message) {
     return new AuthError(
       context === "signup" ? "signup-failed" : "invalid-email",
-      error.message
+      readAuthErrorMessage(error)
     )
   }
 

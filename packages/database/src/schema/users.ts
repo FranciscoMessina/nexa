@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   index,
   pgTable,
@@ -24,6 +25,9 @@ export const users = pgTable(
     category: categoryEnum("category").array(),
     validatedAt: timestamp("validated_at", { withTimezone: true }),
     email: text("email").notNull(),
+    acceptsEmailCommunications: boolean("accepts_email_communications")
+      .notNull()
+      .default(false),
     phone: text("phone"),
     birthDate: date("birth_date"),
     createdAt: timestamp("created_at", { withTimezone: true })

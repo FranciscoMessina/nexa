@@ -6,6 +6,7 @@ import {
   createSupabaseServerClientWithSession,
   supabaseSessionCookies,
 } from "@/shared/lib/supabase/server"
+import { getAppBaseUrl } from "@/shared/lib/email/config.server"
 import { ensureAppUser, toAuthUser } from "./users.server"
 import type { AuthUser, UserRole } from "../types/auth.types"
 
@@ -89,6 +90,7 @@ export async function signUpWithPassword(
     email,
     password: input.password,
     options: {
+      emailRedirectTo: `${getAppBaseUrl()}/login`,
       data: {
         role: input.role,
         displayName,

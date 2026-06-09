@@ -43,3 +43,34 @@ export const getMyEventsSectionsFn = createServerFn({ method: "GET" }).handler(a
   const { getMyEventsSections } = await import("./api/events.server")
   return getMyEventsSections()
 })
+
+export const getEventRecommendationFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { getEventRecommendationForCurrentUser } = await import(
+    "./api/event-recommendations.server"
+  )
+  const recommendation = await getEventRecommendationForCurrentUser()
+  return { recommendation }
+})
+
+export const sendEventRecommendationEmailsFn = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: { secret?: string; userId?: string; email?: string } | undefined) => data ?? {}
+  )
+  .handler(async ({ data }) => {
+    const expectedSecret = process.env.RECOMMENDATION_EMAIL_CRON_SECRET?.trim()
+
+    if (!expectedSecret || data.secret !== expectedSecret) {
+      throw new Error("No autorizado para ejecutar el envío de recomendaciones.")
+    }
+
+    const { sendEventRecommendationEmailsBatch } = await import(
+      "./api/event-recommendation-email.server"
+    )
+
+    const results = await sendEventRecommendationEmailsBatch({
+      userId: data.userId,
+      email: data.email,
+    })
+
+    return { results }
+  })

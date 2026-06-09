@@ -18,6 +18,7 @@ export const eventsQueryKeys = {
   myEvents: ["events", "mine"] as const,
   attendance: (eventId: string) => ["events", eventId, "attendance"] as const,
   attendingIds: ["events", "attending-ids"] as const,
+  recommendation: ["events", "recommendation"] as const,
 }
 
 export function useEventsQuery() {
@@ -39,6 +40,14 @@ export function useMyEventsSectionsQuery(enabled = true) {
   return useQuery({
     queryKey: eventsQueryKeys.myEvents,
     queryFn: () => eventsService.fetchMyEventsSections(),
+    enabled,
+  })
+}
+
+export function useEventRecommendationQuery(enabled = true) {
+  return useQuery({
+    queryKey: eventsQueryKeys.recommendation,
+    queryFn: () => eventsService.fetchEventRecommendation(),
     enabled,
   })
 }
@@ -67,6 +76,7 @@ export function useToggleAttendanceMutation(eventId: string) {
       queryClient.setQueryData(eventsQueryKeys.attendance(eventId), state)
       void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.myEvents })
       void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.attendingIds })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.recommendation })
     },
   })
 }

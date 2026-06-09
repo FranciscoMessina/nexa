@@ -7,5 +7,10 @@ declare namespace NodeJS {
     SUPABASE_STORAGE_BUCKET_EVENTS?: string
     DATABASE_URL?: string
     DIRECT_URL?: string
+    APP_URL?: string
+    EMAIL_PROVIDER?: string
+    EMAIL_FROM?: string
+    RESEND_API_KEY?: string
+    RECOMMENDATION_EMAIL_CRON_SECRET?: string
   }
 }

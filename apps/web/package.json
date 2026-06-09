@@ -4,12 +4,13 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "node ./node_modules/vite/bin/vite.js dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "recommendations:send": "bun --env-file=.env.local run scripts/send-event-recommendation-emails.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.37.0",

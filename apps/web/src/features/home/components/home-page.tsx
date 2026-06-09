@@ -1,5 +1,5 @@
 import { useRequireAuthentication } from "@/features/auth"
-import { EventFilters, EventGrid } from "@/features/events"
+import { EventFilters, EventGrid, EventRecommendationBanner } from "@/features/events"
 import { AppShell } from "@/features/home/components/app-shell"
 
 export function HomePage() {
@@ -23,6 +23,7 @@ export function HomePage() {
           </p>
         </div>
 
+        <EventRecommendationBanner enabled={isAllowed} />
         <EventFilters />
         <EventGrid />
       </div>
