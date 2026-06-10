@@ -29,3 +29,8 @@ export const updateProfileFn = createServerFn({ method: "POST" })
     const profile = await updateProfile(data)
     return { profile }
   })
+
+export const requestProfileValidationFn = createServerFn({ method: "POST" }).handler(async () => {
+  const { requestProfileValidation } = await import("./api/profiles.server")
+  return requestProfileValidation()
+})

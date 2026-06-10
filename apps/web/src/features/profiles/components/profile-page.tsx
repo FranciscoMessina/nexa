@@ -13,13 +13,15 @@ import { useRequireAuthentication } from "@/features/auth"
 import type { UserRole } from "@/features/auth/types/auth.types"
 import { AppShell } from "@/features/home/components/app-shell"
 import { ProfileFormFields } from "@/features/profiles/components/profile-form-fields"
+import { ProfileAvatar } from "@/features/profiles/components/profile-avatar"
 import { ProfilePageSkeleton } from "@/shared/components/skeletons/profile-page-skeleton"
 import {
   useOwnProfile,
   useProfileQuery,
+  useRequestProfileValidationMutation,
   useUpdateProfileMutation,
 } from "@/features/profiles/hooks/profiles-queries"
-import type { Profile, ProfileKind } from "@/features/profiles/types/profile.types"
+import type { Profile, ProfileKind, SocialPlatform } from "@/features/profiles/types/profile.types"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type ProfilePageProps = {
@@ -83,6 +85,15 @@ function StatusBadge({ profile }: { profile: Profile }) {
     )
   }
 
+  if (profile.validationStatus === "validated" && profile.kind === "organizador") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+        <IconShieldCheck size={13} stroke={2} />
+        Organizador verificado
+      </span>
+    )
+  }
+
   if (!profile.statusBadge) {
     return null
   }
@@ -95,7 +106,15 @@ function StatusBadge({ profile }: { profile: Profile }) {
         : "bg-[#eef2f8] text-[#5a6f8f]"
 
   return (
-    <span className={cn("inline-flex rounded-full px-3 py-1 text-xs font-semibold", toneClass)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold",
+        toneClass
+      )}
+    >
+      {profile.statusBadge.tone === "success" ? (
+        <IconShieldCheck size={13} stroke={2} />
+      ) : null}
       {profile.statusBadge.label}
     </span>
   )
@@ -114,6 +133,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     ? publicProfileQuery.isResolved
     : ownProfileQuery.isResolved
   const updateProfileMutation = useUpdateProfileMutation()
+  const requestValidationMutation = useRequestProfileValidationMutation()
 
   const resolvedProfileId = profileId ?? ownProfileId
   const isOwnProfile = Boolean(ownProfileId && resolvedProfileId === ownProfileId)
@@ -122,6 +142,10 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState<Profile | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [validationMessage, setValidationMessage] = useState<{
+    tone: "success" | "info"
+    text: string
+  } | null>(null)
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const { isUploading, error: imageUploadError, upload: uploadImage } = useImageUpload()
 
@@ -201,7 +225,8 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
       email: draft.email,
       phone: draft.phone,
       birthDate: draft.birthDate,
-      socialLinks: draft.socialLinks,
+      categoryLabel: draft.categoryLabel,
+      socialLinks: draft.socialLinks.filter((link) => link.handle.trim()),
     })
     setDraft(null)
     setIsEditing(false)
@@ -227,6 +252,43 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     })
   }
 
+  function addSocialLink(platform: SocialPlatform): void {
+    setDraft((current) => {
+      if (!current) {
+        return current
+      }
+
+      if (current.socialLinks.some((link) => link.platform === platform)) {
+        return current
+      }
+
+      return {
+        ...current,
+        socialLinks: [
+          ...current.socialLinks,
+          {
+            id: crypto.randomUUID(),
+            platform,
+            handle: "",
+          },
+        ],
+      }
+    })
+  }
+
+  function removeSocialLink(linkId: string): void {
+    setDraft((current) => {
+      if (!current) {
+        return current
+      }
+
+      return {
+        ...current,
+        socialLinks: current.socialLinks.filter((link) => link.id !== linkId),
+      }
+    })
+  }
+
   async function handleAvatarSelect(file: File): Promise<void> {
     if (!displayProfile) {
       return
@@ -235,6 +297,26 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     const publicUrl = await uploadImage(file, "avatar", displayProfile.id)
     if (publicUrl) {
       updateDraft({ avatarUrl: publicUrl })
+    }
+  }
+
+  async function handleRequestValidation(): Promise<void> {
+    setValidationMessage(null)
+
+    try {
+      const result = await requestValidationMutation.mutateAsync()
+      setValidationMessage({
+        tone: result.outcome === "validated" ? "success" : "info",
+        text: result.message,
+      })
+    } catch (error) {
+      setValidationMessage({
+        tone: "info",
+        text:
+          error instanceof Error
+            ? error.message
+            : "No pudimos procesar la solicitud de validación.",
+      })
     }
   }
 
@@ -260,6 +342,20 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
             {getPageSubtitle(displayProfile.kind, isOwnProfile, isEditing)}
           </p>
         </div>
+
+        {validationMessage ? (
+          <p
+            className={cn(
+              "rounded-xl border px-4 py-3 text-sm font-medium",
+              validationMessage.tone === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-[#e8e0ff] bg-[#f7f4ff] text-[#5b4bb7]"
+            )}
+            data-testid="profile-validation-message"
+          >
+            {validationMessage.text}
+          </p>
+        ) : null}
 
         {saveMessage ? (
           <p
@@ -293,9 +389,9 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
                   ref={avatarInputRef}
                   type="file"
                 />
-                <img
+                <ProfileAvatar
                   alt={displayProfile.displayName}
-                  className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-md"
+                  size="lg"
                   src={displayProfile.avatarUrl}
                 />
                 {canEdit && isEditing ? (
@@ -320,7 +416,18 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-[#1e1b4b]">{displayProfile.displayName}</h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-bold text-[#1e1b4b]">{displayProfile.displayName}</h2>
+                  {displayProfile.kind === "organizador" &&
+                  displayProfile.validationStatus === "validated" ? (
+                    <IconShieldCheck
+                      aria-label="Organizador verificado"
+                      className="text-emerald-600"
+                      size={22}
+                      stroke={2}
+                    />
+                  ) : null}
+                </div>
                 <p className="max-w-2xl text-sm leading-6 text-[#51617d]">{displayProfile.headline}</p>
                 <div className="flex flex-wrap items-center gap-3 text-sm text-[#6b7d9c]">
                   <span className="inline-flex items-center gap-1.5">
@@ -347,11 +454,18 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
                 {displayProfile.kind === "organizador" &&
                 displayProfile.validationStatus === "not_validated" ? (
                   <button
-                    className="inline-flex items-center gap-2 rounded-xl border border-[#d6def0] bg-white px-4 py-2.5 text-sm font-semibold text-[#1e1b4b]"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#d6def0] bg-white px-4 py-2.5 text-sm font-semibold text-[#1e1b4b] disabled:opacity-60"
+                    data-testid="profile-request-validation-button"
+                    disabled={requestValidationMutation.isPending}
+                    onClick={() => {
+                      void handleRequestValidation()
+                    }}
                     type="button"
                   >
                     <IconShieldCheck size={18} stroke={1.8} />
-                    Solicitar validación
+                    {requestValidationMutation.isPending
+                      ? "Verificando…"
+                      : "Solicitar validación"}
                   </button>
                 ) : null}
                 <button
@@ -366,22 +480,15 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
               </div>
             ) : null}
           </div>
-
-          {canEdit &&
-          displayProfile.kind === "organizador" &&
-          displayProfile.validationStatus === "not_validated" &&
-          !isEditing ? (
-            <p className="mt-4 rounded-xl bg-[#f4f0ff] px-4 py-3 text-sm text-[#5b4bb7]">
-              Cuando solicites la validación, el equipo de Nexa revisará tu información.
-            </p>
-          ) : null}
         </section>
 
         <ProfileFormFields
           isEditing={isEditing}
           isOwnProfile={canEdit}
           isUploadingRepresentative={isUploading}
+          onAddSocialLink={addSocialLink}
           onChange={updateDraft}
+          onRemoveSocialLink={removeSocialLink}
           onRepresentativeImageSelect={(file) => {
             void handleRepresentativeSelect(file)
           }}

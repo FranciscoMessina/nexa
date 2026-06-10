@@ -2,7 +2,6 @@ import { useRef } from "react"
 import {
   IconBrandFacebook,
   IconBrandInstagram,
-  IconBrandLinkedin,
   IconBrandPinterest,
   IconBrandTiktok,
   IconBrandTwitter,
@@ -12,20 +11,32 @@ import {
   IconPhone,
   IconPlus,
   IconUpload,
+  IconWorld,
   IconX,
 } from "@tabler/icons-react"
 import { cn } from "@workspace/ui/lib/utils"
+import { profileCategoryOptions } from "@/features/events/data/event-categories"
 import type { Profile, SocialPlatform } from "@/features/profiles/types/profile.types"
+import { socialPlatformOptions } from "@/features/profiles/data/social-platforms"
 
-const socialIconByPlatform = {
+const socialIconByPlatform: Record<SocialPlatform, typeof IconBrandInstagram> = {
   instagram: IconBrandInstagram,
   facebook: IconBrandFacebook,
   twitter: IconBrandTwitter,
   youtube: IconBrandYoutube,
   tiktok: IconBrandTiktok,
   pinterest: IconBrandPinterest,
-  linkedin: IconBrandLinkedin,
-} as const
+  website: IconWorld,
+}
+
+function socialLinkPlaceholder(platform: SocialPlatform): string {
+  if (platform === "website") {
+    return "https://tusitio.com"
+  }
+
+  const label = socialPlatformOptions.find((option) => option.value === platform)?.label ?? platform
+  return `Usuario de ${label}`
+}
 
 function fieldClass(isEditing: boolean): string {
   return cn(
@@ -47,6 +58,8 @@ type ProfileFormFieldsProps = {
   isOwnProfile: boolean
   onChange: (updates: Partial<Profile>) => void
   onSocialLinkChange: (linkId: string, handle: string) => void
+  onAddSocialLink?: (platform: SocialPlatform) => void
+  onRemoveSocialLink?: (linkId: string) => void
   onRepresentativeImageSelect?: (file: File) => void
   isUploadingRepresentative?: boolean
   representativeUploadError?: string | null
@@ -58,6 +71,8 @@ export function ProfileFormFields({
   isOwnProfile,
   onChange,
   onSocialLinkChange,
+  onAddSocialLink,
+  onRemoveSocialLink,
   onRepresentativeImageSelect,
   isUploadingRepresentative = false,
   representativeUploadError = null,
@@ -70,7 +85,7 @@ export function ProfileFormFields({
         ? "Nombre del emprendimiento"
         : "Nombre del organizador"
   const categoryLabel = profile.kind === "emprendimiento" ? "Rubro" : "Categoría"
-  const descriptionLimit = profile.kind === "usuario" ? 200 : 300
+  const descriptionLimit = profile.kind === "usuario" ? 200 : 1000
 
   return (
     <div className="grid gap-4 xl:grid-cols-3">
@@ -191,19 +206,26 @@ export function ProfileFormFields({
             <>
               <label className="block space-y-1.5 text-sm">
                 <span className="font-semibold text-[#6b7d9c]">{categoryLabel}</span>
-                <input
+                <select
                   className={fieldClass(isEditing)}
+                  disabled={!isEditing}
                   onChange={(event) => {
                     onChange({ categoryLabel: event.target.value })
                   }}
-                  readOnly={!isEditing}
                   value={profile.categoryLabel}
-                />
+                >
+                  <option value="">Seleccioná una categoría</option>
+                  {profileCategoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="block space-y-1.5 text-sm">
                 <span className="font-semibold text-[#6b7d9c]">Descripción</span>
                 <textarea
-                  className={cn(fieldClass(isEditing), "min-h-28 resize-none")}
+                  className={cn(fieldClass(isEditing), "min-h-40 resize-none")}
                   maxLength={descriptionLimit}
                   onChange={(event) => {
                     onChange({ description: event.target.value })
@@ -278,47 +300,14 @@ export function ProfileFormFields({
             </label>
           </div>
         ) : (
-          <>
-            <ul className="mt-4 space-y-3">
-              {profile.socialLinks.map((link) => (
-                <li
-                  className="flex items-center justify-between gap-3 rounded-xl border border-[#edf1f7] px-3 py-2.5"
-                  key={link.id}
-                >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <SocialIcon platform={link.platform} />
-                    {isEditing ? (
-                      <input
-                        className="w-full border-none bg-transparent text-sm font-medium text-[#1a3462] outline-none"
-                        onChange={(event) => {
-                          onSocialLinkChange(link.id, event.target.value)
-                        }}
-                        value={link.handle}
-                      />
-                    ) : (
-                      <span className="truncate text-sm font-medium text-[#1a3462]">
-                        {link.handle}
-                      </span>
-                    )}
-                  </div>
-                  {isOwnProfile && isEditing ? (
-                    <button className="text-[#8a9bb8]" type="button">
-                      <IconX size={16} stroke={1.8} />
-                    </button>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-            {isOwnProfile && isEditing ? (
-              <button
-                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7]"
-                type="button"
-              >
-                <IconPlus size={16} stroke={2} />
-                Agregar red social
-              </button>
-            ) : null}
-          </>
+          <SocialLinksList
+            isEditing={isEditing}
+            isOwnProfile={isOwnProfile}
+            onAddSocialLink={onAddSocialLink}
+            onRemoveSocialLink={onRemoveSocialLink}
+            onSocialLinkChange={onSocialLinkChange}
+            profile={profile}
+          />
         )}
       </section>
 
@@ -331,6 +320,8 @@ export function ProfileFormFields({
           <SocialLinksList
             isEditing={isEditing}
             isOwnProfile={isOwnProfile}
+            onAddSocialLink={onAddSocialLink}
+            onRemoveSocialLink={onRemoveSocialLink}
             onSocialLinkChange={onSocialLinkChange}
             profile={profile}
           />
@@ -339,11 +330,17 @@ export function ProfileFormFields({
             <p className="mt-2 text-sm text-[#6b7d9c]">
               Esta imagen se mostrará en tu perfil y en tus eventos.
             </p>
-            <img
-              alt={profile.displayName}
-              className="mt-4 h-44 w-full rounded-2xl object-cover"
-              src={profile.representativeImageUrl}
-            />
+            {profile.representativeImageUrl ? (
+              <img
+                alt={profile.displayName}
+                className="mt-4 aspect-video w-full rounded-2xl object-cover"
+                src={profile.representativeImageUrl}
+              />
+            ) : (
+              <div className="mt-4 flex aspect-video w-full items-center justify-center rounded-2xl border border-dashed border-[#d5deed] bg-[#f9fafc] px-4 text-center text-sm text-[#8a9bb8]">
+                Todavía no hay imagen representativa.
+              </div>
+            )}
             {isOwnProfile && isEditing ? (
               <>
                 <input
@@ -368,7 +365,11 @@ export function ProfileFormFields({
                   type="button"
                 >
                   <IconUpload size={18} stroke={1.8} />
-                  {isUploadingRepresentative ? "Subiendo…" : "Cambiar imagen"}
+                  {isUploadingRepresentative
+                    ? "Subiendo…"
+                    : profile.representativeImageUrl
+                      ? "Cambiar imagen"
+                      : "Subir imagen"}
                 </button>
                 <p className="mt-2 text-xs text-[#8a9bb8]">Formatos permitidos: JPG, PNG. Máx. 5MB.</p>
                 {representativeUploadError ? (
@@ -388,14 +389,26 @@ function SocialLinksList({
   isEditing,
   isOwnProfile,
   onSocialLinkChange,
+  onAddSocialLink,
+  onRemoveSocialLink,
 }: {
   profile: Profile
   isEditing: boolean
   isOwnProfile: boolean
   onSocialLinkChange: (linkId: string, handle: string) => void
+  onAddSocialLink?: (platform: SocialPlatform) => void
+  onRemoveSocialLink?: (linkId: string) => void
 }) {
+  const usedPlatforms = new Set(profile.socialLinks.map((link) => link.platform))
+  const availablePlatforms = socialPlatformOptions.filter(
+    (option) => !usedPlatforms.has(option.value)
+  )
+
   return (
     <>
+      {profile.socialLinks.length === 0 && !isEditing ? (
+        <p className="mt-4 text-sm text-[#8a9bb8]">Todavía no hay redes sociales cargadas.</p>
+      ) : null}
       <ul className="mt-4 space-y-3">
         {profile.socialLinks.map((link) => (
           <li
@@ -410,28 +423,57 @@ function SocialLinksList({
                   onChange={(event) => {
                     onSocialLinkChange(link.id, event.target.value)
                   }}
+                  placeholder={socialLinkPlaceholder(link.platform)}
+                  type={link.platform === "website" ? "url" : "text"}
                   value={link.handle}
                 />
+              ) : link.platform === "website" ? (
+                <a
+                  className="truncate text-sm font-medium text-[#5b4bb7] hover:underline"
+                  href={link.handle.startsWith("http") ? link.handle : `https://${link.handle}`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {link.handle}
+                </a>
               ) : (
                 <span className="truncate text-sm font-medium text-[#1a3462]">{link.handle}</span>
               )}
             </div>
-            {isOwnProfile && isEditing ? (
-              <button className="text-[#8a9bb8]" type="button">
+            {isOwnProfile && isEditing && onRemoveSocialLink ? (
+              <button
+                aria-label="Quitar red social"
+                className="text-[#8a9bb8] transition hover:text-rose-600"
+                onClick={() => {
+                  onRemoveSocialLink(link.id)
+                }}
+                type="button"
+              >
                 <IconX size={16} stroke={1.8} />
               </button>
             ) : null}
           </li>
         ))}
       </ul>
-      {isOwnProfile && isEditing ? (
-        <button
-          className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7]"
-          type="button"
-        >
-          <IconPlus size={16} stroke={2} />
-          Agregar red social
-        </button>
+      {isOwnProfile && isEditing && onAddSocialLink && availablePlatforms.length > 0 ? (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {availablePlatforms.map((option) => (
+            <button
+              className="inline-flex items-center gap-2 rounded-xl border border-[#dfe6f3] px-3 py-2 text-sm font-semibold text-[#1a3462] transition hover:bg-[#f7f9ff]"
+              key={option.value}
+              onClick={() => {
+                onAddSocialLink(option.value)
+              }}
+              type="button"
+            >
+              <IconPlus size={14} stroke={2} />
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {isOwnProfile && isEditing && availablePlatforms.length === 0 && profile.socialLinks.length > 0 ? (
+        <p className="mt-4 text-xs text-[#8a9bb8]">Ya agregaste todas las redes disponibles.</p>
       ) : null}
     </>
   )

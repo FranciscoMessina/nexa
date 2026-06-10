@@ -51,7 +51,10 @@ function mapSocialLinks(links: Array<SocialLinkRow>): Array<ProfileSocialLink> {
   return links.map((link) => ({
     id: link.id,
     platform: link.platform,
-    handle: link.handle ?? "",
+    handle:
+      link.platform === "website"
+        ? (link.url ?? link.handle ?? "")
+        : (link.handle ?? ""),
   }))
 }
 

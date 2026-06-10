@@ -84,6 +84,20 @@ export function useUpdateProfileMutation() {
   })
 }
 
+export function useRequestProfileValidationMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => profilesService.requestProfileValidation(),
+    onSuccess: ({ profile }) => {
+      queryClient.setQueryData(profilesQueryKeys.detail(profile.id), profile)
+      queryClient.setQueryData(profilesQueryKeys.current, profile)
+      void queryClient.invalidateQueries({ queryKey: ["profiles"] })
+      void queryClient.invalidateQueries({ queryKey: ["events"] })
+    },
+  })
+}
+
 export function useProfilesByIdsQuery(profileIds: Array<string>) {
   const sortedIds = [...profileIds].sort()
   const enabled = profileIds.length > 0

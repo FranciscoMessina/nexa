@@ -2,6 +2,7 @@ import {
   getCurrentProfileFn,
   getProfileByIdFn,
   getProfilesByIdsFn,
+  requestProfileValidationFn,
   updateProfileFn,
 } from "../profiles.functions"
 import type { UpdateProfileInput } from "../api/profiles.server"
@@ -27,11 +28,18 @@ export async function updateProfile(input: UpdateProfileInput): Promise<Profile>
   return profile
 }
 
+export async function requestProfileValidation(): Promise<
+  import("../api/profiles.server").RequestProfileValidationResult
+> {
+  return requestProfileValidationFn()
+}
+
 export const profilesService = {
   fetchProfileById,
   fetchCurrentProfile,
   fetchProfilesByIds,
   updateProfile,
+  requestProfileValidation,
 }
 
 export default profilesService

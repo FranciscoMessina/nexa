@@ -33,6 +33,7 @@ import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
 import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
 import { AppShell } from "@/features/home/components/app-shell"
 import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
+import { ProfileAvatar } from "@/features/profiles/components/profile-avatar"
 import { useProfileQuery, useProfilesByIdsQuery } from "@/features/profiles/hooks/profiles-queries"
 import { EventAttendanceSidebarSkeleton } from "@/shared/components/skeletons/event-attendance-sidebar-skeleton"
 import { EventDetailSkeleton } from "@/shared/components/skeletons/event-detail-skeleton"
@@ -415,9 +416,9 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                   ) : (
                     <div className="rounded-[1.75rem] border border-[#e8edf5] bg-[#fbfcff] p-4 sm:p-5">
                       <div className="flex items-center gap-4">
-                        <img
+                        <ProfileAvatar
                           alt={event.organizer.name}
-                          className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
+                          size="sm"
                           src={event.organizer.avatarUrl}
                         />
                         <div>

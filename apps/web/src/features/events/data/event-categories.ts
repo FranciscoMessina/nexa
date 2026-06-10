@@ -15,6 +15,12 @@ export const eventCategoryOptions = sortFilterOptionsAlphabetically(
   eventCategoryOptionsSource
 )
 
+/** Incluye "Ropa" (solo perfiles de emprendimiento). */
+export const profileCategoryOptions = sortFilterOptionsAlphabetically([
+  ...eventCategoryOptionsSource,
+  { value: "Ropa", label: "Ropa" },
+])
+
 export const eventFilterCategoryOptions = sortFilterOptionsAlphabetically([
   { value: "all", label: "Todas" },
   ...eventCategoryOptions,

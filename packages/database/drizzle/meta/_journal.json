@@ -57,6 +57,13 @@
       "when": 1780881084826,
       "tag": "0007_violet_silver_fox",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780372000000,
+      "tag": "0008_add_website_social_platform",
+      "breakpoints": true
     }
   ]
 }

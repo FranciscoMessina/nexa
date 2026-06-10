@@ -15,11 +15,13 @@
     "db:studio": "bun run --filter @workspace/database db:studio",
     "db:validate": "bun run --filter @workspace/database db:validate",
     "db:seed": "bun run --filter @workspace/database db:seed",
-    "recommendations:send": "bun run --filter nexa recommendations:send"
+    "recommendations:send": "bun run --filter nexa recommendations:send",
+    "db:clean-demo": "bun run --filter @workspace/database db:clean-demo"
   },
   "devDependencies": {
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "sharp": "^0.34.5",
     "turbo": "^2.8.17",
     "typescript": "5.9.3"
   },
