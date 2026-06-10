@@ -22,6 +22,7 @@ import {
   useUpdateProfileMutation,
 } from "@/features/profiles/hooks/profiles-queries"
 import type { Profile, ProfileKind, SocialPlatform } from "@/features/profiles/types/profile.types"
+import { composeDisplayName } from "@/features/profiles/utils/profile.mapper"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type ProfilePageProps = {
@@ -77,6 +78,10 @@ function getAllowedRolesForProfile(kind: ProfileKind): Array<UserRole> {
 }
 
 function StatusBadge({ profile }: { profile: Profile }) {
+  if (profile.kind !== "organizador") {
+    return null
+  }
+
   if (profile.validationStatus === "not_validated") {
     return (
       <span className="inline-flex rounded-full bg-[#ffe8e8] px-3 py-1 text-xs font-semibold text-[#c24141]">
@@ -85,7 +90,7 @@ function StatusBadge({ profile }: { profile: Profile }) {
     )
   }
 
-  if (profile.validationStatus === "validated" && profile.kind === "organizador") {
+  if (profile.validationStatus === "validated") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
         <IconShieldCheck size={13} stroke={2} />
@@ -216,7 +221,10 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
 
     await updateProfileMutation.mutateAsync({
       id: draft.id,
-      displayName: draft.displayName,
+      displayName:
+        draft.kind === "usuario"
+          ? composeDisplayName(draft.firstName, draft.lastName) || draft.displayName
+          : draft.displayName,
       headline: draft.headline,
       location: draft.location,
       description: draft.description,
@@ -234,7 +242,19 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   }
 
   function updateDraft(updates: Partial<Profile>): void {
-    setDraft((current) => (current ? { ...current, ...updates } : current))
+    setDraft((current) => {
+      if (!current) {
+        return current
+      }
+
+      const next = { ...current, ...updates }
+
+      if (current.kind === "usuario" && ("firstName" in updates || "lastName" in updates)) {
+        next.displayName = composeDisplayName(next.firstName, next.lastName) || next.displayName
+      }
+
+      return next
+    })
   }
 
   function updateSocialLink(linkId: string, handle: string): void {

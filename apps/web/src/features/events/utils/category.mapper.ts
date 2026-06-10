@@ -15,7 +15,7 @@ const UI_TO_DB: Record<string, DbCategory> = {
   Deportes: "deportes",
   "Ferias de Emprendedores": "feria_de_emprendedores",
   "Talleres y Cursos": "talleres_y_cursos",
-  "Cine y Entretenimiento": "cine_y_entretenimiento",
+  Entretenimiento: "cine_y_entretenimiento",
   Ropa: "ropa",
 }
 
@@ -26,7 +26,7 @@ const DB_TO_UI: Record<DbCategory, string> = {
   deportes: "Deportes",
   feria_de_emprendedores: "Ferias de Emprendedores",
   talleres_y_cursos: "Talleres y Cursos",
-  cine_y_entretenimiento: "Cine y Entretenimiento",
+  cine_y_entretenimiento: "Entretenimiento",
   ropa: "Ropa",
 }
 

@@ -8,7 +8,7 @@ const eventCategoryOptionsSource: Array<EventFilterOption> = [
   { value: "Deportes", label: "Deportes" },
   { value: "Ferias de Emprendedores", label: "Ferias de Emprendedores" },
   { value: "Talleres y Cursos", label: "Talleres y Cursos" },
-  { value: "Cine y Entretenimiento", label: "Cine y Entretenimiento" },
+  { value: "Entretenimiento", label: "Entretenimiento" },
 ]
 
 export const eventCategoryOptions = sortFilterOptionsAlphabetically(
