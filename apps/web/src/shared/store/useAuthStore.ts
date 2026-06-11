@@ -32,22 +32,11 @@ function getInitialAuthState(): Pick<
     }
   }
 
-  const cachedUser = authService.getCachedUser()
-
-  if (!cachedUser) {
-    return {
-      user: null,
-      isHydrated: false,
-      currentUserRole: null,
-      isAuthenticated: false,
-    }
-  }
-
   return {
-    user: cachedUser,
-    isHydrated: true,
-    currentUserRole: cachedUser.role,
-    isAuthenticated: true,
+    user: null,
+    isHydrated: false,
+    currentUserRole: null,
+    isAuthenticated: false,
   }
 }
 

@@ -174,19 +174,31 @@ async function register(payload: SignUpPayload): Promise<SignUpResult> {
 }
 
 async function logout(): Promise<void> {
+  clearStoredUser()
+
   if (await isSupabaseConfiguredOnServer()) {
-    await signOutFn()
+    try {
+      await signOutFn()
+    } catch {
+      // La sesión del servidor puede fallar; el cliente ya quedó deslogueado.
+    }
   }
 
-  clearStoredUser()
+  if (typeof window !== "undefined") {
+    window.location.assign("/login")
+  }
 }
 
 async function getCurrentUser(): Promise<AuthUser | null> {
   if (await isSupabaseConfiguredOnServer()) {
     const { user } = await getCurrentUserFn()
+
     if (user) {
       return user
     }
+
+    clearStoredUser()
+    return null
   }
 
   return readStoredUser()
