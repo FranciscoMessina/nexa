@@ -10,7 +10,10 @@ declare namespace NodeJS {
     APP_URL?: string
     EMAIL_PROVIDER?: string
     EMAIL_FROM?: string
-    RESEND_API_KEY?: string
+    SMTP_HOST?: string
+    SMTP_PORT?: string
+    SMTP_USER?: string
+    SMTP_PASS?: string
     RECOMMENDATION_EMAIL_CRON_SECRET?: string
   }
 }

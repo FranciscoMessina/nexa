@@ -13,7 +13,7 @@ La app web corre en `apps/web` (http://localhost:3000).
 
 ### Registro de usuarios y confirmación por email
 
-El registro en `/registro` usa **Supabase Auth**. Si el proyecto exige confirmación de email, Supabase envía el correo (no Nexa/Resend).
+El registro en `/registro` usa **Supabase Auth**. Si el proyecto exige confirmación de email, Supabase envía el correo (no Nexa/SMTP).
 
 **Error `email rate limit exceeded`:** el SMTP gratuito de Supabase tiene un límite bajo de envíos por hora. Tras varios intentos de registro, bloquea nuevos correos.
 
@@ -27,7 +27,7 @@ El registro en `/registro` usa **Supabase Auth**. Si el proyecto exige confirmac
 
 **Usuarios de demo** (sin registro): `asistente@nexa.mock` / `NexaDev2024!` (tras `bun run db:seed`).
 
-**Si querés correos reales en producción:** configurá SMTP propio en Supabase (**Project Settings** → **Authentication** → **SMTP Settings**), por ejemplo con Resend, y agregá `http://localhost:3000/**` en **Redirect URLs** (Authentication → URL Configuration).
+**Si querés correos reales en producción:** configurá SMTP propio en Supabase (**Project Settings** → **Authentication** → **SMTP Settings**), por ejemplo con Gmail, y agregá `http://localhost:3000/**` en **Redirect URLs** (Authentication → URL Configuration).
 
 ### Si `bun run dev` falla con `omit.default is not a function`
 
@@ -59,20 +59,23 @@ APP_URL=http://localhost:3000
 
 # Desarrollo: imprime el email en la terminal
 EMAIL_PROVIDER=console
-EMAIL_FROM="Nexa <onboarding@resend.dev>"
 
-# Producción / envío real con Resend:
-# EMAIL_PROVIDER=resend
-# RESEND_API_KEY=re_xxxxxxxx
-# EMAIL_FROM="Nexa <notificaciones@tudominio.com>"
+# Producción / envío real con Gmail SMTP:
+# EMAIL_PROVIDER=smtp
+# EMAIL_FROM="Nexa <tu@gmail.com>"
+# SMTP_USER=tu@gmail.com
+# SMTP_PASS=xxxx xxxx xxxx xxxx
 ```
 
 | Variable | Descripción |
 |----------|-------------|
 | `APP_URL` | URL pública para links al detalle del evento |
-| `EMAIL_PROVIDER` | `console` (dev) o `resend` (envío real) |
-| `RESEND_API_KEY` | API key de [Resend](https://resend.com) |
-| `EMAIL_FROM` | Remitente. En pruebas: `Nexa <onboarding@resend.dev>` |
+| `EMAIL_PROVIDER` | `console` (dev) o `smtp` (envío real) |
+| `EMAIL_FROM` | Remitente. Debe coincidir con la cuenta Gmail o un alias configurado |
+| `SMTP_USER` | Cuenta Gmail (ej. `tu@gmail.com`) |
+| `SMTP_PASS` | App Password de Google (16 caracteres) |
+| `SMTP_HOST` | Opcional. Default: `smtp.gmail.com` |
+| `SMTP_PORT` | Opcional. Default: `587` |
 
 ### Enviar recomendaciones
 
@@ -93,34 +96,36 @@ Los envíos quedan registrados en `event_recommendation_deliveries` (`sent`, `fa
 3. `bun run recommendations:send -- --email asistente@nexa.mock`
 4. El contenido del email aparece en la terminal
 
-### Probar envío real con Resend
+### Probar envío real con Gmail
 
-1. Creá una cuenta en [resend.com](https://resend.com) y generá una API key.
-2. En `.env.local`:
+1. Activá la verificación en dos pasos en tu cuenta de Google.
+2. Generá una **App Password**: [Google Account](https://myaccount.google.com/) → Security → App passwords.
+3. En `.env.local`:
 
 ```env
-EMAIL_PROVIDER=resend
-RESEND_API_KEY=re_tu_api_key
-EMAIL_FROM="Nexa <onboarding@resend.dev>"
+EMAIL_PROVIDER=smtp
+EMAIL_FROM="Nexa <tu@gmail.com>"
+SMTP_USER=tu@gmail.com
+SMTP_PASS=xxxx xxxx xxxx xxxx
 APP_URL=http://localhost:3000
 ```
 
-3. **Importante:** con el dominio de prueba `onboarding@resend.dev`, Resend solo entrega emails a la **dirección con la que te registraste** en Resend. Para probar:
+4. Para probar:
    - Actualizá el email del usuario de demo en la base (`users.email`) a tu correo real, **o**
    - Usá `--email tu@correo.com` apuntando a un usuario cuyo `users.email` coincida.
-4. Si ya enviaste una recomendación antes, borrá la fila correspondiente en `event_recommendation_deliveries` o probá con otro usuario que aún no haya recibido ese evento.
-5. Ejecutá:
+5. Si ya enviaste una recomendación antes, borrá la fila correspondiente en `event_recommendation_deliveries` o probá con otro usuario que aún no haya recibido ese evento.
+6. Ejecutá:
 
 ```bash
 bun run recommendations:send -- --email tu@correo.com
 ```
 
-6. Revisá tu bandeja (y spam). En el dashboard de Resend podés ver el estado del envío.
-7. Si falla, el registro queda con `status = failed` y el error en la terminal.
+7. Revisá tu bandeja (y spam).
+8. Si falla, el registro queda con `status = failed` y el error en la terminal.
 
 ### Producción
 
-- Verificá tu dominio en Resend.
-- Cambiá `EMAIL_FROM` a una dirección de ese dominio (ej. `Nexa <notificaciones@tudominio.com>`).
+- Usá una cuenta Gmail dedicada o Google Workspace con App Password.
+- `EMAIL_FROM` debe coincidir con la cuenta Gmail o un alias configurado en "Send mail as".
 - Configurá las mismas variables en Netlify (o tu hosting).
 - Para jobs programados, usá `RECOMMENDATION_EMAIL_CRON_SECRET` con la server function `sendEventRecommendationEmailsFn`.
