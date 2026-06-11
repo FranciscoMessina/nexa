@@ -11,6 +11,7 @@
     "db:studio": "dotenv -e ../../apps/web/.env.local -- drizzle-kit studio",
     "db:validate": "dotenv -e .env.validate -- drizzle-kit check",
     "db:seed": "dotenv -e ../../apps/web/.env.local -- bun run scripts/seed.ts",
+    "db:seed-demo": "dotenv -e ../../apps/web/.env.local -- bun run scripts/seed-demo-content.ts",
     "db:clean-demo": "dotenv -e ../../apps/web/.env.local -- bun run scripts/clean-demo.ts",
     "typecheck": "tsc --noEmit"
   },

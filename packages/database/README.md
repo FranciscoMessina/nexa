@@ -66,6 +66,31 @@ import { db, isDatabaseConfigured } from "@/shared/lib/db/server"
 
 Si `DATABASE_URL` no está definida, `db` es `null` y `isDatabaseConfigured()` devuelve `false`.
 
+### 6. Demo en Netlify (misma base que local)
+
+La app en [nexa-demo.netlify.app](https://nexa-demo.netlify.app) **no incluye los datos del repo**: lee la base configurada en las variables de entorno del sitio.
+
+**Forma recomendada (tu local = definitivo):**
+
+1. Usá **un solo proyecto Supabase** para local y demo.
+2. Pedí a quien administra Netlify que copie en **Site settings → Environment variables** los mismos valores que en `apps/web/.env.local`:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - `DATABASE_URL`
+   - `DIRECT_URL` (solo si corren migraciones desde CI; la app en runtime usa `DATABASE_URL`)
+   - `SUPABASE_STORAGE_BUCKET`
+   - `APP_URL=https://nexa-demo.netlify.app`
+3. Con eso, **no hace falta “pushear” la base**: lo que ves en `localhost:3000` es lo mismo en demo.
+
+**Reproducir el contenido demo** (otro entorno o después de migraciones):
+
+```bash
+bun run db:migrate
+bun run db:seed-demo
+```
+
+`db:seed-demo` aplica perfiles, imágenes y los 10 eventos (scripts idempotentes). Requiere que los usuarios de Auth ya existan en Supabase.
+
 ---
 
 ## Cómo correr las migraciones

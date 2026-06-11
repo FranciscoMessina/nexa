@@ -118,13 +118,13 @@ const ASISTENTES: Array<AsistenteSeed> = [
     lastName: "Pereyra",
     displayName: "Nico Pereyra",
     gender: "male",
-    headline: "Deportes, bienestar y eventos activos al aire libre en CABA.",
-    location: "Caballito, CABA",
+    headline: "Me interesan los intercambios de idiomas y conocer gente de distintas culturas en Buenos Aires.",
+    location: "Palermo, CABA",
     description:
-      "Participo en carreras, clases abiertas y eventos deportivos. También me interesan ferias saludables y workshops.",
+      "Me gustan los encuentros para practicar idiomas y charlar con viajeros y locales. Disfruto de espacios relajados donde se compartan culturas, historias y ganas de aprender.",
     birthDate: "1993-12-14",
     phone: "+54 11 4922 3301",
-    instagramHandle: "nicopereyra.run",
+    instagramHandle: "nicopereyra.idiomas",
   },
   {
     email: "camilasantos@outlook.com",
