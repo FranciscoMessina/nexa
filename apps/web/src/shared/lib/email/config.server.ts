@@ -1,24 +1,44 @@
 import "@tanstack/react-start/server-only"
 
-export type EmailProvider = "console" | "resend"
+export type EmailProvider = "console" | "smtp"
 
 export function getEmailProvider(): EmailProvider {
   const value = process.env.EMAIL_PROVIDER?.trim().toLowerCase()
 
-  if (value === "resend") {
-    return "resend"
+  if (value === "smtp") {
+    return "smtp"
   }
 
   return "console"
 }
 
-export function getEmailFromAddress(): string {
-  return process.env.EMAIL_FROM?.trim() || "Nexa <onboarding@resend.dev>"
+export function getEmailFromAddress(): string | null {
+  const from = process.env.EMAIL_FROM?.trim()
+  return from || null
 }
 
-export function getResendApiKey(): string | null {
-  const apiKey = process.env.RESEND_API_KEY?.trim()
-  return apiKey || null
+export function getSmtpHost(): string {
+  return process.env.SMTP_HOST?.trim() || "smtp.gmail.com"
+}
+
+export function getSmtpPort(): number {
+  const port = Number(process.env.SMTP_PORT?.trim())
+
+  if (Number.isFinite(port) && port > 0) {
+    return port
+  }
+
+  return 587
+}
+
+export function getSmtpUser(): string | null {
+  const user = process.env.SMTP_USER?.trim()
+  return user || null
+}
+
+export function getSmtpPass(): string | null {
+  const pass = process.env.SMTP_PASS?.trim()
+  return pass || null
 }
 
 export function getAppBaseUrl(): string {

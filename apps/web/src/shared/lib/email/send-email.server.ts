@@ -1,10 +1,14 @@
 import "@tanstack/react-start/server-only"
+import nodemailer from "nodemailer"
 import {
   getEmailFromAddress,
   getEmailProvider,
-  getResendApiKey,
-  type EmailProvider,
+  getSmtpHost,
+  getSmtpPass,
+  getSmtpPort,
+  getSmtpUser,
 } from "./config.server"
+import type { EmailProvider } from "./config.server"
 
 export type SendEmailInput = {
   to: string
@@ -18,38 +22,53 @@ export type SendEmailResult = {
   messageId: string | null
 }
 
-async function sendWithResend(input: SendEmailInput): Promise<SendEmailResult> {
-  const apiKey = getResendApiKey()
+let smtpTransporter: nodemailer.Transporter | null = null
 
-  if (!apiKey) {
-    throw new Error("RESEND_API_KEY no está configurada para EMAIL_PROVIDER=resend.")
+function getSmtpTransporter(): nodemailer.Transporter {
+  if (smtpTransporter) {
+    return smtpTransporter
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: getEmailFromAddress(),
-      to: [input.to],
-      subject: input.subject,
-      html: input.html,
-      text: input.text,
-    }),
+  const user = getSmtpUser()
+  const pass = getSmtpPass()
+
+  if (!user || !pass) {
+    throw new Error(
+      "SMTP_USER y SMTP_PASS deben estar configuradas para EMAIL_PROVIDER=smtp.",
+    )
+  }
+
+  const port = getSmtpPort()
+
+  smtpTransporter = nodemailer.createTransport({
+    host: getSmtpHost(),
+    port,
+    secure: port === 465,
+    auth: { user, pass },
   })
 
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`Resend respondió ${response.status}: ${body}`)
+  return smtpTransporter
+}
+
+async function sendWithSmtp(input: SendEmailInput): Promise<SendEmailResult> {
+  const from = getEmailFromAddress()
+
+  if (!from) {
+    throw new Error("EMAIL_FROM debe estar configurada para EMAIL_PROVIDER=smtp.")
   }
 
-  const payload = (await response.json()) as { id?: string }
+  const transporter = getSmtpTransporter()
+  const info = await transporter.sendMail({
+    from,
+    to: input.to,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
+  })
 
   return {
-    provider: "resend",
-    messageId: payload.id ?? null,
+    provider: "smtp",
+    messageId: info.messageId ?? null,
   }
 }
 
@@ -69,8 +88,8 @@ async function sendWithConsole(input: SendEmailInput): Promise<SendEmailResult> 
 export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
   const provider = getEmailProvider()
 
-  if (provider === "resend") {
-    return sendWithResend(input)
+  if (provider === "smtp") {
+    return sendWithSmtp(input)
   }
 
   return sendWithConsole(input)
