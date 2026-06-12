@@ -163,15 +163,10 @@ export function pickEmailRecommendation(
   allEvents: Array<EventCardData>,
   preferredCategory: DbCategory,
   attendingEventIds: ReadonlySet<string>,
-  previouslyRecommendedEventIds: ReadonlySet<string>,
   reference = new Date()
 ): EventCardData | null {
   const candidates = allEvents.filter((event) => {
     if (attendingEventIds.has(event.id)) {
-      return false
-    }
-
-    if (previouslyRecommendedEventIds.has(event.id)) {
       return false
     }
 
@@ -193,7 +188,6 @@ export function resolveEmailRecommendation(
   attendedEvents: Array<AttendedEventSnapshot>,
   allEvents: Array<EventCardData>,
   attendingEventIds: ReadonlySet<string>,
-  previouslyRecommendedEventIds: ReadonlySet<string>,
   reference = new Date()
 ): EventRecommendationPayload | null {
   const preferredCategory = resolvePreferredCategory(attendedEvents)
@@ -206,7 +200,6 @@ export function resolveEmailRecommendation(
     allEvents,
     preferredCategory,
     attendingEventIds,
-    previouslyRecommendedEventIds,
     reference
   )
 

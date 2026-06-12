@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, eq, inArray } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { eventAttendees, eventRecommendationDeliveries, users } from "@workspace/database"
 import { getDb } from "@/shared/lib/db/get-db"
 import { sendEmail } from "@/shared/lib/email/send-email.server"
@@ -18,7 +18,6 @@ export type RecommendationEmailSkipReason =
   | "communications_disabled"
   | "no_attendance_history"
   | "no_recommendation"
-  | "already_sent"
 
 export type RecommendationEmailSendResult =
   | {
@@ -61,21 +60,6 @@ async function loadAttendedEventsForUser(userId: string): Promise<Array<Attended
     }))
 }
 
-async function loadPreviouslyRecommendedEventIds(userId: string): Promise<Set<string>> {
-  const database = getDb()
-  const rows = await database
-    .select({ eventId: eventRecommendationDeliveries.eventId })
-    .from(eventRecommendationDeliveries)
-    .where(
-      and(
-        eq(eventRecommendationDeliveries.userId, userId),
-        eq(eventRecommendationDeliveries.channel, "email"),
-        inArray(eventRecommendationDeliveries.status, ["sent", "pending"])
-      )
-    )
-
-  return new Set(rows.map((row) => row.eventId))
-}
 
 async function loadAttendingEventIds(userId: string): Promise<Set<string>> {
   const database = getDb()
@@ -89,24 +73,17 @@ async function loadAttendingEventIds(userId: string): Promise<Set<string>> {
 export async function resolveEmailRecommendationForUser(
   userId: string
 ): Promise<EventRecommendationPayload | null> {
-  const [attendedEvents, allEvents, attendingEventIds, previouslyRecommendedEventIds] =
-    await Promise.all([
-      loadAttendedEventsForUser(userId),
-      listEvents(),
-      loadAttendingEventIds(userId),
-      loadPreviouslyRecommendedEventIds(userId),
-    ])
+  const [attendedEvents, allEvents, attendingEventIds] = await Promise.all([
+    loadAttendedEventsForUser(userId),
+    listEvents(),
+    loadAttendingEventIds(userId),
+  ])
 
   if (attendedEvents.length === 0) {
     return null
   }
 
-  return resolveEmailRecommendation(
-    attendedEvents,
-    allEvents,
-    attendingEventIds,
-    previouslyRecommendedEventIds
-  )
+  return resolveEmailRecommendation(attendedEvents, allEvents, attendingEventIds)
 }
 
 export async function sendEventRecommendationEmailForUser(
@@ -153,18 +130,12 @@ export async function sendEventRecommendationEmailForUser(
     }
   }
 
-  const [allEvents, attendingEventIds, previouslyRecommendedEventIds] = await Promise.all([
+  const [allEvents, attendingEventIds] = await Promise.all([
     listEvents(),
     loadAttendingEventIds(userId),
-    loadPreviouslyRecommendedEventIds(userId),
   ])
 
-  const recommendation = resolveEmailRecommendation(
-    attendedEvents,
-    allEvents,
-    attendingEventIds,
-    previouslyRecommendedEventIds
-  )
+  const recommendation = resolveEmailRecommendation(attendedEvents, allEvents, attendingEventIds)
 
   if (!recommendation) {
     return {
@@ -174,47 +145,30 @@ export async function sendEventRecommendationEmailForUser(
     }
   }
 
-  const existingDelivery = await database.query.eventRecommendationDeliveries.findFirst({
-    where: and(
-      eq(eventRecommendationDeliveries.userId, userId),
-      eq(eventRecommendationDeliveries.eventId, recommendation.event.id),
-      eq(eventRecommendationDeliveries.channel, "email")
-    ),
-  })
-
-  if (existingDelivery?.status === "sent" || existingDelivery?.status === "pending") {
-    return {
-      status: "skipped",
+  const inserted = await database
+    .insert(eventRecommendationDeliveries)
+    .values({
       userId,
-      reason: "already_sent",
-    }
-  }
-
-  let deliveryId = existingDelivery?.id
-
-  if (deliveryId) {
-    await database
-      .update(eventRecommendationDeliveries)
-      .set({
+      eventId: recommendation.event.id,
+      channel: "email",
+      status: "pending",
+      recommendationReason: recommendation.reason,
+    })
+    .onConflictDoUpdate({
+      target: [
+        eventRecommendationDeliveries.userId,
+        eventRecommendationDeliveries.eventId,
+        eventRecommendationDeliveries.channel,
+      ],
+      set: {
         status: "pending",
         recommendationReason: recommendation.reason,
         sentAt: null,
-      })
-      .where(eq(eventRecommendationDeliveries.id, deliveryId))
-  } else {
-    const inserted = await database
-      .insert(eventRecommendationDeliveries)
-      .values({
-        userId,
-        eventId: recommendation.event.id,
-        channel: "email",
-        status: "pending",
-        recommendationReason: recommendation.reason,
-      })
-      .returning()
+      },
+    })
+    .returning()
 
-    deliveryId = inserted[0]?.id
-  }
+  const deliveryId = inserted[0]?.id
 
   if (!deliveryId) {
     return {
