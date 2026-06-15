@@ -51,7 +51,6 @@ export async function searchLocations(query: string): Promise<Array<GeocodedPlac
     lat: String(CABA_CENTER.lat),
     lon: String(CABA_CENTER.lng),
     limit: "6",
-    lang: "es",
   })
 
   const response = await fetch(`${PHOTON_BASE}/?${params.toString()}`)
@@ -60,9 +59,9 @@ export async function searchLocations(query: string): Promise<Array<GeocodedPlac
     return []
   }
 
-  const data = (await response.json()) as { features: Array<PhotonFeature> }
+  const data = (await response.json()) as { features?: Array<PhotonFeature> }
 
-  return data.features
+  return (data.features ?? [])
     .map((feature) => {
       const [lng, lat] = feature.geometry.coordinates
       const label = formatPhotonLabel(feature)
