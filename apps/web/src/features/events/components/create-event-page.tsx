@@ -33,7 +33,7 @@ export function CreateEventPage() {
   const [draft, setDraft] = useState<EventDraftState>(() => buildInitialEventDraft("pending"))
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
-  const uploadOwnerId = user?.id ?? "draft"
+  const uploadOwnerId = user?.authUserId ?? "draft"
 
   useEffect(() => {
     if (!organizerProfile || hasAppliedProfileDefaults.current) {

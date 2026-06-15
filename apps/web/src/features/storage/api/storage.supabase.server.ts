@@ -41,7 +41,11 @@ export async function uploadImage(
     throw new StorageUploadError("Tenés que iniciar sesión para subir archivos a Supabase.")
   }
 
-  const path = buildStoragePath(input)
+  // Storage RLS policies scope uploads to auth.uid(), not the app user id.
+  const path = buildStoragePath({
+    ...input,
+    ownerId: authData.user.id,
+  })
   const bucket = resolveBucket(input.kind)
 
   const { error } = await supabase.storage.from(bucket).upload(path, input.file, {
