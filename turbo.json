@@ -5,7 +5,17 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".output/**"]
+      "outputs": [".output/**"],
+      "env": [
+        "RECOMMENDATION_EMAIL_CRON_SECRET",
+        "VITE_GOOGLE_MAPS_API_KEY",
+        "VITE_GOOGLE_MAPS_MAP_ID",
+        "DATABASE_URL",
+        "DIRECT_URL",
+        "SUPABASE_STORAGE_BUCKET",
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY"
+      ]
     },
     "db:generate": {
       "cache": false,
