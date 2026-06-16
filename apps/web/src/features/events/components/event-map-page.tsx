@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
 import { useRequireAuthentication } from "@/features/auth"
 import { EventFilters } from "@/features/events/components/event-filters"
-import { EventMapView, isUsingGoogleMaps } from "@/features/events/components/event-map-view"
+import {
+  EventMapView,
+  isUsingGoogleMaps,
+} from "@/features/events/components/event-map-view"
 import { useFilteredEventCards } from "@/features/events/hooks/use-filtered-event-cards"
 import { AppShell } from "@/features/home/components/app-shell"
 import { MapAreaSkeleton } from "@/shared/components/skeletons/map-area-skeleton"
@@ -26,15 +29,17 @@ export function EventMapPage() {
     <AppShell>
       <div className="space-y-6" data-testid="event-map-page">
         <div>
-          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Mapa de eventos</h1>
+          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">
+            Mapa de eventos
+          </h1>
           <p className="mt-2 text-base text-[#6b7d9c]">
             Explorá los eventos en el mapa. Tocá un pin para ver el detalle.
           </p>
         </div>
 
-        <EventFilters />
+        <EventFilters showNeighborhood={false} />
 
-        {!usesGoogleMaps ? (
+        {/* {!usesGoogleMaps ? (
           <p
             className="rounded-xl border border-[#f3dfa8] bg-[#fff8dd] px-4 py-3 text-sm text-[#1a3462]"
             data-testid="map-fallback-notice"
@@ -44,7 +49,7 @@ export function EventMapPage() {
             <code className="rounded bg-white/80 px-1.5 py-0.5 text-xs">VITE_GOOGLE_MAPS_API_KEY</code>{" "}
             en <code className="rounded bg-white/80 px-1.5 py-0.5 text-xs">apps/web/.env.local</code>.
           </p>
-        ) : null}
+        ) : null}*/}
 
         <div className="overflow-hidden rounded-[1.75rem] border border-[#e8edf5] bg-white shadow-[0_18px_60px_-44px_rgba(16,43,88,0.24)]">
           <div className="h-[min(70vh,640px)] w-full">
@@ -72,7 +77,7 @@ export function EventMapPage() {
               >
                 Google Maps
               </a>
-              . Direcciones validadas al publicar (OpenStreetMap).
+              .
             </>
           ) : (
             <>
@@ -94,7 +99,6 @@ export function EventMapPage() {
               >
                 OpenStreetMap
               </a>
-              . Direcciones validadas al publicar eventos.
             </>
           )}
         </p>

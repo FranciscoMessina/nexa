@@ -88,7 +88,11 @@ function FilterSelect({
   )
 }
 
-export function EventFilters() {
+type EventFiltersProps = {
+  showNeighborhood?: boolean
+}
+
+export function EventFilters({ showNeighborhood = true }: EventFiltersProps) {
   const {
     neighborhood,
     category,
@@ -103,20 +107,21 @@ export function EventFilters() {
 
   const { data: events = [] } = useEventsQuery()
   const { min, max } = useMemo(() => getEventDateBounds(events), [events])
-
   return (
     <div
       className="flex flex-col gap-3 rounded-2xl border border-[#e8edf5] bg-[#f9fafc] p-4 lg:flex-row lg:items-end lg:gap-4"
       data-testid="event-filters"
     >
-      <FilterSelect
-        icon={IconMapPin}
-        label="Barrio"
-        onChange={setNeighborhood}
-        options={neighborhoodOptions}
-        testId="filter-neighborhood"
-        value={neighborhood}
-      />
+      {showNeighborhood ? (
+        <FilterSelect
+          icon={IconMapPin}
+          label="Barrio"
+          onChange={setNeighborhood}
+          options={neighborhoodOptions}
+          testId="filter-neighborhood"
+          value={neighborhood}
+        />
+      ) : null}
       <FilterSelect
         icon={IconTag}
         label="Categoría"

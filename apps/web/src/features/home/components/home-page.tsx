@@ -25,7 +25,7 @@ export function HomePage() {
 
         <EventRecommendationBanner enabled={isAllowed} />
         <EventFilters />
-        <EventGrid />
+        <EventGrid showDistance />
       </div>
     </AppShell>
   )

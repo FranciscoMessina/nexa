@@ -1,5 +1,5 @@
-import type { EventCardData, EventItem } from "../types/event.types"
 import { withResolvedEventLabel } from "./event-label.utils"
+import type { EventCardData, EventItem } from "../types/event.types"
 
 function formatCardDate(date: Date): string {
   const day = date.getDate().toString().padStart(2, "0")
@@ -45,6 +45,8 @@ export function toEventItem(event: EventCardData): EventItem {
     category: resolved.category,
     kind: resolved.label.type,
     imageUrl: resolved.image.src,
+    coordinates: resolved.coordinates,
+    hasCoordinates: resolved.hasCoordinates,
   }
 }
 

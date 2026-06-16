@@ -2,6 +2,7 @@ import {
   IconArrowRight,
   IconCalendar,
   IconMapPin,
+  IconNavigation,
   IconTag,
 } from "@tabler/icons-react"
 import { Link } from "@tanstack/react-router"
@@ -11,9 +12,18 @@ import { EventCardImage } from "@/features/events/components/event-card-image"
 
 type EventCardProps = {
   event: EventItem
+  showDistance?: boolean
 }
 
-export function EventCard({ event }: EventCardProps) {
+function formatDistance(distanceKm: number): string {
+  if (distanceKm < 1) {
+    return `A ${Math.round(distanceKm * 1000)} m de vos`
+  }
+
+  return `A ${distanceKm.toFixed(1).replace(".", ",")} km de vos`
+}
+
+export function EventCard({ event, showDistance = false }: EventCardProps) {
   return (
     <article
       className="flex flex-col overflow-hidden rounded-2xl border border-[#e8edf5] bg-white shadow-[0_8px_30px_-20px_rgba(15,40,90,0.35)]"
@@ -44,6 +54,16 @@ export function EventCard({ event }: EventCardProps) {
             <IconTag className="mt-0.5 shrink-0 text-[#8a9bb8]" size={16} stroke={1.8} />
             <span>{event.category}</span>
           </li>
+          {showDistance && typeof event.distanceKm === "number" ? (
+            <li className="flex items-start gap-2">
+              <IconNavigation
+                className="mt-0.5 shrink-0 text-[#8a9bb8]"
+                size={16}
+                stroke={1.8}
+              />
+              <span>{formatDistance(event.distanceKm)}</span>
+            </li>
+          ) : null}
         </ul>
 
         <Link

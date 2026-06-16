@@ -1,3 +1,5 @@
+import type { AppUserRow } from "@/features/auth/api/users.server"
+import { mapUserToProfile } from "@/features/profiles/utils/profile.mapper"
 import type {
   eventAttendees,
   eventEntrepreneurs,
@@ -7,9 +9,7 @@ import type {
 } from "@workspace/database"
 import type { CreateEventInput } from "../types/event-create-input"
 import type { EventCardData, EventLabel } from "../types/event.types"
-import { primaryCategoryDbToUi, categoryUiToDb } from "./category.mapper"
-import { mapUserToProfile } from "@/features/profiles/utils/profile.mapper"
-import type { AppUserRow } from "@/features/auth/api/users.server"
+import { categoryUiToDb, primaryCategoryDbToUi } from "./category.mapper"
 
 type EventRow = typeof events.$inferSelect
 type UserRow = typeof users.$inferSelect
@@ -69,6 +69,7 @@ function mapOrganizer(user: UserRow): EventCardData["organizer"] {
 }
 
 export function mapEventRowToCardData(event: EventWithRelations): EventCardData {
+  const hasCoordinates = event.latitude != null && event.longitude != null
   const sortedGallery = [...event.galleryImages].sort((left, right) =>
     left.id.localeCompare(right.id)
   )
@@ -79,7 +80,7 @@ export function mapEventRowToCardData(event: EventWithRelations): EventCardData 
   const resolvedLabel = resolveEventLabelFromOrganizer(
     organizer,
     label,
-    event.createdBy.role as "asistente" | "organizador" | "emprendedor"
+    event.createdBy.role
   )
 
   return {
@@ -90,7 +91,7 @@ export function mapEventRowToCardData(event: EventWithRelations): EventCardData 
     summary: event.summary ?? "",
     location: event.location ?? "",
     date: event.startsAt ?? new Date(),
-    category: primaryCategoryDbToUi(event.category as Parameters<typeof primaryCategoryDbToUi>[0]),
+    category: primaryCategoryDbToUi(event.category),
     image: {
       src: coverUrl,
       alt: `${event.title ?? "Evento"} - ${event.location ?? ""}`,
@@ -114,6 +115,7 @@ export function mapEventRowToCardData(event: EventWithRelations): EventCardData 
       lat: event.latitude ?? -34.6037,
       lng: event.longitude ?? -58.3816,
     },
+    hasCoordinates,
   }
 }
 
@@ -138,7 +140,7 @@ export function mapCreateInputToEventValues(
       category: [categoryUiToDb(input.category.trim())],
       description: input.description.trim(),
       priceAmount: String(input.price?.amount ?? 0),
-      priceCurrency: input.price?.currency ?? "ARS",
+      priceCurrency: input.price?.currency || "ARS",
       priceLabel: input.price?.label ?? "",
       registrationUrl: input.registrationUrl?.trim() || null,
       requirements: input.requirements.trim(),
@@ -146,8 +148,7 @@ export function mapCreateInputToEventValues(
       longitude: input.coordinates?.lng ?? null,
     },
     galleryUrls: uniqueUrls,
-    entrepreneurUserIds:
-      input.participatingVentures?.map((venture) => venture.profileId) ?? [],
+    entrepreneurUserIds: input.participatingVentures?.map((venture) => venture.profileId) || [],
   }
 }
 

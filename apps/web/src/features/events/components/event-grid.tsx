@@ -1,9 +1,15 @@
 import { EventCard } from "@/features/events/components/event-card"
 import { useFilteredEvents } from "@/features/events/hooks/use-filtered-events"
+import { useCurrentLocation } from "@/shared/hooks/use-current-location"
 import { EventGridSkeleton } from "@/shared/components/skeletons/event-grid-skeleton"
 
-export function EventGrid() {
-  const { events, isLoading, isError } = useFilteredEvents()
+type EventGridProps = {
+  showDistance?: boolean
+}
+
+export function EventGrid({ showDistance = false }: EventGridProps) {
+  const { coordinates } = useCurrentLocation(showDistance)
+  const { events, isLoading, isError } = useFilteredEvents(showDistance ? coordinates : null)
 
   if (isLoading) {
     return <EventGridSkeleton />
@@ -37,7 +43,7 @@ export function EventGrid() {
       data-testid="event-grid"
     >
       {events.map((event) => (
-        <EventCard event={event} key={event.id} />
+        <EventCard event={event} key={event.id} showDistance={showDistance} />
       ))}
     </div>
   )

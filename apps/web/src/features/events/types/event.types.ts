@@ -52,6 +52,7 @@ export type EventDetailData = {
   attendeeProfileIds?: Array<string>
   requirements: string
   coordinates: EventCoordinates
+  hasCoordinates: boolean
 }
 
 export type EventCardData = EventDetailData
@@ -67,6 +68,9 @@ export type EventItem = {
   category: string
   kind: EventKind
   imageUrl: string
+  coordinates: EventCoordinates
+  hasCoordinates: boolean
+  distanceKm?: number
 }
 
 export type EventFilterOption = {

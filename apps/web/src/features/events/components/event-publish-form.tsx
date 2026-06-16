@@ -37,6 +37,7 @@ export function EventPublishForm({
 }: EventPublishFormProps) {
   const galleryInputRef = useRef<HTMLInputElement>(null)
   const { isUploading, error: galleryUploadError, upload } = useImageUpload()
+  const galleryImages = splitGallery(draft.gallery)
 
   async function handleGalleryFiles(fileList: FileList | null): Promise<void> {
     if (!fileList || fileList.length === 0) {
@@ -184,15 +185,27 @@ export function EventPublishForm({
             {isUploading ? "Subiendo…" : "Subir imágenes"}
           </button>
         </div>
-        <textarea
-          className="min-h-24 w-full rounded-xl border border-[#d5deed] px-4 py-2.5"
-          onChange={(event) => {
-            onDraftChange("gallery", event.target.value)
-          }}
-          placeholder="Pegá URLs separadas por coma o salto de línea"
-          required
-          value={draft.gallery}
-        />
+        {galleryImages.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {galleryImages.map((imageUrl, index) => (
+              <div
+                className="overflow-hidden rounded-[1.25rem] border border-[#d5deed] bg-[#f8fbff]"
+                key={`${imageUrl}-${index}`}
+              >
+                <img
+                  alt={`Preview de imagen ${index + 1}`}
+                  className="h-40 w-full object-cover"
+                  loading="lazy"
+                  src={imageUrl}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[1.25rem] border border-dashed border-[#d5deed] bg-[#f8fbff] px-4 py-8 text-center text-sm font-normal text-[#6b7d9c]">
+            Las imágenes subidas van a aparecer acá como preview.
+          </div>
+        )}
         <p className="text-xs font-normal text-[#8a9bb8]">
           Formatos permitidos: JPG, PNG. Máx. 5MB por imagen.
         </p>

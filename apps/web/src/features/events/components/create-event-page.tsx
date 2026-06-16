@@ -1,22 +1,22 @@
-import { useEffect, useRef, useState } from "react"
 import type { FormEvent } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRequireAuthentication } from "@/features/auth"
-import { EventPublishForm } from "@/features/events/components/event-publish-form"
 import { resolveDraftCoordinates } from "@/features/events/components/event-location-field"
+import { EventPublishForm } from "@/features/events/components/event-publish-form"
 import { useCreateEventMutation } from "@/features/events/hooks/events-queries"
-import { AppShell } from "@/features/home/components/app-shell"
-import { useOwnProfile } from "@/features/profiles/hooks/profiles-queries"
-import { useAuth } from "@/shared/hooks/useAuth"
-import { FormPageSkeleton } from "@/shared/components/skeletons/form-page-skeleton"
 import {
   buildInitialEventDraft,
-  parseDateInput,
-  splitGallery,
-  validateEventDraft,
   type EventDraftErrorField,
   type EventDraftErrors,
   type EventDraftState,
+  parseDateInput,
+  splitGallery,
+  validateEventDraft,
 } from "@/features/events/utils/event-publish.utils"
+import { AppShell } from "@/features/home/components/app-shell"
+import { useOwnProfile } from "@/features/profiles/hooks/profiles-queries"
+import { FormPageSkeleton } from "@/shared/components/skeletons/form-page-skeleton"
+import { useAuth } from "@/shared/hooks/useAuth"
 
 export function CreateEventPage() {
   const { user, isAuthenticated } = useAuth()
@@ -30,7 +30,9 @@ export function CreateEventPage() {
   } = useOwnProfile()
   const createEventMutation = useCreateEventMutation()
   const hasAppliedProfileDefaults = useRef(false)
-  const [draft, setDraft] = useState<EventDraftState>(() => buildInitialEventDraft("pending"))
+  const [draft, setDraft] = useState<EventDraftState>(() =>
+    buildInitialEventDraft("pending")
+  )
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
   const [draftErrors, setDraftErrors] = useState<EventDraftErrors>({})
   const uploadOwnerId = user?.authUserId ?? "draft"
@@ -43,7 +45,9 @@ export function CreateEventPage() {
     hasAppliedProfileDefaults.current = true
     setDraft(
       buildInitialEventDraft(
-        organizerProfile.validationStatus === "validated" ? "validated" : "pending",
+        organizerProfile.validationStatus === "validated"
+          ? "validated"
+          : "pending",
         organizerProfile.kind
       )
     )
@@ -79,7 +83,10 @@ export function CreateEventPage() {
 
     const gallery = splitGallery(draft.gallery)
     const parsedDate = parseDateInput(draft.date)
-    const coordinates = await resolveDraftCoordinates(draft.location, draft.coordinates)
+    const coordinates = await resolveDraftCoordinates(
+      draft.location,
+      draft.coordinates
+    )
     const draftWithCoordinates = { ...draft, coordinates }
     const errors = validateEventDraft(draftWithCoordinates)
 
@@ -144,7 +151,9 @@ export function CreateEventPage() {
     setCreatedEventId(createdEvent.id)
     setDraft(
       buildInitialEventDraft(
-        organizerProfile.validationStatus === "validated" ? "validated" : "pending",
+        organizerProfile.validationStatus === "validated"
+          ? "validated"
+          : "pending",
         organizerProfile.kind
       )
     )
@@ -166,11 +175,17 @@ export function CreateEventPage() {
   if (isProfileResolved && !organizerProfile) {
     return (
       <AppShell>
-        <div className="mx-auto max-w-4xl space-y-6" data-testid="create-event-page">
+        <div
+          className="mx-auto max-w-4xl space-y-6"
+          data-testid="create-event-page"
+        >
           <div>
-            <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Crear evento</h1>
+            <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">
+              Crear evento
+            </h1>
             <p className="mt-2 text-base text-[#6b7d9c]">
-              Completá los datos y publicá tu evento. Aparecerá en el muro y en Mis eventos.
+              Completá los datos y publicá tu evento. Aparecerá en el muro y en
+              Mis eventos.
             </p>
           </div>
           <div className="rounded-2xl border border-dashed border-[#d5deed] bg-white px-6 py-10 text-center">
@@ -187,11 +202,17 @@ export function CreateEventPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-4xl space-y-6" data-testid="create-event-page">
+      <div
+        className="mx-auto max-w-4xl space-y-6"
+        data-testid="create-event-page"
+      >
         <div>
-          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">Crear evento</h1>
+          <h1 className="text-3xl font-bold text-[#0a2558] lg:text-4xl">
+            Crear evento
+          </h1>
           <p className="mt-2 text-base text-[#6b7d9c]">
-            Completá los datos y publicá tu evento. Aparecerá en el muro y en Mis eventos.
+            Completá los datos y publicá tu evento. Aparecerá en el muro y en
+            Mis eventos.
           </p>
         </div>
 
