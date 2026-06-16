@@ -38,6 +38,27 @@ function matchesDateFilter(startsAt: Date, dateFilter: string): boolean {
   return toDateKey(startsAt) === dateFilter
 }
 
+function sortEventsByDistance(events: Array<EventItem>): Array<EventItem> {
+  return [...events].sort((left, right) => {
+    const leftDistance = left.distanceKm
+    const rightDistance = right.distanceKm
+
+    if (leftDistance == null && rightDistance == null) {
+      return 0
+    }
+
+    if (leftDistance == null) {
+      return 1
+    }
+
+    if (rightDistance == null) {
+      return -1
+    }
+
+    return leftDistance - rightDistance
+  })
+}
+
 export function useFilteredEvents(userCoordinates?: EventCoordinates | null): {
   events: Array<EventItem>
   isLoading: boolean
@@ -47,7 +68,7 @@ export function useFilteredEvents(userCoordinates?: EventCoordinates | null): {
   const { data, isLoading, isError } = useEventsQuery()
 
   const events = useMemo(() => {
-    return (data ?? [])
+    const filteredEvents = (data ?? [])
       .map(toEventItem)
       .filter((event) => {
         if (neighborhood !== "all" && event.neighborhood !== neighborhood) {
@@ -75,6 +96,12 @@ export function useFilteredEvents(userCoordinates?: EventCoordinates | null): {
             ? calculateDistanceKm(userCoordinates, event.coordinates)
             : undefined,
       }))
+
+    if (!userCoordinates) {
+      return filteredEvents
+    }
+
+    return sortEventsByDistance(filteredEvents)
   }, [category, data, date, eventType, neighborhood, userCoordinates])
 
   return { events, isLoading, isError }
