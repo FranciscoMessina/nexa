@@ -14,7 +14,11 @@
         "DIRECT_URL",
         "SUPABASE_STORAGE_BUCKET",
         "SUPABASE_URL",
-        "SUPABASE_ANON_KEY"
+        "SUPABASE_ANON_KEY",
+        "EMAIL_PROVIDER",
+        "EMAIL_FROM",
+        "SMTP_USER",
+        "SMTP_PASS"
       ]
     },
     "db:generate": {
