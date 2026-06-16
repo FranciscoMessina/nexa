@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start"
+import { uploadImageSchema } from "./validation/storage.schema"
 import type { StorageImageKind } from "./types/storage.types"
 
 type UploadImagePayload = {
@@ -21,7 +22,7 @@ function base64ToFile(payload: UploadImagePayload): File {
 }
 
 export const uploadImageFn = createServerFn({ method: "POST" })
-  .inputValidator((data: UploadImagePayload) => data)
+  .inputValidator((data: unknown) => uploadImageSchema.parse(data))
   .handler(async ({ data }) => {
     const { uploadImage } = await import("./api/storage.supabase.server")
     const file = base64ToFile(data)

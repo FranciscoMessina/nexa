@@ -6,16 +6,16 @@ import {
   eventGalleryImages,
   events,
 } from "@workspace/database"
+import type { UserRole } from "@/features/auth/types/auth.types"
 import { getDb } from "@/shared/lib/db/get-db"
 import { ForbiddenError } from "@/shared/lib/auth/errors.server"
 import { requireAppUser } from "@/shared/lib/auth/session.server"
 import type { CreateEventInput } from "../types/event-create-input"
 import type { EventCardData } from "../types/event.types"
-import type { UserRole } from "@/features/auth/types/auth.types"
 import {
+  type EventWithRelations,
   mapCreateInputToEventValues,
   mapEventRowToCardData,
-  type EventWithRelations,
 } from "../utils/events.mapper"
 
 const eventWithRelations = {
@@ -209,6 +209,8 @@ export type MyEventsSectionsPayload = {
 
 export async function getMyEventsSections(): Promise<MyEventsSectionsPayload> {
   const authUser = await requireAppUser()
+  // listEvents() still over-fetches all events plus relations; future work should
+  // push per-user filtering into the query to avoid loading everything into JS.
   const allEvents = await listEvents()
   const attendingEventIds = await getAttendingEventIdsForUser(authUser.id)
   const cards = filterEventsForUser(allEvents, authUser.id, authUser.role, attendingEventIds)

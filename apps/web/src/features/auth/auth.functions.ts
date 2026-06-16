@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start"
-import type { LoginPayload, SignUpPayload, SignUpResult } from "./types/auth.types"
+import { loginSchema, signUpSchema } from "./validation/auth.schema"
+import type { SignUpResult } from "./types/auth.types"
 
 export const getSupabaseStatusFn = createServerFn({ method: "GET" }).handler(async () => {
   const { isSupabaseConfigured } = await import("@/shared/lib/supabase/config.server")
@@ -7,7 +8,7 @@ export const getSupabaseStatusFn = createServerFn({ method: "GET" }).handler(asy
 })
 
 export const signInFn = createServerFn({ method: "POST" })
-  .inputValidator((data: LoginPayload) => data)
+  .inputValidator((data: unknown) => loginSchema.parse(data))
   .handler(async ({ data }) => {
     const { signInWithPassword } = await import("./api/auth.supabase.server")
     const { user, error } = await signInWithPassword(data.email, data.password)
@@ -26,7 +27,7 @@ export const signInFn = createServerFn({ method: "POST" })
   })
 
 export const signUpFn = createServerFn({ method: "POST" })
-  .inputValidator((data: SignUpPayload) => data)
+  .inputValidator((data: unknown) => signUpSchema.parse(data))
   .handler(async ({ data }): Promise<SignUpResult> => {
     const { assertPasswordMeetsPolicy } = await import(
       "./utils/password-policy.utils"

@@ -1,10 +1,14 @@
 import { createServerFn } from "@tanstack/react-start"
+import { z } from "zod"
+import { updateProfileInputSchema } from "./validation/profile.schema"
 
 export const getProfileByIdFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { profileId: string }) => data)
+  .inputValidator((data: unknown) =>
+    z.object({ profileId: z.string().min(1) }).parse(data)
+  )
   .handler(async ({ data }) => {
-    const { getProfileById } = await import("./api/profiles.server")
-    const profile = await getProfileById(data.profileId)
+    const { getPublicProfileById } = await import("./api/profiles.server")
+    const profile = await getPublicProfileById(data.profileId)
     return { profile }
   })
 
@@ -15,15 +19,17 @@ export const getCurrentProfileFn = createServerFn({ method: "GET" }).handler(asy
 })
 
 export const getProfilesByIdsFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { profileIds: Array<string> }) => data)
+  .inputValidator((data: unknown) =>
+    z.object({ profileIds: z.array(z.string().min(1)) }).parse(data)
+  )
   .handler(async ({ data }) => {
-    const { getProfilesByIds } = await import("./api/profiles.server")
-    const profiles = await getProfilesByIds(data.profileIds)
+    const { getPublicProfilesByIds } = await import("./api/profiles.server")
+    const profiles = await getPublicProfilesByIds(data.profileIds)
     return { profiles }
   })
 
 export const updateProfileFn = createServerFn({ method: "POST" })
-  .inputValidator((data: import("./api/profiles.server").UpdateProfileInput) => data)
+  .inputValidator((data: unknown) => updateProfileInputSchema.parse(data))
   .handler(async ({ data }) => {
     const { updateProfile } = await import("./api/profiles.server")
     const profile = await updateProfile(data)

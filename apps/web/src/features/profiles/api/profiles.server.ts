@@ -1,6 +1,8 @@
 import "@tanstack/react-start/server-only"
-import { eq } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
 import { socialPlatformEnum, userSocialLinks, users } from "@workspace/database"
+import type { UserRole } from "@/features/auth/types/auth.types"
+import { categoryUiToDb } from "@/features/events/utils/category.mapper"
 import { getDb } from "@/shared/lib/db/get-db"
 import { ForbiddenError } from "@/shared/lib/auth/errors.server"
 import { requireAppUser } from "@/shared/lib/auth/session.server"
@@ -9,8 +11,6 @@ import { mapUserToProfile } from "../utils/profile.mapper"
 import {
   canAutoValidateOrganizerByEmail,
 } from "../utils/profile-validation.utils"
-import { categoryUiToDb } from "@/features/events/utils/category.mapper"
-import type { UserRole } from "@/features/auth/types/auth.types"
 
 async function loadSocialLinks(userId: string) {
   const database = getDb()
@@ -33,14 +33,65 @@ export async function getProfileById(profileId: string): Promise<Profile | null>
   return mapUserToProfile(user, links)
 }
 
+/** Fields that must never be exposed on the public, unauthenticated read path. */
+function toPublicProfile(profile: Profile): Profile {
+  return {
+    ...profile,
+    email: "",
+    phone: undefined,
+    birthDate: undefined,
+  }
+}
+
+export async function getPublicProfileById(profileId: string): Promise<Profile | null> {
+  const profile = await getProfileById(profileId)
+  return profile ? toPublicProfile(profile) : null
+}
+
 export async function getCurrentProfile(): Promise<Profile | null> {
   const authUser = await requireAppUser()
   return getProfileById(authUser.id)
 }
 
+async function getProfilesByIdsBatch(profileIds: Array<string>): Promise<Array<Profile>> {
+  if (profileIds.length === 0) {
+    return []
+  }
+
+  const database = getDb()
+  const [userRows, linkRows] = await Promise.all([
+    database.select().from(users).where(inArray(users.id, profileIds)),
+    database.select().from(userSocialLinks).where(inArray(userSocialLinks.userId, profileIds)),
+  ])
+
+  const linksByUserId = new Map<string, typeof linkRows>()
+  for (const link of linkRows) {
+    const list = linksByUserId.get(link.userId) ?? []
+    list.push(link)
+    linksByUserId.set(link.userId, list)
+  }
+
+  const usersById = new Map(userRows.map((user) => [user.id, user]))
+
+  return profileIds
+    .map((id) => {
+      const user = usersById.get(id)
+      if (!user) {
+        return null
+      }
+
+      return mapUserToProfile(user, linksByUserId.get(id) ?? [])
+    })
+    .filter((profile): profile is Profile => profile !== null)
+}
+
 export async function getProfilesByIds(profileIds: Array<string>): Promise<Array<Profile>> {
-  const profiles = await Promise.all(profileIds.map((id) => getProfileById(id)))
-  return profiles.filter((profile): profile is Profile => profile !== null)
+  return getProfilesByIdsBatch(profileIds)
+}
+
+export async function getPublicProfilesByIds(profileIds: Array<string>): Promise<Array<Profile>> {
+  const profiles = await getProfilesByIdsBatch(profileIds)
+  return profiles.map(toPublicProfile)
 }
 
 export type UpdateProfileInput = {

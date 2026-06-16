@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start"
-import type { CreateEventInput } from "./types/event-create-input"
+import { z } from "zod"
+import { createEventInputSchema } from "./validation/event.schema"
 
 export const listEventsFn = createServerFn({ method: "GET" }).handler(async () => {
   const { listEvents } = await import("./api/events.server")
@@ -8,7 +9,9 @@ export const listEventsFn = createServerFn({ method: "GET" }).handler(async () =
 })
 
 export const getEventByIdFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { eventId: string }) => data)
+  .inputValidator((data: unknown) =>
+    z.object({ eventId: z.string().min(1) }).parse(data)
+  )
   .handler(async ({ data }) => {
     const { getEventById } = await import("./api/events.server")
     const event = await getEventById(data.eventId)
@@ -16,7 +19,7 @@ export const getEventByIdFn = createServerFn({ method: "POST" })
   })
 
 export const createEventFn = createServerFn({ method: "POST" })
-  .inputValidator((data: CreateEventInput) => data)
+  .inputValidator((data: unknown) => createEventInputSchema.parse(data))
   .handler(async ({ data }) => {
     const { createEvent } = await import("./api/events.server")
     const event = await createEvent(data)
@@ -24,7 +27,14 @@ export const createEventFn = createServerFn({ method: "POST" })
   })
 
 export const updateEventFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { eventId: string; input: CreateEventInput }) => data)
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        eventId: z.string().min(1),
+        input: createEventInputSchema,
+      })
+      .parse(data)
+  )
   .handler(async ({ data }) => {
     const { updateEvent } = await import("./api/events.server")
     const event = await updateEvent(data.eventId, data.input)
@@ -32,7 +42,9 @@ export const updateEventFn = createServerFn({ method: "POST" })
   })
 
 export const deleteEventFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { eventId: string }) => data)
+  .inputValidator((data: unknown) =>
+    z.object({ eventId: z.string().min(1) }).parse(data)
+  )
   .handler(async ({ data }) => {
     const { deleteEvent } = await import("./api/events.server")
     const success = await deleteEvent(data.eventId)
@@ -54,7 +66,14 @@ export const getEventRecommendationFn = createServerFn({ method: "GET" }).handle
 
 export const sendEventRecommendationEmailsFn = createServerFn({ method: "POST" })
   .inputValidator(
-    (data: { secret?: string; userId?: string; email?: string } | undefined) => data ?? {}
+    (data: unknown) =>
+      z
+        .object({
+          secret: z.string().optional(),
+          userId: z.string().optional(),
+          email: z.string().email().optional(),
+        })
+        .parse(data ?? {})
   )
   .handler(async ({ data }) => {
     const expectedSecret = process.env.RECOMMENDATION_EMAIL_CRON_SECRET?.trim()
