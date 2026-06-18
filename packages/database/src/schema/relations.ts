@@ -5,6 +5,7 @@ import {
   eventEntrepreneurs,
   eventFavorites,
   eventGalleryImages,
+  eventParticipationRequests,
   events,
 } from "./events"
 import { eventRecommendationDeliveries } from "./event-recommendation-deliveries"
@@ -17,6 +18,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   eventEntrepreneurships: many(eventEntrepreneurs),
   eventAttendances: many(eventAttendees),
   eventFavorites: many(eventFavorites),
+  eventParticipationRequests: many(eventParticipationRequests),
   eventRecommendationDeliveries: many(eventRecommendationDeliveries),
 }))
 
@@ -46,6 +48,7 @@ export const eventsRelations = relations(events, ({ one, many }) => ({
   entrepreneurs: many(eventEntrepreneurs),
   attendees: many(eventAttendees),
   favorites: many(eventFavorites),
+  participationRequests: many(eventParticipationRequests),
   recommendationDeliveries: many(eventRecommendationDeliveries),
 }))
 
@@ -108,3 +111,17 @@ export const eventFavoritesRelations = relations(eventFavorites, ({ one }) => ({
     references: [users.id],
   }),
 }))
+
+export const eventParticipationRequestsRelations = relations(
+  eventParticipationRequests,
+  ({ one }) => ({
+    event: one(events, {
+      fields: [eventParticipationRequests.eventId],
+      references: [events.id],
+    }),
+    user: one(users, {
+      fields: [eventParticipationRequests.userId],
+      references: [users.id],
+    }),
+  })
+)

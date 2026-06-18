@@ -38,6 +38,16 @@ export type EventDetailData = {
   location: string
   date: Date
   category: string
+  categorySlugs: Array<
+    | "ropa"
+    | "feria_de_emprendedores"
+    | "arte_y_cultura"
+    | "cine_y_entretenimiento"
+    | "deportes"
+    | "gastronomia"
+    | "musica"
+    | "talleres_y_cursos"
+  >
   image: {
     src: string
     alt: string

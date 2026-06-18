@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query"
 import { eventsService } from "@/features/events/services/events.service"
 import { getAttendanceStateFn, toggleAttendanceFn } from "@/features/events/attendance.functions"
+import {
+  approveParticipationRequestFn,
+  getParticipationRequestStateFn,
+  listPendingParticipationRequestsFn,
+  rejectParticipationRequestFn,
+  submitParticipationRequestFn,
+} from "@/features/events/participation.functions"
 import type { CreateEventInput } from "@/features/events/types/event-create-input"
 
 type AttendanceQuerySnapshot = Pick<
@@ -17,6 +24,8 @@ export const eventsQueryKeys = {
   detail: (eventId: string) => ["events", eventId] as const,
   myEvents: ["events", "mine"] as const,
   attendance: (eventId: string) => ["events", eventId, "attendance"] as const,
+  participation: (eventId: string) => ["events", eventId, "participation"] as const,
+  pendingParticipation: (eventId: string) => ["events", eventId, "participation", "pending"] as const,
   attendingIds: ["events", "attending-ids"] as const,
   recommendation: ["events", "recommendation"] as const,
 }
@@ -117,6 +126,72 @@ export function useDeleteEventMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.all })
       void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.myEvents })
+    },
+  })
+}
+
+export function useParticipationRequestStateQuery(eventId: string, enabled = true) {
+  const queryEnabled = Boolean(eventId) && enabled
+
+  const query = useQuery({
+    queryKey: eventsQueryKeys.participation(eventId),
+    queryFn: () => getParticipationRequestStateFn({ data: { eventId } }),
+    enabled: queryEnabled,
+  })
+
+  return {
+    ...query,
+    isResolving:
+      queryEnabled &&
+      (!query.isFetched || query.isPending || query.fetchStatus === "fetching"),
+  }
+}
+
+export function useSubmitParticipationRequestMutation(eventId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => submitParticipationRequestFn({ data: { eventId } }),
+    onSuccess: (state) => {
+      queryClient.setQueryData(eventsQueryKeys.participation(eventId), state)
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.pendingParticipation(eventId) })
+    },
+  })
+}
+
+export function usePendingParticipationRequestsQuery(eventId: string, enabled = true) {
+  const queryEnabled = Boolean(eventId) && enabled
+
+  return useQuery({
+    queryKey: eventsQueryKeys.pendingParticipation(eventId),
+    queryFn: () => listPendingParticipationRequestsFn({ data: { eventId } }),
+    enabled: queryEnabled,
+  })
+}
+
+export function useApproveParticipationRequestMutation(eventId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (userId: string) =>
+      approveParticipationRequestFn({ data: { eventId, userId } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.detail(eventId) })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.participation(eventId) })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.pendingParticipation(eventId) })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.myEvents })
+    },
+  })
+}
+
+export function useRejectParticipationRequestMutation(eventId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (userId: string) =>
+      rejectParticipationRequestFn({ data: { eventId, userId } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.pendingParticipation(eventId) })
     },
   })
 }

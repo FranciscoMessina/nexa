@@ -92,6 +92,7 @@ export function mapEventRowToCardData(event: EventWithRelations): EventCardData 
     location: event.location ?? "",
     date: event.startsAt ?? new Date(),
     category: primaryCategoryDbToUi(event.category),
+    categorySlugs: event.category ?? [],
     image: {
       src: coverUrl,
       alt: `${event.title ?? "Evento"} - ${event.location ?? ""}`,

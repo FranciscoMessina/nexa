@@ -17,19 +17,29 @@ import {
   IconTrash,
   IconUserCheck,
   IconUserMinus,
+  IconUserPlus,
   IconUsers,
+  IconClock,
+  IconCheck,
+  IconX,
 } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { cn } from "@workspace/ui/lib/utils"
 import { useRequireAuthentication } from "@/features/auth"
 import {
+  useApproveParticipationRequestMutation,
   useAttendanceStateQuery,
   useDeleteEventMutation,
   useEventQuery,
+  useParticipationRequestStateQuery,
+  usePendingParticipationRequestsQuery,
+  useRejectParticipationRequestMutation,
+  useSubmitParticipationRequestMutation,
   useToggleAttendanceMutation,
 } from "@/features/events/hooks/events-queries"
 import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
+import { eventIncludesFeriaCategory } from "@/features/events/utils/event-category.utils"
 import { resolveEventLabel } from "@/features/events/utils/event-label.utils"
 import { AppShell } from "@/features/home/components/app-shell"
 import { EventProfileCard } from "@/features/profiles/components/event-profile-card"
@@ -147,6 +157,20 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
     useAttendanceStateQuery(eventId)
   const toggleAttendance = useToggleAttendanceMutation(eventId)
   const deleteEventMutation = useDeleteEventMutation()
+  const isOwnEvent = Boolean(user && event && user.id === event.organizer.profileId)
+  const canManageEvent = Boolean(event && user && canUserManageEvent(event, user.id))
+  const isFeriaEvent = event ? eventIncludesFeriaCategory(event.categorySlugs) : false
+  const isEmprendedor = user?.role === "emprendedor"
+  const showParticipationRequestBlock =
+    Boolean(user) && isEmprendedor && isFeriaEvent && !isOwnEvent
+  const showParticipationManagement = canManageEvent && isFeriaEvent
+  const { data: participationState, isResolving: isParticipationResolving } =
+    useParticipationRequestStateQuery(eventId, showParticipationRequestBlock)
+  const submitParticipationRequest = useSubmitParticipationRequestMutation(eventId)
+  const { data: pendingParticipationRequests = [], isLoading: isPendingRequestsLoading } =
+    usePendingParticipationRequestsQuery(eventId, showParticipationManagement)
+  const approveParticipationRequest = useApproveParticipationRequestMutation(eventId)
+  const rejectParticipationRequest = useRejectParticipationRequestMutation(eventId)
   const ventureIds = event?.participatingVentures?.map((venture) => venture.profileId) ?? []
   const { data: organizerProfile, isResolving: isOrganizerResolving } = useProfileQuery(
     event?.organizer.profileId
@@ -199,8 +223,6 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const activeImage = galleryImages[activeImageIndex] ?? event.image.src
   const shareUrl = getShareUrl()
   const mapUrl = getMapUrl(event.coordinates.lat, event.coordinates.lng)
-  const canManageEvent = canUserManageEvent(event, user?.id)
-  const isOwnEvent = user?.id === event.organizer.profileId
   const attendanceLabel =
     attendanceCount === 1
       ? "1 persona confirmó que va a asistir"
@@ -523,6 +545,69 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                   </>
                 )}
 
+                {showParticipationRequestBlock ? (
+                  <div className="space-y-3 border-t border-[#edf2f8] pt-4">
+                    <p className="text-sm font-semibold text-[#1e1b4b]">Participar como emprendimiento</p>
+                    {isParticipationResolving ? (
+                      <div className="h-12 animate-pulse rounded-2xl bg-[#f4f7fb]" />
+                    ) : participationState?.status === "already_participant" ? (
+                      <p
+                        className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+                        data-testid="event-participation-already-member"
+                      >
+                        Ya formás parte de este evento
+                      </p>
+                    ) : participationState?.status === "pending" ? (
+                      <button
+                        className="inline-flex w-full cursor-default items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-[#f4f7fb] px-5 py-3.5 text-sm font-semibold text-[#6b7d9c]"
+                        data-testid="event-participation-pending-button"
+                        disabled
+                        type="button"
+                      >
+                        <IconClock size={16} stroke={2} />
+                        Solicitud enviada
+                      </button>
+                    ) : participationState?.status === "rejected" ? (
+                      <div className="space-y-3">
+                        <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
+                          Tu solicitud fue rechazada
+                        </p>
+                        <button
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#5b4bb7] px-5 py-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#4a3d9a] disabled:opacity-60"
+                          data-testid="event-participation-resubmit-button"
+                          disabled={submitParticipationRequest.isPending}
+                          onClick={() => {
+                            void submitParticipationRequest.mutateAsync()
+                          }}
+                          type="button"
+                        >
+                          <IconUserPlus size={16} stroke={2} />
+                          {submitParticipationRequest.isPending
+                            ? "Enviando..."
+                            : "Volver a solicitar"}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#5b4bb7] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-18px_rgba(91,75,183,0.75)] transition hover:-translate-y-0.5 hover:bg-[#4a3d9a] disabled:opacity-60"
+                        data-testid="event-participation-request-button"
+                        disabled={
+                          !participationState?.canRequest || submitParticipationRequest.isPending
+                        }
+                        onClick={() => {
+                          void submitParticipationRequest.mutateAsync()
+                        }}
+                        type="button"
+                      >
+                        <IconUserPlus size={16} stroke={2} />
+                        {submitParticipationRequest.isPending
+                          ? "Enviando..."
+                          : "Solicitar participar"}
+                      </button>
+                    )}
+                  </div>
+                ) : null}
+
                 {canManageEvent ? (
                   <div className="space-y-3 border-t border-[#edf2f8] pt-4">
                     <p className="text-sm font-semibold text-[#1e1b4b]">Tu publicación</p>
@@ -560,6 +645,76 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       <IconTrash size={16} stroke={2} />
                       Eliminar evento
                     </button>
+
+                    {showParticipationManagement ? (
+                      <div className="space-y-3 border-t border-[#edf2f8] pt-4">
+                        <p className="text-sm font-semibold text-[#1e1b4b]">
+                          Solicitudes de participación
+                        </p>
+                        {isPendingRequestsLoading ? (
+                          <div className="space-y-2">
+                            <div className="h-16 animate-pulse rounded-2xl bg-[#f4f7fb]" />
+                            <div className="h-16 animate-pulse rounded-2xl bg-[#f4f7fb]" />
+                          </div>
+                        ) : pendingParticipationRequests.length === 0 ? (
+                          <p className="text-sm text-[#6b7d9c]">
+                            No hay solicitudes pendientes por ahora.
+                          </p>
+                        ) : (
+                          <ul className="space-y-3">
+                            {pendingParticipationRequests.map((request) => (
+                              <li
+                                className="rounded-2xl border border-[#e8edf5] bg-[#fafcff] p-3"
+                                data-testid={`event-participation-request-${request.userId}`}
+                                key={request.userId}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <ProfileAvatar
+                                    alt={request.profile.displayName}
+                                    size="sm"
+                                    src={request.profile.avatarUrl}
+                                  />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-[#1e1b4b]">
+                                      {request.profile.displayName}
+                                    </p>
+                                    <p className="truncate text-xs text-[#6b7d9c]">
+                                      {request.profile.headline || request.profile.categoryLabel}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="mt-3 grid grid-cols-2 gap-2">
+                                  <button
+                                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                                    data-testid={`event-participation-approve-${request.userId}`}
+                                    disabled={approveParticipationRequest.isPending}
+                                    onClick={() => {
+                                      void approveParticipationRequest.mutateAsync(request.userId)
+                                    }}
+                                    type="button"
+                                  >
+                                    <IconCheck size={14} stroke={2.2} />
+                                    Aprobar
+                                  </button>
+                                  <button
+                                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-60"
+                                    data-testid={`event-participation-reject-${request.userId}`}
+                                    disabled={rejectParticipationRequest.isPending}
+                                    onClick={() => {
+                                      void rejectParticipationRequest.mutateAsync(request.userId)
+                                    }}
+                                    type="button"
+                                  >
+                                    <IconX size={14} stroke={2.2} />
+                                    Rechazar
+                                  </button>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
 

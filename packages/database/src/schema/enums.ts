@@ -17,6 +17,12 @@ export const categoryEnum = pgEnum("category", [
   "talleres_y_cursos",
 ])
 
+export const participationRequestStatusEnum = pgEnum("participation_request_status", [
+  "pending",
+  "approved",
+  "rejected",
+])
+
 export const socialPlatformEnum = pgEnum("social_platform", [
   "instagram",
   "facebook",

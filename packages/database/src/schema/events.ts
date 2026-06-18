@@ -9,7 +9,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core"
 
-import { categoryEnum } from "./enums"
+import { categoryEnum, participationRequestStatusEnum } from "./enums"
 import { users } from "./users"
 
 export const events = pgTable("events", {
@@ -93,6 +93,28 @@ export const eventFavorites = pgTable(
     favoritedAt: timestamp("favorited_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.eventId, table.userId] })]
+)
+
+export const eventParticipationRequests = pgTable(
+  "event_participation_requests",
+  {
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    status: participationRequestStatusEnum("status").default("pending").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   },
   (table) => [primaryKey({ columns: [table.eventId, table.userId] })]
 )
