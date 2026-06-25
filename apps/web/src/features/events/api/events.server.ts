@@ -17,6 +17,7 @@ import {
   mapCreateInputToEventValues,
   mapEventRowToCardData,
 } from "../utils/events.mapper"
+import { resolveBaseAttendanceCountForNewEvent } from "../utils/base-attendance.utils"
 
 const eventWithRelations = {
   createdBy: true,
@@ -97,7 +98,13 @@ export async function createEvent(input: CreateEventInput): Promise<EventCardDat
   )
 
   const database = getDb()
-  const inserted = await database.insert(events).values(event).returning()
+  const inserted = await database
+    .insert(events)
+    .values({
+      ...event,
+      baseAttendanceCount: resolveBaseAttendanceCountForNewEvent(authUser),
+    })
+    .returning()
   const created = inserted[0]
 
   if (!created) {

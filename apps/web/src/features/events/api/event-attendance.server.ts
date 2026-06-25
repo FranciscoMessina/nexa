@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm"
 import { eventAttendees, eventFavorites, events } from "@workspace/database"
 import { getDb } from "@/shared/lib/db/get-db"
 import { getOptionalAppUser, requireAppUser } from "@/shared/lib/auth/session.server"
+import { resolveDisplayedAttendanceCount } from "../utils/base-attendance.utils"
 
 export type AttendanceState = {
   isAttending: boolean
@@ -12,18 +13,29 @@ export type AttendanceState = {
 
 export async function getAttendanceState(eventId: string): Promise<AttendanceState> {
   const database = getDb()
-  const rows = await database
-    .select({ userId: eventAttendees.userId })
-    .from(eventAttendees)
-    .where(eq(eventAttendees.eventId, eventId))
+  const [eventRow, attendeeRows] = await Promise.all([
+    database
+      .select({ baseAttendanceCount: events.baseAttendanceCount })
+      .from(events)
+      .where(eq(events.id, eventId))
+      .limit(1),
+    database
+      .select({ userId: eventAttendees.userId })
+      .from(eventAttendees)
+      .where(eq(eventAttendees.eventId, eventId)),
+  ])
 
   const authUser = await getOptionalAppUser()
-  const attendeeProfileIds = rows.map((row) => row.userId)
+  const attendeeProfileIds = attendeeRows.map((row) => row.userId)
+  const baseAttendanceCount = eventRow[0]?.baseAttendanceCount ?? 0
 
   return {
     isAttending: authUser ? attendeeProfileIds.includes(authUser.id) : false,
     attendeeProfileIds,
-    attendanceCount: attendeeProfileIds.length,
+    attendanceCount: resolveDisplayedAttendanceCount(
+      baseAttendanceCount,
+      attendeeProfileIds.length
+    ),
   }
 }
 

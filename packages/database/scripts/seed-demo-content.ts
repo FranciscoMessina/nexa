@@ -27,6 +27,8 @@ const SCRIPTS = [
   "seed-event-federal-tango.ts",
   "seed-event-blest-after-office.ts",
   "seed-event-blest-dj-set.ts",
+  "seed-event-base-attendance.ts",
+  "seed-events-belgrano-palermo-batch.ts",
 ] as const
 
 const scriptsDir = import.meta.dir

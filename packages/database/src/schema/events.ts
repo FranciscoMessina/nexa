@@ -28,6 +28,8 @@ export const events = pgTable("events", {
   priceCurrency: text("price_currency"),
   priceLabel: text("price_label"),
   favoritesCount: integer("favorites_count").default(0).notNull(),
+  /** Asistentes simulados de base; el total mostrado suma los registros reales en event_attendees. */
+  baseAttendanceCount: integer("base_attendance_count").default(12).notNull(),
   registrationUrl: text("registration_url"),
   requirements: text("requirements"),
   latitude: doublePrecision("latitude"),

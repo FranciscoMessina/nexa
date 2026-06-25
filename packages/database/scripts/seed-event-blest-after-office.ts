@@ -47,7 +47,7 @@ async function main(): Promise<void> {
     entrepreneurIds.push(entrepreneur.id)
   }
 
-  const startsAt = new Date("2026-06-04T19:00:00-03:00")
+  const startsAt = new Date("2026-06-25T19:00:00-03:00")
 
   const existing = await sql<{ id: string }[]>`
     SELECT id::text FROM events WHERE id = ${EVENT_ID}::uuid LIMIT 1
