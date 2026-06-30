@@ -13,11 +13,15 @@ const ENTREPRENEUR_EMAILS = [
 const GALLERY_IMAGES = [
   {
     id: "d4000001-0000-4000-8000-000000000001",
-    url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+    url: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: "d4000002-0000-4000-8000-000000000002",
-    url: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=80",
+    url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: "d4000003-0000-4000-8000-000000000003",
+    url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
   },
 ] as const
 

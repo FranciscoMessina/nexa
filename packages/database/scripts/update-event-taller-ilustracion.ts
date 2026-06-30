@@ -1,0 +1,45 @@
+import postgres from "postgres"
+
+const EVENT_ID = "a1000038-0000-4000-8000-000000000038"
+
+const REQUIREMENTS = "Traer materiales propios."
+
+const GALLERY_URLS = [
+  "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=1200&q=80",
+] as const
+
+async function main(): Promise<void> {
+  const connectionString = process.env.DIRECT_URL?.trim() || process.env.DATABASE_URL?.trim()
+  if (!connectionString) throw new Error("Missing DIRECT_URL")
+
+  const sql = postgres(connectionString, { prepare: false, max: 1 })
+
+  await sql`
+    UPDATE events
+    SET
+      requirements = ${REQUIREMENTS},
+      updated_at = NOW()
+    WHERE id = ${EVENT_ID}::uuid
+  `
+
+  await sql`DELETE FROM event_gallery_images WHERE event_id = ${EVENT_ID}::uuid`
+
+  for (const [index, url] of GALLERY_URLS.entries()) {
+    const n = index + 1
+    const imageId = `${EVENT_ID.slice(0, 8)}-${String(n).padStart(4, "0")}-4000-8000-${String(n).padStart(12, "0")}`
+    await sql`
+      INSERT INTO event_gallery_images (id, event_id, url)
+      VALUES (${imageId}::uuid, ${EVENT_ID}::uuid, ${url})
+    `
+  }
+
+  await sql.end({ timeout: 5 })
+  console.log("✓ Taller de ilustración en vivo actualizado")
+}
+
+void main().catch((error) => {
+  console.error(error)
+  process.exit(1)
+})

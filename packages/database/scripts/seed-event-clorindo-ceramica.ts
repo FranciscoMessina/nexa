@@ -85,7 +85,7 @@ async function main(): Promise<void> {
         ${"ARS"},
         ${""},
         ${0},
-        ${"No se requiere experiencia previa. Materiales incluidos. Cupo limitado."},
+        ${"No se requiere experiencia previa. Materiales incluidos."},
         ${-34.5926},
         ${-58.3934}
       )
@@ -104,7 +104,7 @@ async function main(): Promise<void> {
         price_amount = ${"0"},
         price_currency = ${"ARS"},
         price_label = ${""},
-        requirements = ${"No se requiere experiencia previa. Materiales incluidos. Cupo limitado."},
+        requirements = ${"No se requiere experiencia previa. Materiales incluidos."},
         latitude = ${-34.5926},
         longitude = ${-58.3934},
         updated_at = NOW()
