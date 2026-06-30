@@ -5,9 +5,9 @@ const CREATOR_EMAIL = "tomasferreyra@yahoo.com"
 
 /** Mismo criterio que seed-events.source.ts: URLs directas de Unsplash. La primera es la portada. */
 const GALLERY_URLS = [
-  "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1705593973313-75de7bf95b56?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1599586120429-48281b6f0ece?auto=format&fit=crop&w=1200&q=80",
 ]
 
 async function main(): Promise<void> {
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     throw new Error(`No se encontró usuario ${CREATOR_EMAIL}`)
   }
 
-  const startsAt = new Date("2026-07-10T16:00:00-03:00")
+  const startsAt = new Date("2026-07-30T15:00:00-03:00")
 
   const existing = await sql<{ id: string }[]>`
     SELECT id::text FROM events WHERE id = ${EVENT_ID}::uuid LIMIT 1

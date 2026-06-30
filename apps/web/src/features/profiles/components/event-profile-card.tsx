@@ -1,7 +1,6 @@
 import { IconShieldCheck } from "@tabler/icons-react"
 import { Link } from "@tanstack/react-router"
 import type { Profile } from "@/features/profiles/types/profile.types"
-import { ProfileAvatar } from "@/features/profiles/components/profile-avatar"
 
 type EventProfileCardProps = {
   profile: Profile
@@ -19,7 +18,11 @@ export function EventProfileCard({ profile, subtitle, testId }: EventProfileCard
       data-testid={testId}
     >
       <div className="flex items-center gap-4">
-        <ProfileAvatar alt={profile.displayName} size="sm" src={profile.avatarUrl} />
+        <img
+          alt={profile.displayName}
+          className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
+          src={profile.avatarUrl}
+        />
 
         <div>
           <div className="flex flex-wrap items-center gap-2">

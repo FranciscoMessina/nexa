@@ -1,8 +1,8 @@
 import {
-  type UseQueryResult,
   useMutation,
   useQuery,
   useQueryClient,
+  type UseQueryResult,
 } from "@tanstack/react-query"
 import type { UpdateProfileInput } from "@/features/profiles/api/profiles.server"
 import { profilesService } from "@/features/profiles/services/profiles.service"
@@ -12,8 +12,7 @@ import { useAuth } from "@/shared/hooks/useAuth"
 export const profilesQueryKeys = {
   detail: (profileId: string) => ["profiles", profileId] as const,
   current: ["profiles", "current"] as const,
-  list: (profileIds: Array<string>) =>
-    ["profiles", "list", ...profileIds] as const,
+  list: (profileIds: Array<string>) => ["profiles", "list", ...profileIds] as const,
 }
 
 type ProfileQuerySnapshot = Pick<
@@ -76,26 +75,11 @@ export function useUpdateProfileMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (input: UpdateProfileInput) =>
-      profilesService.updateProfile(input),
+    mutationFn: (input: UpdateProfileInput) => profilesService.updateProfile(input),
     onSuccess: (profile) => {
       queryClient.setQueryData(profilesQueryKeys.detail(profile.id), profile)
       queryClient.setQueryData(profilesQueryKeys.current, profile)
       void queryClient.invalidateQueries({ queryKey: ["profiles"] })
-    },
-  })
-}
-
-export function useRequestProfileValidationMutation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: () => profilesService.requestProfileValidation(),
-    onSuccess: ({ profile }) => {
-      queryClient.setQueryData(profilesQueryKeys.detail(profile.id), profile)
-      queryClient.setQueryData(profilesQueryKeys.current, profile)
-      void queryClient.invalidateQueries({ queryKey: ["profiles"] })
-      void queryClient.invalidateQueries({ queryKey: ["events"] })
     },
   })
 }

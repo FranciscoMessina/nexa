@@ -7,7 +7,7 @@ export type SocialPlatform =
   | "youtube"
   | "tiktok"
   | "pinterest"
-  | "website"
+  | "linkedin"
 
 export type ProfileSocialLink = {
   id: string

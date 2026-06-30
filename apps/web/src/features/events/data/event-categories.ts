@@ -8,18 +8,12 @@ const eventCategoryOptionsSource: Array<EventFilterOption> = [
   { value: "Deportes", label: "Deportes" },
   { value: "Ferias de Emprendedores", label: "Ferias de Emprendedores" },
   { value: "Talleres y Cursos", label: "Talleres y Cursos" },
-  { value: "Entretenimiento", label: "Entretenimiento" },
+  { value: "Cine y Entretenimiento", label: "Cine y Entretenimiento" },
 ]
 
 export const eventCategoryOptions = sortFilterOptionsAlphabetically(
   eventCategoryOptionsSource
 )
-
-/** Incluye "Ropa" (solo perfiles de emprendimiento). */
-export const profileCategoryOptions = sortFilterOptionsAlphabetically([
-  ...eventCategoryOptionsSource,
-  { value: "Ropa", label: "Ropa" },
-])
 
 export const eventFilterCategoryOptions = sortFilterOptionsAlphabetically([
   { value: "all", label: "Todas" },

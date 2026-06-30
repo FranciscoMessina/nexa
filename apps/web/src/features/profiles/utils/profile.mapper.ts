@@ -51,32 +51,8 @@ function mapSocialLinks(links: Array<SocialLinkRow>): Array<ProfileSocialLink> {
   return links.map((link) => ({
     id: link.id,
     platform: link.platform,
-    handle:
-      link.platform === "website"
-        ? (link.url ?? link.handle ?? "")
-        : (link.handle ?? ""),
+    handle: link.handle ?? "",
   }))
-}
-
-export function splitDisplayName(displayName: string): { firstName: string; lastName: string } {
-  const parts = displayName.trim().split(/\s+/).filter(Boolean)
-
-  if (parts.length === 0) {
-    return { firstName: "", lastName: "" }
-  }
-
-  if (parts.length === 1) {
-    return { firstName: parts[0]!, lastName: "" }
-  }
-
-  return {
-    firstName: parts[0]!,
-    lastName: parts.slice(1).join(" "),
-  }
-}
-
-export function composeDisplayName(firstName?: string, lastName?: string): string {
-  return [firstName?.trim(), lastName?.trim()].filter(Boolean).join(" ")
 }
 
 export function mapUserToProfile(
@@ -85,7 +61,6 @@ export function mapUserToProfile(
 ): Profile {
   const kind = roleToProfileKind(user.role as UserRole)
   const displayName = user.displayName ?? "Usuario"
-  const { firstName, lastName } = splitDisplayName(displayName)
   const description = user.description ?? ""
   const categoryLabel =
     primaryCategoryDbToUi(user.category as Parameters<typeof primaryCategoryDbToUi>[0]) ||
@@ -104,19 +79,12 @@ export function mapUserToProfile(
       user.representativeImageUrl ?? user.avatarUrl ?? "",
     socialLinks: mapSocialLinks(socialLinks),
     statusBadge: statusBadgeForUser(user),
-    validationStatus:
-      user.role === "organizador"
-        ? user.validatedAt
-          ? "validated"
-          : "not_validated"
-        : undefined,
+    validationStatus: user.validatedAt ? "validated" : "not_validated",
     memberSince: user.createdAt
       ? user.createdAt.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
       : undefined,
     email: user.email,
     phone: user.phone ?? undefined,
-    firstName,
-    lastName,
     birthDate: user.birthDate ?? undefined,
     city: user.location ?? undefined,
   }
