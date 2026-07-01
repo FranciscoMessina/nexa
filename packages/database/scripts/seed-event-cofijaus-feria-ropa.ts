@@ -13,7 +13,7 @@ const ENTREPRENEUR_EMAILS = [
 const GALLERY_IMAGES = [
   {
     id: "d4000001-0000-4000-8000-000000000001",
-    url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+    url: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: "d4000002-0000-4000-8000-000000000002",
