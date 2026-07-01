@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto"
 import { mkdir } from "node:fs/promises"
 import path from "node:path"
 import sharp from "sharp"
 import postgres from "postgres"
+import { insertSeedAuthUsers } from "./seed-auth"
 
 type EmprendedorSeed = {
   email: string
@@ -230,6 +232,22 @@ const EMPRENDEDORES: Array<EmprendedorSeed> = [
     repAccent: "#ffffff",
   },
   {
+    email: "lozajazz@gmail.com",
+    slug: "loza-jazz",
+    displayName: "Loza Jazz",
+    headline: "Banda de jazz para veladas íntimas en bares y eventos gastronómicos.",
+    location: "San Telmo, CABA",
+    category: "musica",
+    description:
+      "Loza Jazz es una banda de jazz que participa en eventos de bares, vermuterías y promos gastronómicas del circuito Nexa.",
+    instagramHandle: "lozajazz",
+    avatarBg: "#1a1033",
+    avatarText: "#d4af37",
+    repTop: "#12082a",
+    repBottom: "#2a1f4a",
+    repAccent: "#d4af37",
+  },
+  {
     email: "clubdelvermu@gmail.com",
     slug: "club-del-vermu",
     displayName: "Club del Vermú",
@@ -369,6 +387,30 @@ async function upsertEmprendedorProfile(
   `
 }
 
+async function ensureAuthUser(sql: postgres.Sql, profile: EmprendedorSeed): Promise<string> {
+  const existing = await sql<{ id: string }[]>`
+    SELECT id::text FROM auth.users WHERE email = ${profile.email.toLowerCase()} LIMIT 1
+  `
+
+  if (existing[0]) {
+    return existing[0].id
+  }
+
+  const authUserId = randomUUID()
+
+  await insertSeedAuthUsers(sql, [
+    {
+      id: authUserId,
+      email: profile.email.toLowerCase(),
+      displayName: profile.displayName,
+      role: "emprendedor",
+      canSignIn: false,
+    },
+  ])
+
+  return authUserId
+}
+
 async function main(): Promise<void> {
   const connectionString = process.env.DIRECT_URL?.trim() || process.env.DATABASE_URL?.trim()
   if (!connectionString) throw new Error("Missing DIRECT_URL")
@@ -377,15 +419,7 @@ async function main(): Promise<void> {
   const publicRoot = path.resolve(import.meta.dir, "../../../apps/web/public/profiles")
 
   for (const profile of EMPRENDEDORES) {
-    const authRows = await sql<{ id: string }[]>`
-      SELECT id::text FROM auth.users WHERE email = ${profile.email.toLowerCase()} LIMIT 1
-    `
-
-    const authUser = authRows[0]
-    if (!authUser) {
-      console.warn(`⚠ Sin cuenta auth: ${profile.email}`)
-      continue
-    }
+    const authUserId = await ensureAuthUser(sql, profile)
 
     const dir = path.join(publicRoot, profile.slug)
     await mkdir(dir, { recursive: true })
@@ -406,7 +440,7 @@ async function main(): Promise<void> {
     const avatarUrl = `/profiles/${profile.slug}/avatar.png`
     const representativeImageUrl = `/profiles/${profile.slug}/representative.jpg`
 
-    const userId = await ensurePublicUser(sql, authUser.id, profile.email, profile.displayName)
+    const userId = await ensurePublicUser(sql, authUserId, profile.email, profile.displayName)
 
     await upsertEmprendedorProfile(sql, userId, profile, avatarUrl, representativeImageUrl)
 
@@ -417,7 +451,7 @@ async function main(): Promise<void> {
         displayName: profile.displayName,
         display_name: profile.displayName,
       })}
-      WHERE id = ${authUser.id}::uuid
+      WHERE id = ${authUserId}::uuid
     `
 
     console.log(`✓ ${profile.displayName} (${profile.email})`)

@@ -25,6 +25,8 @@ const SCRIPTS = [
   "seed-event-clorindo-ceramica.ts",
   "seed-event-cofijaus-feria-ropa.ts",
   "seed-event-federal-tango.ts",
+  "seed-event-federal-vermut-jazz.ts",
+  "seed-event-federal-arte-vivo.ts",
   "seed-event-blest-after-office.ts",
   "seed-event-blest-dj-set.ts",
   "seed-event-base-attendance.ts",

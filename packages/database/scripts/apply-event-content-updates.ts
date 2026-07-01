@@ -11,6 +11,12 @@ const FOOD_GALLERY = [
   "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
 ]
 
+const COFI_JAUS_GALLERY = [
+  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80",
+]
+
 const EVENTS_TO_DELETE = [
   "a1000022-0000-4000-8000-000000000022",
   "a1000021-0000-4000-8000-000000000021",
@@ -340,8 +346,11 @@ async function main(): Promise<void> {
   await sql`
     UPDATE events SET
       title = ${"Feria de ropa y arte"},
-      summary = ${"Feria para recorrer, comprar y descubrir indumentaria y piezas de arte independiente."},
-      description = ${"Encuentro abierto de emprendedores de ropa y arte en un formato de feria: stands para ver colecciones, probar talles y llevarse piezas únicas. Ideal para quienes buscan diseño local con posibilidad de compra directa."},
+      summary = ${"Feria de indumentaria y arte independiente en Belgrano, con stands para recorrer y comprar."},
+      description = ${"Punto Café abre sus puertas en Belgrano para una feria de ropa y arte con emprendedores locales. Stands para ver colecciones, probar talles y llevarse piezas únicas de diseño independiente, en un formato distendido con café de la casa."},
+      location = ${"Punto Café, Av. Cabildo 1999, Belgrano, CABA"},
+      latitude = ${-34.5564},
+      longitude = ${-58.4581},
       category = ARRAY['feria_de_emprendedores']::category[],
       updated_at = NOW()
     WHERE id = ${a1000043}::uuid
@@ -398,8 +407,8 @@ async function main(): Promise<void> {
   console.log("  ✓ Feria de comida en Pasaje Colegiales")
 
   const cofiJaus = "d6e7f8a9-b0c1-4d2e-3f4a-5b6c7d8e9f0a"
-  await replaceGallery(sql, cofiJaus, FOOD_GALLERY)
-  console.log("  ✓ Cofi Jaus — galería actualizada a comida")
+  await replaceGallery(sql, cofiJaus, COFI_JAUS_GALLERY)
+  console.log("  ✓ Cofi Jaus — galería con portada de café/brunch")
 
   const a1000044 = "a1000044-0000-4000-8000-000000000044"
   await sql`

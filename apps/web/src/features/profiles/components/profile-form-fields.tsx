@@ -47,6 +47,8 @@ type ProfileFormFieldsProps = {
   isOwnProfile: boolean
   onChange: (updates: Partial<Profile>) => void
   onSocialLinkChange: (linkId: string, handle: string) => void
+  onAddSocialLink?: () => void
+  onRemoveSocialLink?: (linkId: string) => void
   onRepresentativeImageSelect?: (file: File) => void
   isUploadingRepresentative?: boolean
   representativeUploadError?: string | null
@@ -58,6 +60,8 @@ export function ProfileFormFields({
   isOwnProfile,
   onChange,
   onSocialLinkChange,
+  onAddSocialLink,
+  onRemoveSocialLink,
   onRepresentativeImageSelect,
   isUploadingRepresentative = false,
   representativeUploadError = null,
@@ -302,7 +306,13 @@ export function ProfileFormFields({
                     )}
                   </div>
                   {isOwnProfile && isEditing ? (
-                    <button className="text-[#8a9bb8]" type="button">
+                    <button
+                      className="text-[#8a9bb8]"
+                      onClick={() => {
+                        onRemoveSocialLink?.(link.id)
+                      }}
+                      type="button"
+                    >
                       <IconX size={16} stroke={1.8} />
                     </button>
                   ) : null}
@@ -312,6 +322,7 @@ export function ProfileFormFields({
             {isOwnProfile && isEditing ? (
               <button
                 className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7]"
+                onClick={onAddSocialLink}
                 type="button"
               >
                 <IconPlus size={16} stroke={2} />
@@ -331,6 +342,8 @@ export function ProfileFormFields({
           <SocialLinksList
             isEditing={isEditing}
             isOwnProfile={isOwnProfile}
+            onAddSocialLink={onAddSocialLink}
+            onRemoveSocialLink={onRemoveSocialLink}
             onSocialLinkChange={onSocialLinkChange}
             profile={profile}
           />
@@ -388,11 +401,15 @@ function SocialLinksList({
   isEditing,
   isOwnProfile,
   onSocialLinkChange,
+  onAddSocialLink,
+  onRemoveSocialLink,
 }: {
   profile: Profile
   isEditing: boolean
   isOwnProfile: boolean
   onSocialLinkChange: (linkId: string, handle: string) => void
+  onAddSocialLink?: () => void
+  onRemoveSocialLink?: (linkId: string) => void
 }) {
   return (
     <>
@@ -417,7 +434,13 @@ function SocialLinksList({
               )}
             </div>
             {isOwnProfile && isEditing ? (
-              <button className="text-[#8a9bb8]" type="button">
+              <button
+                className="text-[#8a9bb8]"
+                onClick={() => {
+                  onRemoveSocialLink?.(link.id)
+                }}
+                type="button"
+              >
                 <IconX size={16} stroke={1.8} />
               </button>
             ) : null}
@@ -427,6 +450,7 @@ function SocialLinksList({
       {isOwnProfile && isEditing ? (
         <button
           className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#5b4bb7]"
+          onClick={onAddSocialLink}
           type="button"
         >
           <IconPlus size={16} stroke={2} />

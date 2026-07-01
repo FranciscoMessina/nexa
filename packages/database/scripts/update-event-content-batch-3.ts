@@ -37,19 +37,13 @@ async function main(): Promise<void> {
   await replaceGallery(sql, COFI_JAUS_ID, CLOTHING_GALLERY)
   console.log("✓ Feria de ropa en Cofi Jaus Palermo — galería de ropa")
 
-  const maxRow = await sql<{ max: Date | null }[]>`
-    SELECT MAX(starts_at) AS max FROM events WHERE starts_at IS NOT NULL
-  `
-  const maxDate = maxRow[0]?.max ?? new Date()
-  const featuredStartsAt = new Date(maxDate.getTime() + 24 * 60 * 60 * 1000)
-
   await sql`
     UPDATE events SET
-      starts_at = ${featuredStartsAt.toISOString()}::timestamptz,
+      starts_at = ${new Date("2026-07-13T16:00:00-03:00").toISOString()}::timestamptz,
       updated_at = NOW()
     WHERE id = ${FIGURITAS_ID}::uuid
   `
-  console.log(`✓ Intercambio de figuritas del Mundial → ${featuredStartsAt.toISOString()}`)
+  console.log("✓ Intercambio de figuritas del Mundial → 13/07/2026 16:00 hs")
 
   for (const eventId of [KIDDO_PAINTING_ID, VINILOS_VERMU_ID]) {
     const deleted = await sql`

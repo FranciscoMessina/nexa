@@ -226,12 +226,12 @@ const EVENTS: Array<EventSeed> = [
   },
   {
     id: "a1000024-0000-4000-8000-000000000024",
-    title: "DJ Sunset",
+    title: "DJ Sunset e Soho",
     summary: "Sunset con DJ set al aire libre en Palermo Soho.",
     description:
-      "Dársena Bar Palermo presenta un DJ Sunset con Lautaro Vega y Sol Navarro. La propuesta combina electrónica al atardecer, consumiciones del bar y un formato distendido para comenzar la noche en Palermo.",
+      "Dársena Bar Palermo presenta DJ Sunset e Soho con Lautaro Vega y Sol Navarro. La propuesta combina electrónica al atardecer, consumiciones del bar y un formato distendido para comenzar la noche en Palermo Soho.",
     location: "Dársena Bar Palermo, Honduras 5701, Palermo Soho, CABA",
-    startsAt: "2026-07-11T18:30:00-03:00",
+    startsAt: "2026-07-18T18:30:00-03:00",
     category: "musica",
     requirements: "Mayores de 18 años.",
     priceAmount: "0",

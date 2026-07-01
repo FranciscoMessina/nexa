@@ -19,7 +19,7 @@ import {
   useProfileQuery,
   useUpdateProfileMutation,
 } from "@/features/profiles/hooks/profiles-queries"
-import type { Profile, ProfileKind } from "@/features/profiles/types/profile.types"
+import type { Profile, ProfileKind, SocialPlatform } from "@/features/profiles/types/profile.types"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type ProfilePageProps = {
@@ -72,6 +72,38 @@ function getAllowedRolesForProfile(kind: ProfileKind): Array<UserRole> {
   }
 
   return ["organizador"]
+}
+
+const ADDABLE_SOCIAL_PLATFORMS: Array<SocialPlatform> = [
+  "instagram",
+  "facebook",
+  "twitter",
+  "youtube",
+  "tiktok",
+  "pinterest",
+]
+
+function buildDisplayName(profile: Profile): string {
+  if (profile.kind === "usuario") {
+    const combined = [profile.firstName?.trim(), profile.lastName?.trim()].filter(Boolean).join(" ")
+    return combined || profile.displayName.trim() || "Usuario"
+  }
+
+  return profile.displayName.trim()
+}
+
+function withSyncedDisplayName(profile: Profile, updates: Partial<Profile>): Profile {
+  const next = { ...profile, ...updates }
+
+  if (profile.kind !== "usuario") {
+    return next
+  }
+
+  if ("firstName" in updates || "lastName" in updates) {
+    next.displayName = buildDisplayName(next)
+  }
+
+  return next
 }
 
 function StatusBadge({ profile }: { profile: Profile }) {
@@ -192,7 +224,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
 
     await updateProfileMutation.mutateAsync({
       id: draft.id,
-      displayName: draft.displayName,
+      displayName: buildDisplayName(draft),
       headline: draft.headline,
       location: draft.location,
       description: draft.description,
@@ -209,7 +241,43 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   }
 
   function updateDraft(updates: Partial<Profile>): void {
-    setDraft((current) => (current ? { ...current, ...updates } : current))
+    setDraft((current) => (current ? withSyncedDisplayName(current, updates) : current))
+  }
+
+  function addSocialLink(): void {
+    setDraft((current) => {
+      if (!current) {
+        return current
+      }
+
+      const usedPlatforms = new Set(current.socialLinks.map((link) => link.platform))
+      const platform = ADDABLE_SOCIAL_PLATFORMS.find((item) => !usedPlatforms.has(item))
+
+      if (!platform) {
+        return current
+      }
+
+      return {
+        ...current,
+        socialLinks: [
+          ...current.socialLinks,
+          { id: crypto.randomUUID(), platform, handle: "" },
+        ],
+      }
+    })
+  }
+
+  function removeSocialLink(linkId: string): void {
+    setDraft((current) => {
+      if (!current) {
+        return current
+      }
+
+      return {
+        ...current,
+        socialLinks: current.socialLinks.filter((link) => link.id !== linkId),
+      }
+    })
   }
 
   function updateSocialLink(linkId: string, handle: string): void {
@@ -381,7 +449,9 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
           isEditing={isEditing}
           isOwnProfile={canEdit}
           isUploadingRepresentative={isUploading}
+          onAddSocialLink={addSocialLink}
           onChange={updateDraft}
+          onRemoveSocialLink={removeSocialLink}
           onRepresentativeImageSelect={(file) => {
             void handleRepresentativeSelect(file)
           }}

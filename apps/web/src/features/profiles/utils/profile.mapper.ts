@@ -47,6 +47,23 @@ function statusBadgeForUser(user: AppUserRow): ProfileStatusBadge | undefined {
   return { label: "Perfil activo", tone: "success" }
 }
 
+function splitDisplayName(displayName: string): { firstName: string; lastName: string } {
+  const parts = displayName.trim().split(/\s+/).filter(Boolean)
+
+  if (parts.length === 0) {
+    return { firstName: "", lastName: "" }
+  }
+
+  if (parts.length === 1) {
+    return { firstName: parts[0]!, lastName: "" }
+  }
+
+  return {
+    firstName: parts[0]!,
+    lastName: parts.slice(1).join(" "),
+  }
+}
+
 function mapSocialLinks(links: Array<SocialLinkRow>): Array<ProfileSocialLink> {
   return links.map((link) => ({
     id: link.id,
@@ -61,6 +78,7 @@ export function mapUserToProfile(
 ): Profile {
   const kind = roleToProfileKind(user.role as UserRole)
   const displayName = user.displayName ?? "Usuario"
+  const nameParts = kind === "usuario" ? splitDisplayName(displayName) : { firstName: undefined, lastName: undefined }
   const description = user.description ?? ""
   const categoryLabel =
     primaryCategoryDbToUi(user.category as Parameters<typeof primaryCategoryDbToUi>[0]) ||
@@ -85,6 +103,8 @@ export function mapUserToProfile(
       : undefined,
     email: user.email,
     phone: user.phone ?? undefined,
+    firstName: nameParts.firstName,
+    lastName: nameParts.lastName,
     birthDate: user.birthDate ?? undefined,
     city: user.location ?? undefined,
   }

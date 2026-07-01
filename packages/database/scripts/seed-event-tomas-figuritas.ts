@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     throw new Error(`No se encontró usuario ${CREATOR_EMAIL}`)
   }
 
-  const startsAt = new Date("2026-07-30T15:00:00-03:00")
+  const startsAt = new Date("2026-07-13T16:00:00-03:00")
 
   const existing = await sql<{ id: string }[]>`
     SELECT id::text FROM events WHERE id = ${EVENT_ID}::uuid LIMIT 1
