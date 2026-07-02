@@ -7,19 +7,23 @@ import {
   IconTag,
 } from "@tabler/icons-react"
 import { useMemo, useRef, useState } from "react"
-import { useImageUpload } from "@/features/storage"
 import { cn } from "@workspace/ui/lib/utils"
-import { useRequireAuthentication } from "@/features/auth"
 import type { UserRole } from "@/features/auth/types/auth.types"
+import type {
+  Profile,
+  ProfileKind,
+  SocialPlatform,
+} from "@/features/profiles/types/profile.types"
+import { useRequireAuthentication } from "@/features/auth"
 import { AppShell } from "@/features/home/components/app-shell"
 import { ProfileFormFields } from "@/features/profiles/components/profile-form-fields"
-import { ProfilePageSkeleton } from "@/shared/components/skeletons/profile-page-skeleton"
 import {
   useOwnProfile,
   useProfileQuery,
   useUpdateProfileMutation,
 } from "@/features/profiles/hooks/profiles-queries"
-import type { Profile, ProfileKind, SocialPlatform } from "@/features/profiles/types/profile.types"
+import { useImageUpload } from "@/features/storage"
+import { ProfilePageSkeleton } from "@/shared/components/skeletons/profile-page-skeleton"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type ProfilePageProps = {
@@ -42,7 +46,11 @@ function getPageTitle(kind: ProfileKind, isOwnProfile: boolean): string {
   return "Perfil organizador"
 }
 
-function getPageSubtitle(kind: ProfileKind, isOwnProfile: boolean, isEditing: boolean): string {
+function getPageSubtitle(
+  kind: ProfileKind,
+  isOwnProfile: boolean,
+  isEditing: boolean
+): string {
   if (!isOwnProfile) {
     return "Información pública del perfil."
   }
@@ -81,18 +89,25 @@ const ADDABLE_SOCIAL_PLATFORMS: Array<SocialPlatform> = [
   "youtube",
   "tiktok",
   "pinterest",
+  "linkedin",
+  "website",
 ]
 
 function buildDisplayName(profile: Profile): string {
   if (profile.kind === "usuario") {
-    const combined = [profile.firstName?.trim(), profile.lastName?.trim()].filter(Boolean).join(" ")
+    const combined = [profile.firstName?.trim(), profile.lastName?.trim()]
+      .filter(Boolean)
+      .join(" ")
     return combined || profile.displayName.trim() || "Usuario"
   }
 
   return profile.displayName.trim()
 }
 
-function withSyncedDisplayName(profile: Profile, updates: Partial<Profile>): Profile {
+function withSyncedDisplayName(
+  profile: Profile,
+  updates: Partial<Profile>
+): Profile {
   const next = { ...profile, ...updates }
 
   if (profile.kind !== "usuario") {
@@ -127,7 +142,12 @@ function StatusBadge({ profile }: { profile: Profile }) {
         : "bg-[#eef2f8] text-[#5a6f8f]"
 
   return (
-    <span className={cn("inline-flex rounded-full px-3 py-1 text-xs font-semibold", toneClass)}>
+    <span
+      className={cn(
+        "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
+        toneClass
+      )}
+    >
       {profile.statusBadge.label}
     </span>
   )
@@ -148,20 +168,28 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   const updateProfileMutation = useUpdateProfileMutation()
 
   const resolvedProfileId = profileId ?? ownProfileId
-  const isOwnProfile = Boolean(ownProfileId && resolvedProfileId === ownProfileId)
+  const isOwnProfile = Boolean(
+    ownProfileId && resolvedProfileId === ownProfileId
+  )
   const canEdit = isOwnProfile && !profileId
 
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState<Profile | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const avatarInputRef = useRef<HTMLInputElement>(null)
-  const { isUploading, error: imageUploadError, upload: uploadImage } = useImageUpload()
+  const {
+    isUploading,
+    error: imageUploadError,
+    upload: uploadImage,
+  } = useImageUpload()
 
   const { isChecking, isAllowed } = useRequireAuthentication(
     profileId
       ? undefined
       : {
-          allowedRoles: profile ? getAllowedRolesForProfile(profile.kind) : undefined,
+          allowedRoles: profile
+            ? getAllowedRolesForProfile(profile.kind)
+            : undefined,
           roleCheckReady: isProfileResolved,
         }
   )
@@ -190,8 +218,12 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     return (
       <AppShell>
         <div className="rounded-2xl border border-[#e8edf5] bg-white p-8 text-center">
-          <h1 className="text-2xl font-bold text-[#0a2558]">Perfil no encontrado</h1>
-          <p className="mt-2 text-[#6b7d9c]">No pudimos cargar la información de este perfil.</p>
+          <h1 className="text-2xl font-bold text-[#0a2558]">
+            Perfil no encontrado
+          </h1>
+          <p className="mt-2 text-[#6b7d9c]">
+            No pudimos cargar la información de este perfil.
+          </p>
         </div>
       </AppShell>
     )
@@ -233,7 +265,9 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
       email: draft.email,
       phone: draft.phone,
       birthDate: draft.birthDate,
-      socialLinks: draft.socialLinks,
+      socialLinks: draft.socialLinks
+        .map((link) => ({ ...link, handle: link.handle.trim() }))
+        .filter((link) => link.handle.length > 0),
     })
     setDraft(null)
     setIsEditing(false)
@@ -241,7 +275,9 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   }
 
   function updateDraft(updates: Partial<Profile>): void {
-    setDraft((current) => (current ? withSyncedDisplayName(current, updates) : current))
+    setDraft((current) =>
+      current ? withSyncedDisplayName(current, updates) : current
+    )
   }
 
   function addSocialLink(): void {
@@ -250,8 +286,12 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
         return current
       }
 
-      const usedPlatforms = new Set(current.socialLinks.map((link) => link.platform))
-      const platform = ADDABLE_SOCIAL_PLATFORMS.find((item) => !usedPlatforms.has(item))
+      const usedPlatforms = new Set(
+        current.socialLinks.map((link) => link.platform)
+      )
+      const platform = ADDABLE_SOCIAL_PLATFORMS.find(
+        (item) => !usedPlatforms.has(item)
+      )
 
       if (!platform) {
         return current
@@ -311,7 +351,11 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
       return
     }
 
-    const publicUrl = await uploadImage(file, "representative", displayProfile.id)
+    const publicUrl = await uploadImage(
+      file,
+      "representative",
+      displayProfile.id
+    )
     if (publicUrl) {
       updateDraft({ representativeImageUrl: publicUrl })
     }
@@ -363,7 +407,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
                 />
                 <img
                   alt={displayProfile.displayName}
-                  className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-md"
+                  className="h-24 w-24 rounded-full object-cover shadow-md ring-4 ring-white"
                   src={displayProfile.avatarUrl}
                 />
                 {canEdit && isEditing ? (
@@ -383,13 +427,19 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
                   <p className="mt-1 text-xs text-[#6b7d9c]">Subiendo foto…</p>
                 ) : null}
                 {canEdit && isEditing && imageUploadError ? (
-                  <p className="mt-1 text-xs text-rose-600">{imageUploadError}</p>
+                  <p className="mt-1 text-xs text-rose-600">
+                    {imageUploadError}
+                  </p>
                 ) : null}
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-[#1e1b4b]">{displayProfile.displayName}</h2>
-                <p className="max-w-2xl text-sm leading-6 text-[#51617d]">{displayProfile.headline}</p>
+                <h2 className="text-2xl font-bold text-[#1e1b4b]">
+                  {displayProfile.displayName}
+                </h2>
+                <p className="max-w-2xl text-sm leading-6 text-[#51617d]">
+                  {displayProfile.headline}
+                </p>
                 <div className="flex flex-wrap items-center gap-3 text-sm text-[#6b7d9c]">
                   <span className="inline-flex items-center gap-1.5">
                     <IconMapPin size={16} stroke={1.8} />
@@ -440,7 +490,8 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
           displayProfile.validationStatus === "not_validated" &&
           !isEditing ? (
             <p className="mt-4 rounded-xl bg-[#f4f0ff] px-4 py-3 text-sm text-[#5b4bb7]">
-              Cuando solicites la validación, el equipo de Nexa revisará tu información.
+              Cuando solicites la validación, el equipo de Nexa revisará tu
+              información.
             </p>
           ) : null}
         </section>

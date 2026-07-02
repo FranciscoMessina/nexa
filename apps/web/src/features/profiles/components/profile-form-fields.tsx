@@ -12,10 +12,14 @@ import {
   IconPhone,
   IconPlus,
   IconUpload,
+  IconWorld,
   IconX,
 } from "@tabler/icons-react"
 import { cn } from "@workspace/ui/lib/utils"
-import type { Profile, SocialPlatform } from "@/features/profiles/types/profile.types"
+import type {
+  Profile,
+  SocialPlatform,
+} from "@/features/profiles/types/profile.types"
 
 const socialIconByPlatform = {
   instagram: IconBrandInstagram,
@@ -25,11 +29,12 @@ const socialIconByPlatform = {
   tiktok: IconBrandTiktok,
   pinterest: IconBrandPinterest,
   linkedin: IconBrandLinkedin,
+  website: IconWorld,
 } as const
 
 function fieldClass(isEditing: boolean): string {
   return cn(
-    "w-full rounded-xl border px-3 py-2.5 text-[#1a3462] outline-none transition",
+    "w-full rounded-xl border px-3 py-2.5 text-[#1a3462] transition outline-none",
     isEditing
       ? "border-[#d9dfeb] bg-white focus:border-[#6d5ae6] focus:ring-2 focus:ring-[#ebe6ff]"
       : "cursor-default border-[#eef2f8] bg-[#f9fafc]"
@@ -39,6 +44,14 @@ function fieldClass(isEditing: boolean): string {
 function SocialIcon({ platform }: { platform: SocialPlatform }) {
   const Icon = socialIconByPlatform[platform]
   return <Icon className="text-[#5b4bb7]" size={18} stroke={1.8} />
+}
+
+function getVisibleSocialLinks(profile: Profile, isEditing: boolean) {
+  if (isEditing) {
+    return profile.socialLinks
+  }
+
+  return profile.socialLinks.filter((link) => link.handle.trim().length > 0)
 }
 
 type ProfileFormFieldsProps = {
@@ -73,14 +86,17 @@ export function ProfileFormFields({
       : profile.kind === "emprendimiento"
         ? "Nombre del emprendimiento"
         : "Nombre del organizador"
-  const categoryLabel = profile.kind === "emprendimiento" ? "Rubro" : "Categoría"
+  const categoryLabel =
+    profile.kind === "emprendimiento" ? "Rubro" : "Categoría"
   const descriptionLimit = profile.kind === "usuario" ? 200 : 300
 
   return (
     <div className="grid gap-4 xl:grid-cols-3">
       <section className="rounded-2xl border border-[#e8edf5] bg-white p-5">
         <h3 className="text-lg font-bold text-[#1e1b4b]">
-          {profile.kind === "usuario" ? "Información personal" : "Información general"}
+          {profile.kind === "usuario"
+            ? "Información personal"
+            : "Información general"}
         </h3>
         <div className="mt-4 space-y-4">
           {profile.kind === "usuario" ? (
@@ -111,7 +127,9 @@ export function ProfileFormFields({
           ) : (
             <>
               <label className="block space-y-1.5 text-sm">
-                <span className="font-semibold text-[#6b7d9c]">{nameLabel}</span>
+                <span className="font-semibold text-[#6b7d9c]">
+                  {nameLabel}
+                </span>
                 <input
                   className={fieldClass(isEditing)}
                   onChange={(event) => {
@@ -140,7 +158,9 @@ export function ProfileFormFields({
             <div
               className={cn(
                 "flex items-center gap-2 rounded-xl border px-3 py-2.5",
-                isEditing ? "border-[#d9dfeb] bg-white" : "border-[#eef2f8] bg-[#f9fafc]"
+                isEditing
+                  ? "border-[#d9dfeb] bg-white"
+                  : "border-[#eef2f8] bg-[#f9fafc]"
               )}
             >
               <IconMapPin className="text-[#8a9bb8]" size={18} stroke={1.8} />
@@ -158,7 +178,9 @@ export function ProfileFormFields({
           {profile.kind === "usuario" ? (
             <>
               <label className="block space-y-1.5 text-sm">
-                <span className="font-semibold text-[#6b7d9c]">Fecha de nacimiento</span>
+                <span className="font-semibold text-[#6b7d9c]">
+                  Fecha de nacimiento
+                </span>
                 <input
                   className={fieldClass(isEditing)}
                   onChange={(event) => {
@@ -194,7 +216,9 @@ export function ProfileFormFields({
           ) : (
             <>
               <label className="block space-y-1.5 text-sm">
-                <span className="font-semibold text-[#6b7d9c]">{categoryLabel}</span>
+                <span className="font-semibold text-[#6b7d9c]">
+                  {categoryLabel}
+                </span>
                 <input
                   className={fieldClass(isEditing)}
                   onChange={(event) => {
@@ -205,7 +229,9 @@ export function ProfileFormFields({
                 />
               </label>
               <label className="block space-y-1.5 text-sm">
-                <span className="font-semibold text-[#6b7d9c]">Descripción</span>
+                <span className="font-semibold text-[#6b7d9c]">
+                  Descripción
+                </span>
                 <textarea
                   className={cn(fieldClass(isEditing), "min-h-28 resize-none")}
                   maxLength={descriptionLimit}
@@ -232,11 +258,15 @@ export function ProfileFormFields({
         {profile.kind === "usuario" ? (
           <div className="mt-4 space-y-4">
             <label className="block space-y-1.5 text-sm">
-              <span className="font-semibold text-[#6b7d9c]">Correo electrónico</span>
+              <span className="font-semibold text-[#6b7d9c]">
+                Correo electrónico
+              </span>
               <div
                 className={cn(
                   "flex items-center gap-2 rounded-xl border px-3 py-2.5",
-                  isEditing ? "border-[#d9dfeb] bg-white" : "border-[#eef2f8] bg-[#f9fafc]"
+                  isEditing
+                    ? "border-[#d9dfeb] bg-white"
+                    : "border-[#eef2f8] bg-[#f9fafc]"
                 )}
               >
                 <IconMail className="text-[#8a9bb8]" size={18} stroke={1.8} />
@@ -246,7 +276,7 @@ export function ProfileFormFields({
                     onChange({ email: event.target.value })
                   }}
                   readOnly={!isEditing}
-                  value={profile.email ?? ""}
+                  value={profile.email}
                 />
               </div>
             </label>
@@ -255,7 +285,9 @@ export function ProfileFormFields({
               <div
                 className={cn(
                   "flex items-center gap-2 rounded-xl border px-3 py-2.5",
-                  isEditing ? "border-[#d9dfeb] bg-white" : "border-[#eef2f8] bg-[#f9fafc]"
+                  isEditing
+                    ? "border-[#d9dfeb] bg-white"
+                    : "border-[#eef2f8] bg-[#f9fafc]"
                 )}
               >
                 <IconPhone className="text-[#8a9bb8]" size={18} stroke={1.8} />
@@ -284,7 +316,7 @@ export function ProfileFormFields({
         ) : (
           <>
             <ul className="mt-4 space-y-3">
-              {profile.socialLinks.map((link) => (
+              {getVisibleSocialLinks(profile, isEditing).map((link) => (
                 <li
                   className="flex items-center justify-between gap-3 rounded-xl border border-[#edf1f7] px-3 py-2.5"
                   key={link.id}
@@ -335,7 +367,9 @@ export function ProfileFormFields({
 
       <section className="rounded-2xl border border-[#e8edf5] bg-white p-5">
         <h3 className="text-lg font-bold text-[#1e1b4b]">
-          {profile.kind === "usuario" ? "Redes sociales" : "Imagen representativa"}
+          {profile.kind === "usuario"
+            ? "Redes sociales"
+            : "Imagen representativa"}
         </h3>
 
         {profile.kind === "usuario" ? (
@@ -383,9 +417,13 @@ export function ProfileFormFields({
                   <IconUpload size={18} stroke={1.8} />
                   {isUploadingRepresentative ? "Subiendo…" : "Cambiar imagen"}
                 </button>
-                <p className="mt-2 text-xs text-[#8a9bb8]">Formatos permitidos: JPG, PNG. Máx. 5MB.</p>
+                <p className="mt-2 text-xs text-[#8a9bb8]">
+                  Formatos permitidos: JPG, PNG. Máx. 5MB.
+                </p>
                 {representativeUploadError ? (
-                  <p className="mt-1 text-xs text-rose-600">{representativeUploadError}</p>
+                  <p className="mt-1 text-xs text-rose-600">
+                    {representativeUploadError}
+                  </p>
                 ) : null}
               </>
             ) : null}
@@ -414,7 +452,7 @@ function SocialLinksList({
   return (
     <>
       <ul className="mt-4 space-y-3">
-        {profile.socialLinks.map((link) => (
+        {getVisibleSocialLinks(profile, isEditing).map((link) => (
           <li
             className="flex items-center justify-between gap-3 rounded-xl border border-[#edf1f7] px-3 py-2.5"
             key={link.id}
@@ -430,7 +468,9 @@ function SocialLinksList({
                   value={link.handle}
                 />
               ) : (
-                <span className="truncate text-sm font-medium text-[#1a3462]">{link.handle}</span>
+                <span className="truncate text-sm font-medium text-[#1a3462]">
+                  {link.handle}
+                </span>
               )}
             </div>
             {isOwnProfile && isEditing ? (

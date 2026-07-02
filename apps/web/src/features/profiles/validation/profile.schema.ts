@@ -7,6 +7,7 @@ export const socialPlatformSchema = z.enum([
   "youtube",
   "tiktok",
   "pinterest",
+  "linkedin",
   "website",
 ])
 
