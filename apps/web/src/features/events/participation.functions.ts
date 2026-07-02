@@ -14,6 +14,13 @@ export const submitParticipationRequestFn = createServerFn({ method: "POST" })
     return submitParticipationRequest(data.eventId)
   })
 
+export const leaveEventParticipationFn = createServerFn({ method: "POST" })
+  .inputValidator((data: { eventId: string }) => data)
+  .handler(async ({ data }) => {
+    const { leaveEventParticipation } = await import("./api/event-participation.server")
+    return leaveEventParticipation(data.eventId)
+  })
+
 export const listPendingParticipationRequestsFn = createServerFn({ method: "POST" })
   .inputValidator((data: { eventId: string }) => data)
   .handler(async ({ data }) => {

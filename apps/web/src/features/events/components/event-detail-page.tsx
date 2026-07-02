@@ -28,6 +28,7 @@ import {
   useAttendanceStateQuery,
   useDeleteEventMutation,
   useEventQuery,
+  useLeaveEventParticipationMutation,
   useParticipationRequestStateQuery,
   useSubmitParticipationRequestMutation,
   useToggleAttendanceMutation,
@@ -159,6 +160,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const { data: participationState, isResolving: isParticipationResolving } =
     useParticipationRequestStateQuery(eventId, showParticipation)
   const submitParticipation = useSubmitParticipationRequestMutation(eventId)
+  const leaveParticipation = useLeaveEventParticipationMutation(eventId)
   const ventureIds = event?.participatingVentures?.map((venture) => venture.profileId) ?? []
   const { data: organizerProfile, isResolving: isOrganizerResolving } = useProfileQuery(
     event?.organizer.profileId
@@ -552,6 +554,20 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                                 Estás participando de este evento
                               </div>
                             </div>
+                            <button
+                              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-white px-5 py-3.5 text-sm font-semibold text-[#1a3462] transition hover:-translate-y-0.5 hover:bg-[#f4f7fb] disabled:cursor-not-allowed disabled:opacity-60"
+                              data-testid="event-leave-participation-button"
+                              disabled={leaveParticipation.isPending}
+                              onClick={() => {
+                                void leaveParticipation.mutateAsync()
+                              }}
+                              type="button"
+                            >
+                              <IconUserMinus size={16} stroke={2} />
+                              {leaveParticipation.isPending
+                                ? "Dejando de participar..."
+                                : "Dejar de participar"}
+                            </button>
                             <p className="text-center text-xs text-[#6b7d9c]">
                               Tu emprendimiento figura en el evento y lo vas a ver en{" "}
                               <Link

@@ -188,6 +188,45 @@ export async function submitParticipationRequest(
   return getParticipationRequestState(eventId)
 }
 
+export async function leaveEventParticipation(
+  eventId: string
+): Promise<ParticipationRequestState> {
+  const authUser = await requireAppUser()
+
+  if (authUser.role !== "emprendedor") {
+    throw new ForbiddenError("Solo los emprendedores pueden dejar de participar en eventos.")
+  }
+
+  const event = await loadEventForParticipation(eventId)
+
+  if (!event) {
+    throw new ForbiddenError("El evento no existe.")
+  }
+
+  if (!(await isEventParticipant(eventId, authUser.id))) {
+    throw new ForbiddenError("No estás participando de este evento.")
+  }
+
+  const database = getDb()
+
+  await database
+    .delete(eventEntrepreneurs)
+    .where(
+      and(eq(eventEntrepreneurs.eventId, eventId), eq(eventEntrepreneurs.userId, authUser.id))
+    )
+
+  await database
+    .delete(eventParticipationRequests)
+    .where(
+      and(
+        eq(eventParticipationRequests.eventId, eventId),
+        eq(eventParticipationRequests.userId, authUser.id)
+      )
+    )
+
+  return getParticipationRequestState(eventId)
+}
+
 export async function listPendingParticipationRequests(
   eventId: string
 ): Promise<Array<PendingParticipationRequest>> {

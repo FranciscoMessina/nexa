@@ -11,6 +11,43 @@ import { primaryCategoryDbToUi } from "@/features/events/utils/category.mapper"
 
 type SocialLinkRow = typeof userSocialLinks.$inferSelect
 
+const supportedSocialPlatforms = new Set<SocialLinkRow["platform"]>([
+  "instagram",
+  "facebook",
+  "twitter",
+  "youtube",
+  "tiktok",
+  "pinterest",
+])
+
+function formatMemberSince(value: AppUserRow["createdAt"]): string | undefined {
+  if (!value) {
+    return undefined
+  }
+
+  const date = value instanceof Date ? value : new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return undefined
+  }
+
+  return date.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+}
+
+function resolveUserCategories(
+  category: AppUserRow["category"]
+): Parameters<typeof primaryCategoryDbToUi>[0] {
+  if (!category) {
+    return null
+  }
+
+  if (Array.isArray(category)) {
+    return category
+  }
+
+  return [category]
+}
+
 function roleToProfileKind(role: UserRole): ProfileKind {
   if (role === "organizador") {
     return "organizador"
@@ -65,11 +102,13 @@ function splitDisplayName(displayName: string): { firstName: string; lastName: s
 }
 
 function mapSocialLinks(links: Array<SocialLinkRow>): Array<ProfileSocialLink> {
-  return links.map((link) => ({
-    id: link.id,
-    platform: link.platform,
-    handle: link.handle ?? "",
-  }))
+  return links
+    .filter((link) => supportedSocialPlatforms.has(link.platform))
+    .map((link) => ({
+      id: link.id,
+      platform: link.platform,
+      handle: link.handle ?? "",
+    }))
 }
 
 export function mapUserToProfile(
@@ -81,7 +120,7 @@ export function mapUserToProfile(
   const nameParts = kind === "usuario" ? splitDisplayName(displayName) : { firstName: undefined, lastName: undefined }
   const description = user.description ?? ""
   const categoryLabel =
-    primaryCategoryDbToUi(user.category as Parameters<typeof primaryCategoryDbToUi>[0]) ||
+    primaryCategoryDbToUi(resolveUserCategories(user.category)) ||
     categoryLabelForRole(user.role as UserRole)
 
   return {
@@ -98,9 +137,7 @@ export function mapUserToProfile(
     socialLinks: mapSocialLinks(socialLinks),
     statusBadge: statusBadgeForUser(user),
     validationStatus: user.validatedAt ? "validated" : "not_validated",
-    memberSince: user.createdAt
-      ? user.createdAt.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
-      : undefined,
+    memberSince: formatMemberSince(user.createdAt),
     email: user.email,
     phone: user.phone ?? undefined,
     firstName: nameParts.firstName,

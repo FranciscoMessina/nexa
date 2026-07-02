@@ -42,7 +42,7 @@ function fieldClass(isEditing: boolean): string {
 }
 
 function SocialIcon({ platform }: { platform: SocialPlatform }) {
-  const Icon = socialIconByPlatform[platform]
+  const Icon = socialIconByPlatform[platform] ?? IconWorld
   return <Icon className="text-[#5b4bb7]" size={18} stroke={1.8} />
 }
 

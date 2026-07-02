@@ -45,13 +45,22 @@ export const useAuthStore = create<AuthState>()((set) => ({
   isSubmitting: false,
 
   hydrate: async () => {
-    const user = await authService.getCurrentUser()
-    set({
-      user,
-      currentUserRole: user?.role ?? null,
-      isAuthenticated: Boolean(user),
-      isHydrated: true,
-    })
+    try {
+      const user = await authService.getCurrentUser()
+      set({
+        user,
+        currentUserRole: user?.role ?? null,
+        isAuthenticated: Boolean(user),
+        isHydrated: true,
+      })
+    } catch {
+      set({
+        user: null,
+        currentUserRole: null,
+        isAuthenticated: false,
+        isHydrated: true,
+      })
+    }
   },
 
   login: async (payload: LoginPayload) => {

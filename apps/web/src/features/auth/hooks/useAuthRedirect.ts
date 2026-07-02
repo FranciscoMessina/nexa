@@ -8,6 +8,8 @@ type RequireAuthenticationOptions = {
   allowedRoles?: Array<UserRole>
   /** When false, role checks are deferred (e.g. until profile data is loaded). */
   roleCheckReady?: boolean
+  /** Public pages (e.g. /perfiles/:id) can render without forcing login. */
+  allowGuest?: boolean
 }
 
 export function useRedirectAuthenticatedUser(): void {
@@ -34,6 +36,7 @@ export function useRequireAuthentication(
   const { isAuthenticated, isHydrated, currentUserRole } = useAuth()
   const allowedRoles = options?.allowedRoles ?? []
   const roleCheckReady = options?.roleCheckReady ?? true
+  const allowGuest = options?.allowGuest ?? false
 
   useEffect(() => {
     if (!isHydrated) {
@@ -43,7 +46,7 @@ export function useRequireAuthentication(
     const isAuthRoute =
       location.pathname === "/login" || location.pathname === "/registro"
 
-    if (!isAuthenticated && !isAuthRoute) {
+    if (!allowGuest && !isAuthenticated && !isAuthRoute) {
       void navigate({ to: "/login" })
       return
     }
@@ -61,6 +64,7 @@ export function useRequireAuthentication(
     isAuthenticated,
     isHydrated,
     location.pathname,
+    allowGuest,
     navigate,
     roleCheckReady,
   ])
@@ -71,7 +75,7 @@ export function useRequireAuthentication(
     (currentUserRole !== null && allowedRoles.includes(currentUserRole))
 
   return {
-    isChecking: !isHydrated,
-    isAllowed: isAuthenticated && isRoleAllowed,
+    isChecking: allowGuest ? false : !isHydrated,
+    isAllowed: allowGuest ? isRoleAllowed : isAuthenticated && isRoleAllowed,
   }
 }

@@ -159,6 +159,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
   const ownProfileQuery = useOwnProfile()
   const publicProfileQuery = useProfileQuery(profileId)
   const profile = profileId ? publicProfileQuery.data : ownProfileQuery.profile
+  const profileQueryError = profileId ? publicProfileQuery.error : ownProfileQuery.error
   const isProfileResolving = profileId
     ? publicProfileQuery.isResolving
     : ownProfileQuery.isResolving
@@ -185,7 +186,7 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
 
   const { isChecking, isAllowed } = useRequireAuthentication(
     profileId
-      ? undefined
+      ? { allowGuest: true }
       : {
           allowedRoles: profile
             ? getAllowedRolesForProfile(profile.kind)
@@ -210,6 +211,21 @@ export function ProfilePage({ profileId }: ProfilePageProps) {
     return (
       <AppShell>
         <ProfilePageSkeleton />
+      </AppShell>
+    )
+  }
+
+  if (isProfileResolved && profileQueryError) {
+    return (
+      <AppShell>
+        <div className="rounded-2xl border border-[#e8edf5] bg-white p-8 text-center">
+          <h1 className="text-2xl font-bold text-[#0a2558]">
+            No pudimos cargar el perfil
+          </h1>
+          <p className="mt-2 text-[#6b7d9c]">
+            Ocurrió un error al obtener la información. Probá recargar la página.
+          </p>
+        </div>
       </AppShell>
     )
   }

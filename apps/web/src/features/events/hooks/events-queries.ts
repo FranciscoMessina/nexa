@@ -4,6 +4,7 @@ import { getAttendanceStateFn, toggleAttendanceFn } from "@/features/events/atte
 import {
   approveParticipationRequestFn,
   getParticipationRequestStateFn,
+  leaveEventParticipationFn,
   listPendingParticipationRequestsFn,
   rejectParticipationRequestFn,
   submitParticipationRequestFn,
@@ -152,6 +153,21 @@ export function useSubmitParticipationRequestMutation(eventId: string) {
 
   return useMutation({
     mutationFn: () => submitParticipationRequestFn({ data: { eventId } }),
+    onSuccess: (state) => {
+      queryClient.setQueryData(eventsQueryKeys.participation(eventId), state)
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.detail(eventId) })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.all })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.myEvents })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.pendingParticipation(eventId) })
+    },
+  })
+}
+
+export function useLeaveEventParticipationMutation(eventId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => leaveEventParticipationFn({ data: { eventId } }),
     onSuccess: (state) => {
       queryClient.setQueryData(eventsQueryKeys.participation(eventId), state)
       void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.detail(eventId) })
