@@ -151,6 +151,8 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const toggleAttendance = useToggleAttendanceMutation(eventId)
   const deleteEventMutation = useDeleteEventMutation()
   const isOwnEvent = user?.id === event?.organizer.profileId
+  const showAttendanceActions =
+    currentUserRole !== "emprendedor" && !isOwnEvent && Boolean(user)
   const showParticipation =
     Boolean(user) &&
     currentUserRole === "emprendedor" &&
@@ -484,7 +486,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
               <div className="space-y-4">
                 {isAttendanceResolving ? (
                   <EventAttendanceSidebarSkeleton
-                    showAttendAction={!isOwnEvent && Boolean(user)}
+                    showAttendAction={showAttendanceActions}
                   />
                 ) : (
                   <>
@@ -498,7 +500,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       </div>
                     </div>
 
-                    {!isOwnEvent && user ? (
+                    {showAttendanceActions ? (
                       attending ? (
                         <button
                           className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#d5deed] bg-white px-5 py-3.5 text-sm font-semibold text-[#1a3462] transition hover:-translate-y-0.5 hover:bg-[#f4f7fb]"
@@ -526,7 +528,7 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                       )
                     ) : null}
 
-                    {attending ? (
+                    {showAttendanceActions && attending ? (
                       <p className="text-center text-xs text-[#6b7d9c]">
                         Este evento aparece en{" "}
                         <Link

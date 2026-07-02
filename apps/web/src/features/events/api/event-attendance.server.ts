@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm"
 import { eventAttendees, eventFavorites, events } from "@workspace/database"
 import { getDb } from "@/shared/lib/db/get-db"
 import { getOptionalAppUser, requireAppUser } from "@/shared/lib/auth/session.server"
+import { ForbiddenError } from "@/shared/lib/auth/errors.server"
 import { resolveDisplayedAttendanceCount } from "../utils/base-attendance.utils"
 
 export type AttendanceState = {
@@ -52,6 +53,11 @@ export async function getAttendingEventIdsForCurrentUser(): Promise<Array<string
 
 export async function toggleAttendance(eventId: string): Promise<AttendanceState> {
   const authUser = await requireAppUser()
+
+  if (authUser.role === "emprendedor") {
+    throw new ForbiddenError("Los emprendedores no pueden confirmar asistencia a eventos.")
+  }
+
   const database = getDb()
 
   const existing = await database

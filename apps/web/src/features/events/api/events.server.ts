@@ -204,7 +204,7 @@ function filterEventsForUser(
     const participating = allEvents.filter((event) =>
       event.participatingVentures?.some((venture) => venture.profileId === userId)
     )
-    return uniqueEventsById([...organized, ...participating, ...attending])
+    return uniqueEventsById([...organized, ...participating])
   }
 
   return uniqueEventsById([...organized, ...attending])
