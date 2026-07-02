@@ -15,7 +15,7 @@ const UI_TO_DB: Record<string, DbCategory> = {
   Deportes: "deportes",
   "Ferias de Emprendedores": "feria_de_emprendedores",
   "Talleres y Cursos": "talleres_y_cursos",
-  Entretenimiento: "cine_y_entretenimiento",
+  "Cine y Entretenimiento": "cine_y_entretenimiento",
   Ropa: "ropa",
 }
 
@@ -40,7 +40,9 @@ export function categoryUiToDb(category: string): DbCategory {
   return mapped
 }
 
-export function categoryDbToUi(category: DbCategory | null | undefined): string {
+export function categoryDbToUi(
+  category: DbCategory | null | undefined
+): string {
   if (!category) {
     return "Música"
   }
