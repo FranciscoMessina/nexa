@@ -10,18 +10,15 @@ import { EventDatePicker } from "@/features/events/components/event-date-picker"
 import { eventFilterCategoryOptions } from "@/features/events/data/event-categories"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
 import { useEventsQuery } from "@/features/events/hooks/events-queries"
+import { EVENT_NEIGHBORHOOD_OPTIONS } from "@/features/events/utils/event-neighborhood.utils"
 import { sortFilterOptionsAlphabetically } from "@/features/events/utils/sort-filter-options.utils"
 
 const neighborhoodOptions = sortFilterOptionsAlphabetically([
   { value: "all", label: "Todos" },
-  { value: "Palermo", label: "Palermo" },
-  { value: "Colegiales", label: "Colegiales" },
-  { value: "Villa Crespo", label: "Villa Crespo" },
-  { value: "Chacarita", label: "Chacarita" },
-  { value: "Recoleta", label: "Recoleta" },
-  { value: "San Telmo", label: "San Telmo" },
-  { value: "Puerto Madero", label: "Puerto Madero" },
-  { value: "Microcentro", label: "Microcentro" },
+  ...EVENT_NEIGHBORHOOD_OPTIONS.map((neighborhood) => ({
+    value: neighborhood,
+    label: neighborhood,
+  })),
 ])
 
 const eventTypeOptions = sortFilterOptionsAlphabetically([

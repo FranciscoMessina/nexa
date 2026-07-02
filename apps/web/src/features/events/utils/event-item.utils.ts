@@ -1,3 +1,4 @@
+import { extractNeighborhoodFromLocation } from "./event-neighborhood.utils"
 import { withResolvedEventLabel } from "./event-label.utils"
 import type { EventCardData, EventItem } from "../types/event.types"
 
@@ -20,7 +21,7 @@ function parseLocation(
     .filter(Boolean)
 
   const [venue = location, ...remainingParts] = parts
-  const neighborhood = remainingParts.at(-1) ?? ""
+  const neighborhood = extractNeighborhoodFromLocation(location)
   const address = remainingParts.slice(0, -1).join(", ")
 
   return {

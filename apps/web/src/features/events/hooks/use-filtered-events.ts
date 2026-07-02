@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import type { EventCoordinates, EventItem } from "@/features/events/types/event.types"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
 import { useEventsQuery } from "@/features/events/hooks/events-queries"
+import { matchesNeighborhoodFilter } from "@/features/events/utils/event-neighborhood.utils"
 import { toEventItem } from "@/features/events/utils/event-item.utils"
 
 function toRadians(value: number): number {
@@ -69,9 +70,8 @@ export function useFilteredEvents(userCoordinates?: EventCoordinates | null): {
 
   const events = useMemo(() => {
     const filteredEvents = (data ?? [])
-      .map(toEventItem)
       .filter((event) => {
-        if (neighborhood !== "all" && event.neighborhood !== neighborhood) {
+        if (!matchesNeighborhoodFilter(event.location, neighborhood)) {
           return false
         }
 
@@ -79,16 +79,17 @@ export function useFilteredEvents(userCoordinates?: EventCoordinates | null): {
           return false
         }
 
-        if (!matchesDateFilter(event.startsAt, date)) {
+        if (!matchesDateFilter(event.date, date)) {
           return false
         }
 
-        if (eventType !== "all" && event.kind !== eventType) {
+        if (eventType !== "all" && event.label.type !== eventType) {
           return false
         }
 
         return true
       })
+      .map(toEventItem)
       .map((event) => ({
         ...event,
         distanceKm:

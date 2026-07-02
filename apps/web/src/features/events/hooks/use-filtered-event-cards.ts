@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import type { EventCardData } from "@/features/events/types/event.types"
 import { useEventsQuery } from "@/features/events/hooks/events-queries"
 import { useEventFilters } from "@/features/events/hooks/use-event-filters"
+import { matchesNeighborhoodFilter } from "@/features/events/utils/event-neighborhood.utils"
 
 function toDateKey(date: Date): string {
   const year = date.getFullYear()
@@ -19,15 +20,6 @@ function matchesDateFilter(startsAt: Date, dateFilter: string): boolean {
   return toDateKey(startsAt) === dateFilter
 }
 
-function parseNeighborhood(location: string): string {
-  const parts = location
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean)
-
-  return parts.at(-1) ?? ""
-}
-
 export function useFilteredEventCards(): {
   events: Array<EventCardData>
   isLoading: boolean
@@ -38,9 +30,7 @@ export function useFilteredEventCards(): {
 
   const events = useMemo(() => {
     return (data ?? []).filter((event) => {
-      const eventNeighborhood = parseNeighborhood(event.location)
-
-      if (neighborhood !== "all" && eventNeighborhood !== neighborhood) {
+      if (!matchesNeighborhoodFilter(event.location, neighborhood)) {
         return false
       }
 
