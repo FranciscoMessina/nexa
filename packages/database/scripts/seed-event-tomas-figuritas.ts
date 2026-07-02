@@ -76,7 +76,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${creator.id}::uuid,
-        title = ${"Intercambio de figuritas del Mundial"},
+        title = ${"Intercambio de Figuritas del Mundial"},
         summary = ${"Encuentro comunitario para intercambiar figuritas del Mundial en Plaza Serrano, Palermo Soho."},
         location = ${"Plaza Serrano (Plaza Julio Cortázar), Palermo Soho, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,

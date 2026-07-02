@@ -9,6 +9,7 @@ import {
 import { Link, useRouterState } from "@tanstack/react-router"
 import { cn } from "@workspace/ui/lib/utils"
 import { NexaLogo } from "@/shared/components/nexa-logo"
+import type { UserRole } from "@/features/auth/types/auth.types"
 import { useAuth } from "@/shared/hooks/useAuth"
 
 type NavItem = {
@@ -36,11 +37,18 @@ const navItems: Array<NavItem> = [
   { label: "Mi perfil", to: "/perfil", icon: IconUser, testId: "nav-profile" },
 ]
 
+function canCreateEvents(role: UserRole | null): boolean {
+  return role === "asistente" || role === "organizador"
+}
+
 export function AppSidebar() {
-  const { logout } = useAuth()
+  const { logout, currentUserRole } = useAuth()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   })
+  const visibleNavItems = navItems.filter(
+    (item) => item.to !== "/crear-evento" || canCreateEvents(currentUserRole)
+  )
 
   return (
     <aside
@@ -50,7 +58,7 @@ export function AppSidebar() {
       <NexaLogo className="mx-auto h-18 shrink-0" variant="compact" />
 
       <nav className="mt-22 flex flex-col gap-1">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive = pathname === item.to
           const Icon = item.icon
 

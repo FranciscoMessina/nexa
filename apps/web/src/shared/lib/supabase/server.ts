@@ -1,7 +1,6 @@
 import "@tanstack/react-start/server-only"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import { getCookie } from "@tanstack/react-start/server"
-import ws from "ws"
 import { isSupabaseConfigured } from "./config.server"
 
 export type Database = Record<string, never>
@@ -28,10 +27,7 @@ export function createSupabaseServerClient(): SupabaseClient<Database> {
       autoRefreshToken: false,
       detectSessionInUrl: false,
     },
-    realtime: {
-      transport: ws as unknown as typeof WebSocket,
-    },
-  }) as SupabaseClient<Database>
+  })
 }
 
 export async function createSupabaseServerClientWithSession(): Promise<SupabaseClient<Database>> {

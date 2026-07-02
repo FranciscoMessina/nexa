@@ -13,6 +13,7 @@ export type EventDraftState = {
   labelType: EventKind
   labelText: string
   gallery: string
+  participatingVentureIds: Array<string>
 }
 
 export type EventDraftErrorField =
@@ -40,6 +41,7 @@ export const initialEventDraftState: EventDraftState = {
   labelType: "community",
   labelText: "Evento comunitario",
   gallery: "",
+  participatingVentureIds: [],
 }
 
 export function splitGallery(value: string): Array<string> {
@@ -166,5 +168,7 @@ export function buildDraftFromEvent(event: EventCardData): EventDraftState {
     labelType: event.label.type,
     labelText: event.label.text,
     gallery: event.gallery.join("\n"),
+    participatingVentureIds:
+      event.participatingVentures?.map((venture) => venture.profileId) ?? [],
   }
 }

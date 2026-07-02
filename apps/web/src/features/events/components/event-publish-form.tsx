@@ -2,6 +2,7 @@ import { IconUpload } from "@tabler/icons-react"
 import { Link } from "@tanstack/react-router"
 import { useRef } from "react"
 import type { FormEvent } from "react"
+import { EventEntrepreneurPicker } from "@/features/events/components/event-entrepreneur-picker"
 import { EventDatePicker } from "@/features/events/components/event-date-picker"
 import { splitGallery } from "@/features/events/utils/event-publish.utils"
 import { useImageUpload } from "@/features/storage"
@@ -17,6 +18,7 @@ type EventPublishFormProps = {
   submitLabel?: string
   successMessage?: string
   isSubmitDisabled?: boolean
+  allowEntrepreneurSelection?: boolean
   onDraftChange: <TKey extends keyof EventDraftState>(
     key: TKey,
     value: EventDraftState[TKey]
@@ -32,6 +34,7 @@ export function EventPublishForm({
   submitLabel = "Publicar evento",
   successMessage = "Evento publicado",
   isSubmitDisabled = false,
+  allowEntrepreneurSelection = false,
   onDraftChange,
   onSubmit,
 }: EventPublishFormProps) {
@@ -230,6 +233,18 @@ export function EventPublishForm({
           <span className="block text-xs font-normal text-rose-600">{errors.requirements}</span>
         ) : null}
       </label>
+
+      {allowEntrepreneurSelection ? (
+        <div className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
+          <span>Emprendimientos participantes</span>
+          <EventEntrepreneurPicker
+            onChange={(selectedIds) => {
+              onDraftChange("participatingVentureIds", selectedIds)
+            }}
+            selectedIds={draft.participatingVentureIds}
+          />
+        </div>
+      ) : null}
 
       <label className="space-y-2 text-sm font-medium text-[#1a3462] md:col-span-2">
         URL de registro

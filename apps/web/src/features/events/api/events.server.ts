@@ -9,7 +9,7 @@ import {
 import type { UserRole } from "@/features/auth/types/auth.types"
 import { getDb } from "@/shared/lib/db/get-db"
 import { ForbiddenError } from "@/shared/lib/auth/errors.server"
-import { requireAppUser } from "@/shared/lib/auth/session.server"
+import { requireAppUser, requireRole } from "@/shared/lib/auth/session.server"
 import type { CreateEventInput } from "../types/event-create-input"
 import type { EventCardData } from "../types/event.types"
 import {
@@ -92,6 +92,7 @@ async function replaceEventEntrepreneurs(
 
 export async function createEvent(input: CreateEventInput): Promise<EventCardData> {
   const authUser = await requireAppUser()
+  requireRole(authUser, ["asistente", "organizador"])
   const { event, galleryUrls, entrepreneurUserIds } = mapCreateInputToEventValues(
     input,
     authUser.id

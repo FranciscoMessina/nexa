@@ -27,12 +27,12 @@ export function getMyEventsCopy(role: UserRole): MyEventsCopy {
 
   if (role === "emprendedor") {
     return {
-      subtitle: "Eventos de tu emprendimiento, los que creaste y a los que vas a asistir",
+      subtitle: "Eventos en los que participa tu emprendimiento y a los que vas a asistir",
       upcomingTitle: "Próximos",
       pastTitle: "Pasados",
       upcomingEmptyTitle: "No tenés eventos próximos",
       upcomingEmptyDescription:
-        "Creá un evento, sumate a uno del muro o esperá invitaciones de tu emprendimiento.",
+        "Explorá eventos en el muro y tocá «Solicitar participar» para sumarte con tu emprendimiento.",
       pastEmptyTitle: "No tenés historial de eventos pasados",
       pastEmptyDescription:
         "Los eventos en los que participaste o a los que asististe ya finalizados se listan acá.",

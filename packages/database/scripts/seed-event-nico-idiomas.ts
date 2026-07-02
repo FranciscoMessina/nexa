@@ -3,7 +3,7 @@ import postgres from "postgres"
 const EVENT_ID = "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"
 const CREATOR_EMAIL = "nico.pereyra@gmail.com"
 
-const TITLE = "Intercambio de idiomas en Nela Café & Arte"
+const TITLE = "Intercambio de Idiomas en Nela Café & Arte"
 const SUMMARY =
   "Encuentro para practicar distintos idiomas y compartir culturas en Palermo Hollywood."
 const LOCATION = "Nela Café & Arte, El Salvador 5847, Palermo Hollywood, CABA"

@@ -22,6 +22,12 @@ export const getProfilesByIdsFn = createServerFn({ method: "POST" })
     return { profiles }
   })
 
+export const listEntrepreneurProfilesFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { listEntrepreneurProfiles } = await import("./api/profiles.server")
+  const profiles = await listEntrepreneurProfiles()
+  return { profiles }
+})
+
 export const updateProfileFn = createServerFn({ method: "POST" })
   .inputValidator((data: import("./api/profiles.server").UpdateProfileInput) => data)
   .handler(async ({ data }) => {

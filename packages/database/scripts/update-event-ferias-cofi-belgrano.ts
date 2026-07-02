@@ -4,11 +4,11 @@ const COFI_JAUS_ID = "d6e7f8a9-b0c1-4d2e-3f4a-5b6c7d8e9f0a"
 const FERIA_ROPA_ARTE_ID = "a1000043-0000-4000-8000-000000000043"
 const PUNTO_CAFE_EMAIL = "puntocafe.eventos@gmail.com"
 
-/** Portada: remeras/prendas colgadas; el resto mantiene fotos de indumentaria. */
+/** Portada local de prendas colgadas; el resto mantiene fotos de indumentaria. */
 const COFI_JAUS_GALLERY = [
-  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
 ]
 
 async function replaceGallery(
@@ -48,6 +48,7 @@ async function main(): Promise<void> {
   await sql`
     UPDATE events
     SET
+      title = ${"Feria de Ropa y Arte en Punto Café"},
       created_by_user_id = ${organizer.id}::uuid,
       location = ${"Punto Café, Av. Cabildo 1999, Belgrano, CABA"},
       latitude = ${-34.5564},
@@ -58,7 +59,7 @@ async function main(): Promise<void> {
     WHERE id = ${FERIA_ROPA_ARTE_ID}::uuid
   `
 
-  console.log("✓ Feria de ropa y arte → Punto Café, Av. Cabildo 1999, Belgrano")
+  console.log("✓ Feria de Ropa y Arte en Punto Café → Av. Cabildo 1999, Belgrano")
 
   await sql.end({ timeout: 5 })
   console.log("Listo.")

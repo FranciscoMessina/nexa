@@ -9,19 +9,19 @@ const ENTREPRENEUR_EMAILS = [
   "estudioprisma@gmail.com",
 ] as const
 
-/** Mismo criterio que seed-events.source.ts: URLs directas de Unsplash. La primera es la portada. */
+/** Portada de remeras colgadas + indumentaria en Unsplash. La primera es la portada. */
 const GALLERY_IMAGES = [
   {
     id: "d4000001-0000-4000-8000-000000000001",
-    url: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "d4000002-0000-4000-8000-000000000002",
     url: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1200&q=80",
   },
   {
-    id: "d4000003-0000-4000-8000-000000000003",
+    id: "d4000002-0000-4000-8000-000000000002",
     url: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: "d4000003-0000-4000-8000-000000000003",
+    url: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
   },
 ] as const
 
@@ -80,7 +80,7 @@ async function main(): Promise<void> {
       VALUES (
         ${EVENT_ID}::uuid,
         ${organizer.id}::uuid,
-        ${"Feria de ropa en Cofi Jaus Palermo"},
+        ${"Feria de Ropa en Cofi Jaus Palermo"},
         ${"Feria de indumentaria con CRUDO, GEIESE y Nudo Sur en Palermo Hollywood. Cobertura de Estudio Prisma y promos de comida de la casa."},
         ${"Cofi Jaus Palermo, Costa Rica 5729, Palermo Hollywood, CABA"},
         ${startsAt.toISOString()}::timestamptz,
@@ -100,7 +100,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${organizer.id}::uuid,
-        title = ${"Feria de ropa en Cofi Jaus Palermo"},
+        title = ${"Feria de Ropa en Cofi Jaus Palermo"},
         summary = ${"Feria de indumentaria con CRUDO, GEIESE y Nudo Sur en Palermo Hollywood. Cobertura de Estudio Prisma y promos de comida de la casa."},
         location = ${"Cofi Jaus Palermo, Costa Rica 5729, Palermo Hollywood, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,
@@ -143,7 +143,7 @@ async function main(): Promise<void> {
 
   await sql.end({ timeout: 5 })
 
-  console.log(`✓ Evento actualizado: Feria de ropa en Cofi Jaus Palermo`)
+  console.log(`✓ Evento actualizado: Feria de Ropa en Cofi Jaus Palermo`)
   console.log(`  Emprendimientos: ${ENTREPRENEUR_EMAILS.join(", ")}`)
   console.log(`  Galería: ${GALLERY_IMAGES.length} imágenes`)
 }

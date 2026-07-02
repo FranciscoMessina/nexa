@@ -1,18 +1,14 @@
 import postgres from "postgres"
 
-const EVENT_ID = "a1000038-0000-4000-8000-000000000038"
+const EVENT_ID = "a1000041-0000-4000-8000-000000000041"
 
-const TITLE = "Taller de Pintura en Estudio Dorrego"
-const SUMMARY = "Taller práctico de pintura con demostración en vivo en Estudio Dorrego."
-const DESCRIPTION =
-  "Estudio Dorrego convoca un taller de pintura con demostración en vivo y espacio para practicar técnicas básicas. La propuesta combina observación, ejercicios guiados y materiales de apoyo en un entorno de estudio en Colegiales."
-const REQUIREMENTS = "Traer materiales propios."
-
+/** Portada vermú + arte en galería y bar. */
 const GALLERY_URLS = [
-  "https://images.unsplash.com/photo-1602806273007-e5a04e9c5aa6?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1612743140645-cd448eac75f4?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1589824769965-d2bdab6dfe57?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1200&q=80",
-] as const
+  "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1602806273007-e5a04e9c5aa6?auto=format&fit=crop&w=1200&q=80",
+]
 
 async function main(): Promise<void> {
   const connectionString = process.env.DIRECT_URL?.trim() || process.env.DATABASE_URL?.trim()
@@ -23,10 +19,7 @@ async function main(): Promise<void> {
   await sql`
     UPDATE events
     SET
-      title = ${TITLE},
-      summary = ${SUMMARY},
-      description = ${DESCRIPTION},
-      requirements = ${REQUIREMENTS},
+      category = ARRAY['feria_de_emprendedores']::category[],
       updated_at = NOW()
     WHERE id = ${EVENT_ID}::uuid
   `
@@ -43,7 +36,7 @@ async function main(): Promise<void> {
   }
 
   await sql.end({ timeout: 5 })
-  console.log(`✓ ${TITLE} actualizado`)
+  console.log("✓ Noche de vermú y stands en Conde — feria de emprendedores + galería arte/vermú")
 }
 
 void main().catch((error) => {

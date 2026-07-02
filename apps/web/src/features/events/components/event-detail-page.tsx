@@ -2,6 +2,7 @@ import {
   IconArrowLeft,
   IconBrandWhatsapp,
   IconBrandX,
+  IconBriefcase,
   IconCalendar,
   IconChevronLeft,
   IconChevronRight,
@@ -27,6 +28,8 @@ import {
   useAttendanceStateQuery,
   useDeleteEventMutation,
   useEventQuery,
+  useParticipationRequestStateQuery,
+  useSubmitParticipationRequestMutation,
   useToggleAttendanceMutation,
 } from "@/features/events/hooks/events-queries"
 import { canUserManageEvent } from "@/features/events/utils/event-item.utils"
@@ -137,7 +140,7 @@ function EventToneBadge({ tone }: { tone: EventBadgeTone }) {
 
 export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, currentUserRole } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["emprendedor", "asistente", "organizador"],
   })
@@ -146,6 +149,16 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
     useAttendanceStateQuery(eventId)
   const toggleAttendance = useToggleAttendanceMutation(eventId)
   const deleteEventMutation = useDeleteEventMutation()
+  const isOwnEvent = user?.id === event?.organizer.profileId
+  const showParticipation =
+    Boolean(user) &&
+    currentUserRole === "emprendedor" &&
+    !isOwnEvent &&
+    !isChecking &&
+    isAllowed
+  const { data: participationState, isResolving: isParticipationResolving } =
+    useParticipationRequestStateQuery(eventId, showParticipation)
+  const submitParticipation = useSubmitParticipationRequestMutation(eventId)
   const ventureIds = event?.participatingVentures?.map((venture) => venture.profileId) ?? []
   const { data: organizerProfile, isResolving: isOrganizerResolving } = useProfileQuery(
     event?.organizer.profileId
@@ -199,7 +212,11 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
   const shareUrl = getShareUrl()
   const mapUrl = getMapUrl(event.coordinates.lat, event.coordinates.lng)
   const canManageEvent = canUserManageEvent(event, user?.id)
-  const isOwnEvent = user?.id === event.organizer.profileId
+  const isParticipating =
+    participationState?.status === "already_participant" ||
+    participationState?.status === "approved" ||
+    (user ? ventureIds.includes(user.id) : false)
+  const canRequestParticipation = participationState?.canRequest ?? false
   const attendanceLabel =
     attendanceCount === 1
       ? "1 persona confirmó que va a asistir"
@@ -518,6 +535,51 @@ export function EventDetailPage({ eventId }: EventDetailPageProps) {
                         </Link>
                         .
                       </p>
+                    ) : null}
+
+                    {showParticipation ? (
+                      <div className="space-y-3 border-t border-[#edf2f8] pt-4">
+                        {isParticipationResolving ? (
+                          <div className="h-12 animate-pulse rounded-2xl bg-[#f4f7fb]" />
+                        ) : isParticipating ? (
+                          <>
+                            <div
+                              className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800 ring-1 ring-emerald-200"
+                              data-testid="event-participation-confirmed"
+                            >
+                              <div className="flex items-center gap-2 font-semibold">
+                                <IconBriefcase size={18} stroke={1.9} />
+                                Estás participando de este evento
+                              </div>
+                            </div>
+                            <p className="text-center text-xs text-[#6b7d9c]">
+                              Tu emprendimiento figura en el evento y lo vas a ver en{" "}
+                              <Link
+                                className="font-semibold text-[#5b4bb7] hover:text-[#3f3485]"
+                                to="/mis-eventos"
+                              >
+                                Mis eventos
+                              </Link>
+                              .
+                            </p>
+                          </>
+                        ) : canRequestParticipation ? (
+                          <button
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#6d5ae6] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-18px_rgba(109,90,230,0.75)] transition hover:-translate-y-0.5 hover:bg-[#5f4ad4] disabled:cursor-not-allowed disabled:opacity-60"
+                            data-testid="event-request-participation-button"
+                            disabled={submitParticipation.isPending}
+                            onClick={() => {
+                              void submitParticipation.mutateAsync()
+                            }}
+                            type="button"
+                          >
+                            <IconBriefcase size={16} stroke={2} />
+                            {submitParticipation.isPending
+                              ? "Confirmando participación..."
+                              : "Solicitar participar"}
+                          </button>
+                        ) : null}
+                      </div>
                     ) : null}
                   </>
                 )}

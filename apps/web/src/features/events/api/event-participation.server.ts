@@ -11,7 +11,6 @@ import type { Profile } from "@/features/profiles/types/profile.types"
 import { getDb } from "@/shared/lib/db/get-db"
 import { ForbiddenError } from "@/shared/lib/auth/errors.server"
 import { requireAppUser } from "@/shared/lib/auth/session.server"
-import { eventIncludesFeriaCategory } from "../utils/event-category.utils"
 
 export type ParticipationRequestStatus =
   | "none"
@@ -38,7 +37,6 @@ async function loadEventForParticipation(eventId: string) {
     columns: {
       id: true,
       createdByUserId: true,
-      category: true,
     },
   })
 
@@ -76,7 +74,7 @@ export async function getParticipationRequestState(
   const authUser = await requireAppUser()
   const event = await loadEventForParticipation(eventId)
 
-  if (!event || !eventIncludesFeriaCategory(event.category)) {
+  if (!event) {
     return { status: "none", canRequest: false }
   }
 
@@ -125,17 +123,13 @@ export async function submitParticipationRequest(
   const authUser = await requireAppUser()
 
   if (authUser.role !== "emprendedor") {
-    throw new ForbiddenError("Solo los emprendedores pueden solicitar participar en ferias.")
+    throw new ForbiddenError("Solo los emprendedores pueden solicitar participar en eventos.")
   }
 
   const event = await loadEventForParticipation(eventId)
 
   if (!event) {
     throw new ForbiddenError("El evento no existe.")
-  }
-
-  if (!eventIncludesFeriaCategory(event.category)) {
-    throw new ForbiddenError("Este evento no acepta solicitudes de participación.")
   }
 
   if (event.createdByUserId === authUser.id) {
@@ -160,20 +154,14 @@ export async function submitParticipationRequest(
 
   const current = existing[0]
 
-  if (current?.status === "pending") {
-    return getParticipationRequestState(eventId)
-  }
+  const reviewedAt = new Date()
 
-  if (current?.status === "approved") {
-    throw new ForbiddenError("Tu solicitud ya fue aprobada.")
-  }
-
-  if (current?.status === "rejected") {
+  if (current) {
     await database
       .update(eventParticipationRequests)
       .set({
-        status: "pending",
-        reviewedAt: null,
+        status: "approved",
+        reviewedAt,
       })
       .where(
         and(
@@ -185,7 +173,15 @@ export async function submitParticipationRequest(
     await database.insert(eventParticipationRequests).values({
       eventId,
       userId: authUser.id,
-      status: "pending",
+      status: "approved",
+      reviewedAt,
+    })
+  }
+
+  if (!(await isEventParticipant(eventId, authUser.id))) {
+    await database.insert(eventEntrepreneurs).values({
+      eventId,
+      userId: authUser.id,
     })
   }
 
@@ -200,7 +196,7 @@ export async function listPendingParticipationRequests(
 
   const event = await loadEventForParticipation(eventId)
 
-  if (!event || !eventIncludesFeriaCategory(event.category)) {
+  if (!event) {
     return []
   }
 

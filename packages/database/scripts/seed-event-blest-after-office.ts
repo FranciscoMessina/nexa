@@ -75,7 +75,7 @@ async function main(): Promise<void> {
       VALUES (
         ${EVENT_ID}::uuid,
         ${organizer.id}::uuid,
-        ${"After office con DJ en Blest Recoleta"},
+        ${"After Office con DJ en Blest Recoleta"},
         ${"After office de jueves con Tomi Discos en vinilo. Promos de comida y bebida para quienes salen del trabajo."},
         ${"Blest Recoleta, Pres. Roberto M. Ortiz 1827, Recoleta, CABA"},
         ${startsAt.toISOString()}::timestamptz,
@@ -95,7 +95,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${organizer.id}::uuid,
-        title = ${"After office con DJ en Blest Recoleta"},
+        title = ${"After Office con DJ en Blest Recoleta"},
         summary = ${"After office de jueves con Tomi Discos en vinilo. Promos de comida y bebida para quienes salen del trabajo."},
         location = ${"Blest Recoleta, Pres. Roberto M. Ortiz 1827, Recoleta, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,
@@ -138,7 +138,7 @@ async function main(): Promise<void> {
 
   await sql.end({ timeout: 5 })
 
-  console.log(`✓ Evento actualizado: After office con DJ en Blest Recoleta`)
+  console.log(`✓ Evento actualizado: After Office con DJ en Blest Recoleta`)
   console.log(`  Emprendimientos: ${ENTREPRENEUR_EMAILS.join(", ")}`)
   console.log(`  Galería: ${GALLERY_IMAGES.length} imágenes`)
 }

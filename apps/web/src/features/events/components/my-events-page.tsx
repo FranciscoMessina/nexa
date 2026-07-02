@@ -15,10 +15,12 @@ type MyEventsTab = "upcoming" | "past"
 
 function SectionEmptyState({
   description,
+  showCreateEventLink,
   showExploreLink,
   title,
 }: {
   description: string
+  showCreateEventLink?: boolean
   showExploreLink?: boolean
   title: string
 }) {
@@ -34,12 +36,14 @@ function SectionEmptyState({
           >
             Explorar eventos
           </Link>
-          <Link
-            className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
-            to="/crear-evento"
-          >
-            Crear evento
-          </Link>
+          {showCreateEventLink ? (
+            <Link
+              className="inline-flex rounded-xl bg-[#6d5ae6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#5f4ad4]"
+              to="/crear-evento"
+            >
+              Crear evento
+            </Link>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -50,12 +54,14 @@ function SectionPanel({
   emptyDescription,
   emptyTitle,
   events,
+  showCreateEventLink,
   showExploreLink,
   testId,
 }: {
   emptyDescription: string
   emptyTitle: string
   events: Array<EventItem>
+  showCreateEventLink?: boolean
   showExploreLink?: boolean
   testId: string
 }) {
@@ -64,6 +70,7 @@ function SectionPanel({
       <div data-testid={testId}>
         <SectionEmptyState
           description={emptyDescription}
+          showCreateEventLink={showCreateEventLink}
           showExploreLink={showExploreLink}
           title={emptyTitle}
         />
@@ -97,6 +104,8 @@ export function MyEventsPage() {
 
   const copy =
     user && currentUserRole ? getMyEventsCopy(currentUserRole) : null
+  const showCreateEventLink =
+    currentUserRole === "asistente" || currentUserRole === "organizador"
   const upcoming = (sections?.upcoming ?? []).map(toEventItem)
   const past = (sections?.past ?? []).map(toEventItem)
   const activeEvents = activeTab === "upcoming" ? upcoming : past
@@ -148,6 +157,7 @@ export function MyEventsPage() {
               activeTab === "upcoming" ? copy.upcomingEmptyTitle : copy.pastEmptyTitle
             }
             events={activeEvents}
+            showCreateEventLink={showCreateEventLink}
             showExploreLink={activeTab === "upcoming"}
             testId={activeTab === "upcoming" ? "my-events-upcoming" : "my-events-past"}
           />

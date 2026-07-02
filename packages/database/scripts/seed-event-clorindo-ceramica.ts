@@ -95,7 +95,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${organizer.id}::uuid,
-        title = ${"Taller de cerámica en Clorindo Café"},
+        title = ${"Taller de Cerámica en Clorindo Café"},
         summary = ${"Tarde de cerámica artesanal con Tierra Taller en el patio de Clorindo, Recoleta."},
         location = ${"Clorindo Café, Talcahuano 1261, Recoleta, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,

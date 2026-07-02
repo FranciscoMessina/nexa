@@ -36,7 +36,7 @@ export const seedEvents: Array<SeedEvent> = [
   {
     id: "3f1f7b2d-7f1e-4d1c-a6e7-3b2a8b1b7d1a",
     createdBySeedKey: "profile-brutal-bar",
-    title: "Promo de vinos en Brutal",
+    title: "Promo de Vinos en Brutal",
     summary:
       "Promoción de etiquetas seleccionadas con tabla de quesos y fiambres del bar, y jazz en vivo a cargo de una banda local.",
     location: "Brutal, Callao 1863, Recoleta",
@@ -145,7 +145,7 @@ export const seedEvents: Array<SeedEvent> = [
   {
     id: "f0a1b2c3-d4e5-4f67-8a9b-0c1d2e3f4a5b",
     createdBySeedKey: "profile-maria-lopez",
-    title: "Club de lectura en Café Rita",
+    title: "Club de Lectura en Café Rita",
     summary:
       "Encuentro comunitario para comentar una lectura compartida. Lo organiza una persona del barrio; el café solo presta el espacio.",
     location: "Café Rita, Federico Lacroze 2380, Chacarita",
@@ -171,7 +171,7 @@ export const seedEvents: Array<SeedEvent> = [
   {
     id: "6d7e8f90-1a2b-4c3d-9e0f-123456789abc",
     createdBySeedKey: "profile-estudio-pulso",
-    title: "Taller de acuarela en Café Walden",
+    title: "Taller de Acuarela en Café Walden",
     summary:
       "Taller comunitario de acuarela dictado por un emprendimiento creativo en un café de Villa Crespo.",
     location: "Café Walden, Niceto Vega 5186, Villa Crespo",
@@ -221,7 +221,7 @@ export const seedEvents: Array<SeedEvent> = [
   {
     id: "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b",
     createdBySeedKey: "profile-bar-basilico",
-    title: "Banda de Rock en vivo en Bar Basílico",
+    title: "Banda de Rock en Vivo en Bar Basílico",
     summary:
       "Noche de rock nacional en Corrientes con Roots & Calle, banda de rock nacional invitada. El bar organiza la velada; la banda presenta su repertorio en vivo.",
     location: "Bar Basílico, Av. Corrientes 1662, Microcentro",
@@ -248,7 +248,7 @@ export const seedEvents: Array<SeedEvent> = [
   {
     id: "a4b5c6d7-e8f9-4a0b-1c2d-3e4f5a6b7c8d",
     createdBySeedKey: "profile-cafe-tabac",
-    title: "Pop-up de marcas de ropa en Bar Tabac",
+    title: "Pop-up de Marcas de Ropa en Bar Tabac",
     summary:
       "Feria barrial de indumentaria en el patio del bar: tres marcas de ropa locales y venta directa en stands.",
     location: "Bar Tabac, Guatemala 5860, Palermo",

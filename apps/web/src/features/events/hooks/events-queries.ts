@@ -154,6 +154,9 @@ export function useSubmitParticipationRequestMutation(eventId: string) {
     mutationFn: () => submitParticipationRequestFn({ data: { eventId } }),
     onSuccess: (state) => {
       queryClient.setQueryData(eventsQueryKeys.participation(eventId), state)
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.detail(eventId) })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.all })
+      void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.myEvents })
       void queryClient.invalidateQueries({ queryKey: eventsQueryKeys.pendingParticipation(eventId) })
     },
   })

@@ -1,9 +1,9 @@
 import "@tanstack/react-start/server-only"
-import { eq } from "drizzle-orm"
+import { asc, eq } from "drizzle-orm"
 import { userSocialLinks, users } from "@workspace/database"
 import { getDb } from "@/shared/lib/db/get-db"
 import { ForbiddenError } from "@/shared/lib/auth/errors.server"
-import { requireAppUser } from "@/shared/lib/auth/session.server"
+import { requireAppUser, requireRole } from "@/shared/lib/auth/session.server"
 import type { Profile, ProfileSocialLink } from "../types/profile.types"
 import { mapUserToProfile } from "../utils/profile.mapper"
 
@@ -36,6 +36,20 @@ export async function getCurrentProfile(): Promise<Profile | null> {
 export async function getProfilesByIds(profileIds: Array<string>): Promise<Array<Profile>> {
   const profiles = await Promise.all(profileIds.map((id) => getProfileById(id)))
   return profiles.filter((profile): profile is Profile => profile !== null)
+}
+
+export async function listEntrepreneurProfiles(): Promise<Array<Profile>> {
+  const authUser = await requireAppUser()
+  requireRole(authUser, ["organizador"])
+
+  const database = getDb()
+  const rows = await database
+    .select()
+    .from(users)
+    .where(eq(users.role, "emprendedor"))
+    .orderBy(asc(users.displayName))
+
+  return rows.map((user) => mapUserToProfile(user))
 }
 
 export type UpdateProfileInput = {

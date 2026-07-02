@@ -26,7 +26,7 @@ type EditEventPageProps = {
 
 export function EditEventPage({ eventId }: EditEventPageProps) {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, currentUserRole } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
     allowedRoles: ["asistente", "organizador", "emprendedor"],
   })
@@ -136,6 +136,9 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
       registrationUrl: draft.registrationUrl.trim() || undefined,
       requirements: draft.requirements,
       coordinates,
+      participatingVentures: draft.participatingVentureIds.map((profileId) => ({
+        profileId,
+      })),
     })
 
     if (updated) {
@@ -187,6 +190,7 @@ export function EditEventPage({ eventId }: EditEventPageProps) {
         </div>
 
         <EventPublishForm
+          allowEntrepreneurSelection={currentUserRole === "organizador"}
           createdEventId={savedEventId}
           draft={draft}
           errors={draftErrors}

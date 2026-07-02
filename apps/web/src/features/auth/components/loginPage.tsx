@@ -8,15 +8,13 @@ import {
   MIN_PASSWORD_LENGTH,
   getPostLoginPathForRole,
 } from "@/features/auth/constants/auth.constants"
-import { useRedirectAuthenticatedUser } from "@/features/auth/hooks/useAuthRedirect"
-import { NEXA_LOGO_SRC, NexaLogo } from "@/shared/components/nexa-logo"
+import { NexaLogo, NEXA_LOGO_SRC } from "@/shared/components/nexa-logo"
 import { useAuth } from "@/shared/hooks/useAuth"
 import { cn } from "@workspace/ui/lib/utils"
 
 export function LoginPage() {
   const navigate = useNavigate()
   const { login, isSubmitting } = useAuth()
-  useRedirectAuthenticatedUser()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")

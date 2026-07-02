@@ -95,7 +95,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${organizer.id}::uuid,
-        title = ${"Show de tango en vivo en El Federal Bar"},
+        title = ${"Show de Tango en Vivo en El Federal Bar"},
         summary = ${"Noche de tango en San Telmo con Tango de Esquina y cobertura de Estudio Prisma. Promo de comida de la casa."},
         location = ${"El Federal Bar, Carlos Calvo 599 esq. Perú, San Telmo, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,

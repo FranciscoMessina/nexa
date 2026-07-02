@@ -13,6 +13,7 @@ export const profilesQueryKeys = {
   detail: (profileId: string) => ["profiles", profileId] as const,
   current: ["profiles", "current"] as const,
   list: (profileIds: Array<string>) => ["profiles", "list", ...profileIds] as const,
+  entrepreneurs: ["profiles", "entrepreneurs"] as const,
 }
 
 type ProfileQuerySnapshot = Pick<
@@ -91,6 +92,19 @@ export function useProfilesByIdsQuery(profileIds: Array<string>) {
   const query = useQuery({
     queryKey: ["profiles", "list", sortedIds.join(",")],
     queryFn: () => profilesService.fetchProfilesByIds(profileIds),
+    enabled,
+  })
+
+  return {
+    ...query,
+    isResolving: isProfileQueryResolving(query, enabled),
+  }
+}
+
+export function useEntrepreneurProfilesQuery(enabled = true) {
+  const query = useQuery({
+    queryKey: profilesQueryKeys.entrepreneurs,
+    queryFn: () => profilesService.fetchEntrepreneurProfiles(),
     enabled,
   })
 

@@ -2,6 +2,7 @@ import {
   getCurrentProfileFn,
   getProfileByIdFn,
   getProfilesByIdsFn,
+  listEntrepreneurProfilesFn,
   updateProfileFn,
 } from "../profiles.functions"
 import type { UpdateProfileInput } from "../api/profiles.server"
@@ -22,6 +23,11 @@ export async function fetchProfilesByIds(profileIds: Array<string>): Promise<Arr
   return profiles
 }
 
+export async function fetchEntrepreneurProfiles(): Promise<Array<Profile>> {
+  const { profiles } = await listEntrepreneurProfilesFn()
+  return profiles
+}
+
 export async function updateProfile(input: UpdateProfileInput): Promise<Profile> {
   const { profile } = await updateProfileFn({ data: input })
   return profile
@@ -31,6 +37,7 @@ export const profilesService = {
   fetchProfileById,
   fetchCurrentProfile,
   fetchProfilesByIds,
+  fetchEntrepreneurProfiles,
   updateProfile,
 }
 

@@ -99,7 +99,7 @@ const GALLERY_DEFAULTS: Record<DbCategory, Array<string>> = {
 const EVENTS: Array<EventSeed> = [
   {
     id: "a1000012-0000-4000-8000-000000000012",
-    title: "Noche de juegos de mesa en Café Registrado",
+    title: "Noche de Juegos de Mesa en Café Registrado",
     summary:
       "Encuentro abierto para jugar juegos de mesa modernos acompañado de café de especialidad.",
     description:
@@ -121,7 +121,7 @@ const EVENTS: Array<EventSeed> = [
   },
   {
     id: "a1000014-0000-4000-8000-000000000014",
-    title: "Workshop de acuarela",
+    title: "Workshop de Acuarela",
     summary: "Taller práctico de acuarela para principiantes.",
     description:
       "Punto Café y Bruma Arte organizan un workshop de acuarela pensado para principiantes. La jornada incluye materiales, demostración de técnicas básicas y espacio para experimentar con color y composición en un ambiente relajado del café.",
@@ -163,7 +163,7 @@ const EVENTS: Array<EventSeed> = [
   },
   {
     id: "a1000019-0000-4000-8000-000000000019",
-    title: "Taller de velas artesanales",
+    title: "Taller de Velas Artesanales",
     summary: "Workshop de velas artesanales con técnicas básicas y materiales incluidos.",
     description:
       "LAB Tostadores de Café y Tierra Taller proponen un taller de velas artesanales en Palermo. La experiencia incluye materiales, demostración de técnicas básicas y la posibilidad de llevarse una pieza hecha en el encuentro.",
@@ -268,7 +268,7 @@ const EVENTS: Array<EventSeed> = [
   },
   {
     id: "a1000026-0000-4000-8000-000000000026",
-    title: "Clase abierta de fotografía",
+    title: "Clase Abierta de Fotografía",
     summary: "Introducción a fotografía en exteriores con práctica guiada.",
     description:
       "Jardín Botánico convoca una clase abierta de fotografía en exteriores con Estudio Prisma. La propuesta incluye nociones básicas de composición, luz natural y práctica guiada entre los senderos del jardín.",
@@ -289,7 +289,7 @@ const EVENTS: Array<EventSeed> = [
   },
   {
     id: "a1000027-0000-4000-8000-000000000027",
-    title: "Feria gastronómica",
+    title: "Feria Gastronómica",
     summary: "Feria con propuestas gastronómicas y emprendimientos locales.",
     description:
       "Plaza Italia convoca una feria gastronómica con emprendimientos de comida artesanal. Fiambres del Pasaje, Dulce Colegiales, Wok Chico y Club del Vermú participan con propuestas para degustar y descubrir sabores en un encuentro al aire libre de la zona.",
@@ -310,7 +310,7 @@ const EVENTS: Array<EventSeed> = [
   },
   {
     id: "a1000028-0000-4000-8000-000000000028",
-    title: "Taller de collage",
+    title: "Taller de Collage",
     summary: "Taller creativo de collage para principiantes.",
     description:
       "Lado V Café y Bruma Arte organizan un taller de collage en Palermo. La jornada incluye materiales, ejercicios guiados y espacio para crear piezas personales en un ambiente relajado del café.",
@@ -331,7 +331,7 @@ const EVENTS: Array<EventSeed> = [
   },
   {
     id: "a1000029-0000-4000-8000-000000000029",
-    title: "Intercambio cultural",
+    title: "Intercambio Cultural",
     summary: "Encuentro para compartir tradiciones, idiomas y experiencias.",
     description:
       "Organizo un intercambio cultural en el Jardín Botánico para conocer gente de distintos lugares y compartir experiencias en un formato abierto y distendido. Evento comunitario.",

@@ -2,7 +2,7 @@ import postgres from "postgres"
 
 const EVENT_ID = "16eb2fcc-bc94-4afa-8730-74c76fe784bd"
 const ORGANIZER_EMAIL = "eventos@federalbar.com.ar"
-const ENTREPRENEUR_EMAILS = ["lozajazz@gmail.com"] as const
+const ENTREPRENEUR_EMAILS = ["lozajazz@gmail.com", "estudioprisma@gmail.com"] as const
 
 const GALLERY_IMAGES = [
   {
@@ -53,11 +53,11 @@ async function main(): Promise<void> {
     SET
       created_by_user_id = ${organizer.id}::uuid,
       title = ${"Vermut & Jazz en El Federal Bar"},
-      summary = ${"Jazz en vivo con Loza Jazz, vermutería y picadas porteñas en un bar histórico de San Telmo."},
+      summary = ${"Jazz en vivo con Loza Jazz, cobertura de Estudio Prisma y vermutería en un bar histórico de San Telmo."},
       location = ${"El Federal Bar, Carlos Calvo 599 esq. Perú, San Telmo, CABA"},
       starts_at = ${startsAt.toISOString()}::timestamptz,
       category = ARRAY['musica']::category[],
-      description = ${"El Federal Bar invita a una noche especial de jazz en vivo con Loza Jazz en pleno corazón de San Telmo. La propuesta combina música en formato íntimo, vermutería clásica, picadas porteñas y platos tradicionales de la casa.\nLa velada está pensada para vecinos, turistas y amantes de los planes culturales que buscan disfrutar de una experiencia diferente en uno de los bares más emblemáticos de Buenos Aires.\nDurante la noche habrá una selección musical de jazz a cargo de Loza Jazz, promociones de vermut y opciones gastronómicas para compartir."},
+      description = ${"El Federal Bar invita a una noche especial de jazz en vivo con Loza Jazz en pleno corazón de San Telmo. Estudio Prisma realiza la cobertura fotográfica del evento. La propuesta combina música en formato íntimo, vermutería clásica, picadas porteñas y platos tradicionales de la casa.\nLa velada está pensada para vecinos, turistas y amantes de los planes culturales que buscan disfrutar de una experiencia diferente en uno de los bares más emblemáticos de Buenos Aires.\nDurante la noche habrá una selección musical de jazz a cargo de Loza Jazz, promociones de vermut y opciones gastronómicas para compartir."},
       requirements = ${"Mayores de 18 años. Se recomienda reservar mesa con anticipación. Consumición mínima durante el evento."},
       latitude = ${-34.6196019},
       longitude = ${-58.3742346},

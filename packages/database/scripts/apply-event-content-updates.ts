@@ -12,9 +12,9 @@ const FOOD_GALLERY = [
 ]
 
 const COFI_JAUS_GALLERY = [
-  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
 ]
 
 const EVENTS_TO_DELETE = [
@@ -345,7 +345,7 @@ async function main(): Promise<void> {
   const a1000043 = "a1000043-0000-4000-8000-000000000043"
   await sql`
     UPDATE events SET
-      title = ${"Feria de ropa y arte"},
+      title = ${"Feria de Ropa y Arte en Punto Café"},
       summary = ${"Feria de indumentaria y arte independiente en Belgrano, con stands para recorrer y comprar."},
       description = ${"Punto Café abre sus puertas en Belgrano para una feria de ropa y arte con emprendedores locales. Stands para ver colecciones, probar talles y llevarse piezas únicas de diseño independiente, en un formato distendido con café de la casa."},
       location = ${"Punto Café, Av. Cabildo 1999, Belgrano, CABA"},
@@ -360,15 +360,15 @@ async function main(): Promise<void> {
     "surendos@gmail.com",
     "estudiolienzo@gmail.com",
   ])
-  console.log("  ✓ Feria de ropa y arte")
+  console.log("  ✓ Feria de Ropa y Arte en Punto Café")
 
   const a1000041 = "a1000041-0000-4000-8000-000000000041"
   await sql`
     UPDATE events SET
-      title = ${"Noche de vermú y stands en Conde"},
+      title = ${"Noche de Vermú y Stands en Conde"},
       summary = ${"Vermut, gastronomía y stands de ropa y arte en Palermo."},
       description = ${"Noche de vermú en Conde con degustaciones y consumiciones especiales. Sumá una vuelta por los stands de emprendimientos de ropa y arte que acompañan la jornada: piezas para ver y comprar en un ambiente nocturno distendido."},
-      category = ARRAY['gastronomia']::category[],
+      category = ARRAY['feria_de_emprendedores']::category[],
       updated_at = NOW()
     WHERE id = ${a1000041}::uuid
   `
@@ -390,7 +390,7 @@ async function main(): Promise<void> {
   const a1000036 = "a1000036-0000-4000-8000-000000000036"
   await sql`
     UPDATE events SET
-      title = ${"Feria de comida en Pasaje Colegiales"},
+      title = ${"Feria de Comida en Pasaje Colegiales"},
       summary = ${"Feria gastronómica con fiambres, pastelería, comida china y más en Colegiales."},
       description = ${"Pasaje Colegiales se llena de sabores: emprendimientos de comida artesanal con propuestas para degustar y llevar. Fiambres, pastelería, empanadas y comida china en un encuentro de barrio para recorrer stand por stand."},
       category = ARRAY['gastronomia']::category[],
@@ -413,7 +413,7 @@ async function main(): Promise<void> {
   const a1000044 = "a1000044-0000-4000-8000-000000000044"
   await sql`
     UPDATE events SET
-      title = ${"Noche de juegos de cartas en Kansas"},
+      title = ${"Noche de Juegos de Cartas en Kansas"},
       summary = ${"Torneo relajado de juegos de cartas modernos con cena."},
       description = ${"Kansas Bar propone una noche de juegos de cartas modernos en mesas abiertas. Formato distendido para jugar, conocer gente y cenar con la propuesta gastronómica del bar."},
       updated_at = NOW()
@@ -424,7 +424,7 @@ async function main(): Promise<void> {
   const a1000045 = "a1000045-0000-4000-8000-000000000045"
   await sql`
     UPDATE events SET
-      title = ${"Taller de pintura"},
+      title = ${"Taller de Pintura"},
       summary = ${"Artistas pintan en vivo con música ambiental."},
       updated_at = NOW()
     WHERE id = ${a1000045}::uuid
@@ -458,7 +458,7 @@ async function main(): Promise<void> {
   const a1000048 = "a1000048-0000-4000-8000-000000000048"
   await sql`
     UPDATE events SET
-      title = ${"Clase de baile en Colegiales"},
+      title = ${"Clase de Baile en Colegiales"},
       summary = ${"Clase participativa de baile en un encuentro de barrio en Colegiales."},
       description = ${"Clase de baile abierta en Colegiales: ejercicios guiados, música en vivo y espacio para practicar en un formato accesible para distintos niveles. Encuentro de barrio para moverse y conocer gente."},
       location = ${"Pasaje Colegiales, Av. Federico Lacroze y Av. Dorrego, Colegiales, CABA"},

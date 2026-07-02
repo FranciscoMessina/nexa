@@ -75,7 +75,7 @@ async function main(): Promise<void> {
       VALUES (
         ${EVENT_ID}::uuid,
         ${organizer.id}::uuid,
-        ${"DJ set en vivo en Blest Recoleta"},
+        ${"DJ Set en Vivo en Blest Recoleta"},
         ${"Noche de música con Sol Navarro y Lautaro Vega. Promos de cervezas artesanales y picadas de la casa."},
         ${"Blest Recoleta, Pres. Roberto M. Ortiz 1827, Recoleta, CABA"},
         ${startsAt.toISOString()}::timestamptz,
@@ -95,7 +95,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${organizer.id}::uuid,
-        title = ${"DJ set en vivo en Blest Recoleta"},
+        title = ${"DJ Set en Vivo en Blest Recoleta"},
         summary = ${"Noche de música con Sol Navarro y Lautaro Vega. Promos de cervezas artesanales y picadas de la casa."},
         location = ${"Blest Recoleta, Pres. Roberto M. Ortiz 1827, Recoleta, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,
@@ -138,7 +138,7 @@ async function main(): Promise<void> {
 
   await sql.end({ timeout: 5 })
 
-  console.log(`✓ Evento actualizado: DJ set en vivo en Blest Recoleta`)
+  console.log(`✓ Evento actualizado: DJ Set en Vivo en Blest Recoleta`)
   console.log(`  Emprendimientos: ${ENTREPRENEUR_EMAILS.join(", ")}`)
   console.log(`  Galería: ${GALLERY_IMAGES.length} imágenes`)
 }

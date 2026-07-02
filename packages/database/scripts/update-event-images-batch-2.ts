@@ -12,10 +12,11 @@ const CLOTHING_ART_GALLERY = [
   "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
 ]
 
-const FORMAL_VERMU_GALLERY = [
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1510812431401-41d2bd272135?auto=format&fit=crop&w=1200&q=80",
+const CONDE_VERMU_GALLERY = [
+  "https://images.unsplash.com/photo-1589824769965-d2bdab6dfe57?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1602806273007-e5a04e9c5aa6?auto=format&fit=crop&w=1200&q=80",
 ]
 
 async function replaceGallery(
@@ -43,7 +44,7 @@ async function main(): Promise<void> {
   const tallerId = "a1000038-0000-4000-8000-000000000038"
   await sql`
     UPDATE events SET
-      title = ${"Taller de pintura en Estudio Dorrego"},
+      title = ${"Taller de Pintura en Estudio Dorrego"},
       summary = ${"Taller práctico de pintura con demostración en vivo en Estudio Dorrego."},
       description = ${"Estudio Dorrego convoca un taller de pintura con demostración en vivo y espacio para practicar técnicas básicas. La propuesta combina observación, ejercicios guiados y materiales de apoyo en un entorno de estudio en Colegiales."},
       requirements = ${"Traer materiales propios."},
@@ -55,10 +56,16 @@ async function main(): Promise<void> {
 
   const feriaId = "a1000043-0000-4000-8000-000000000043"
   await replaceGallery(sql, feriaId, CLOTHING_ART_GALLERY)
-  console.log("✓ Feria de ropa y arte — galería")
+  console.log("✓ Feria de Ropa y Arte en Punto Café — galería")
 
   const vermuId = "a1000041-0000-4000-8000-000000000041"
-  await replaceGallery(sql, vermuId, FORMAL_VERMU_GALLERY)
+  await sql`
+    UPDATE events SET
+      category = ARRAY['feria_de_emprendedores']::category[],
+      updated_at = NOW()
+    WHERE id = ${vermuId}::uuid
+  `
+  await replaceGallery(sql, vermuId, CONDE_VERMU_GALLERY)
   console.log("✓ Noche de vermú y stands en Conde — galería")
 
   await sql.end({ timeout: 5 })

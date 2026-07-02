@@ -7,9 +7,9 @@ const VINILOS_VERMU_ID = "a1000017-0000-4000-8000-000000000017"
 const MILONGA_ID = "a1000057-0000-4000-8000-000000000057"
 
 const CLOTHING_GALLERY = [
-  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
 ]
 
 async function replaceGallery(
@@ -54,7 +54,7 @@ async function main(): Promise<void> {
 
   await sql`
     UPDATE events SET
-      title = ${"Exhibición de tango en Av. de Mayo"},
+      title = ${"Exhibición de Tango en Av. de Mayo"},
       summary = ${"Exhibición de tango en vivo frente al histórico Café Tortoni."},
       description = ${"Café Tortoni presenta una exhibición de tango en Av. de Mayo con pareja en vivo, música tradicional y un formato accesible para quienes quieren acercarse al baile porteño en uno de los emblemas de Monserrat."},
       updated_at = NOW()

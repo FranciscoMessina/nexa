@@ -76,7 +76,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${creator.id}::uuid,
-        title = ${"Encuentro de lectura de poesías en Clorindo"},
+        title = ${"Encuentro de Lectura de Poesías en Clorindo"},
         summary = ${"Encuentro de la comunidad lectora de poesía en Clorindo Café, Recoleta. Abierto a quienes quieran sumarse."},
         location = ${"Clorindo Café, Talcahuano 1261, Recoleta, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,

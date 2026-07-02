@@ -76,7 +76,7 @@ async function main(): Promise<void> {
       UPDATE events
       SET
         created_by_user_id = ${creator.id}::uuid,
-        title = ${"Clase de yoga abierta en Plaza Francia"},
+        title = ${"Clase de Yoga Abierta en Plaza Francia"},
         summary = ${"Clase gratuita de yoga al aire libre para todos los niveles, en Plaza Francia, Recoleta."},
         location = ${"Plaza Francia, Av. del Libertador y Av. Pueyrredón, Recoleta, CABA"},
         starts_at = ${startsAt.toISOString()}::timestamptz,

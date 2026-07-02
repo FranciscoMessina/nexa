@@ -19,9 +19,9 @@ import { FormPageSkeleton } from "@/shared/components/skeletons/form-page-skelet
 import { useAuth } from "@/shared/hooks/useAuth"
 
 export function CreateEventPage() {
-  const { user, isAuthenticated } = useAuth()
+  const { user, currentUserRole, isAuthenticated } = useAuth()
   const { isChecking, isAllowed } = useRequireAuthentication({
-    allowedRoles: ["asistente", "organizador", "emprendedor"],
+    allowedRoles: ["asistente", "organizador"],
   })
   const {
     profile: organizerProfile,
@@ -146,6 +146,9 @@ export function CreateEventPage() {
       registrationUrl: draft.registrationUrl.trim() || undefined,
       requirements: draft.requirements,
       coordinates,
+      participatingVentures: draft.participatingVentureIds.map((profileId) => ({
+        profileId,
+      })),
     })
 
     setCreatedEventId(createdEvent.id)
@@ -217,6 +220,7 @@ export function CreateEventPage() {
         </div>
 
         <EventPublishForm
+          allowEntrepreneurSelection={currentUserRole === "organizador"}
           createdEventId={createdEventId}
           draft={draft}
           errors={draftErrors}
